@@ -1,0 +1,14 @@
+client_web/node_modules/
+client_web/.next/
+client_web/out/
+client_web/build/
+client_web/dist/
+*.db
+
+client_app/.env
+client_web/.env*
+
+priv/
+
+.*
+!/.gitignore
