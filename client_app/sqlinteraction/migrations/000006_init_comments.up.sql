@@ -1,0 +1,18 @@
+CREATE TABLE IF NOT EXISTS comments (
+    id TEXT PRIMARY KEY,
+    text TEXT NOT NULL,
+    authorID TEXT NOT NULL,
+    postID TEXT NOT NULL,
+    createDate TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    image TEXT,
+    FOREIGN KEY (authorID) REFERENCES users(id) ON DELETE CASCADE,
+    FOREIGN KEY (postID) REFERENCES post(id) ON DELETE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS comment_vote (
+    user_id TEXT NOT NULL,
+    comment_id TEXT NOT NULL,
+    vote INTEGER NOT NULL,
+    FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE CASCADE,
+    UNIQUE(user_id, comment_id)
+);

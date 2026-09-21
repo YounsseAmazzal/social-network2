@@ -1,0 +1,6 @@
+{
+  "db_path": "Db/SocialnetDb.db",
+  "port": "8080",
+  "Host":"",
+  "WebOrigin": "http://localhost:3000"
+}
