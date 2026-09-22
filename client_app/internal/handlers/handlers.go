@@ -1,13 +1,15 @@
 package handlers
 
 import "social/internal/services"
-type handlers struct{
-	services *services.Service
-	wsmaanager *wshandler
+
+type Handlers struct {
+	services   *services.Service
+	wsmaanager *Wshandler
 }
-func  NeewHandler(seerivcces *services.Service,wsmaanager *wshandler) *handlers {
-	return &handlers{
-		services: seerivcces,
+
+func NeewHandler(seerivcces *services.Service, wsmaanager *Wshandler) *Handlers {
+	return &Handlers{
+		services:   seerivcces,
 		wsmaanager: wsmaanager,
 	}
 }

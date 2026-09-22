@@ -1,11 +1,11 @@
 package handlers
 
 import "social/internal/services"
-type wshandler struct{
+type Wshandler struct{
 	seervice *services.Service
 }
-func Neeewsmanger(sevice *services.Service)*wshandler{
-	return &wshandler{
+func Neeewsmanger(sevice *services.Service)*Wshandler{
+	return &Wshandler{
 		seervice: sevice,
 	}
 }

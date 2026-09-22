@@ -2,7 +2,7 @@ package middleware
 
 import "net/http"
 
-func corsmiddwaare(frontorigin string) func(http.Handler) http.Handler{	
+func (m *Miiiddeware)Corsmiddwaare(frontorigin string) func(http.Handler) http.Handler{	
 	return func(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(resspo http.ResponseWriter, req *http.Request) {
 		resspo.Header().Set("Access-Control-Allow-Origin", frontorigin)
