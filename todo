@@ -1,0 +1,95 @@
+
+
+
+##  Phase 1: Environment & Architecture
+- [ ] **Dockerization**
+    - [ ] Create `Dockerfile` for Backend (Go).
+    - [ ] Create `Dockerfile` for Frontend (Next.js/Vue/Svelte).
+    - [ ] Setup `docker-compose.yml` to link both containers.
+- [X] **Database Setup**
+    - [X] Initialize SQLite database.
+    - [X] Setup `golang-migrate`.
+    - [X] Create first migration: `000001_create_users_table`.
+- [X] **Backend Skeleton**
+    - [X] Setup Clean Architecture folders (`cmd`, `internal/repo`, `internal/service`, `internal/handler`).
+    - [X] Implement `Config` loader and `Logger`.
+    - [X] Implement `CORS` and `Rate Limiter` middleware.
+
+##  Phase 2: Authentication & User Management
+- [ ] **Database Schema**
+    - [ ] `users` table (Email, PW, Name, DOB, Avatar, Nickname, AboutMe, PrivacyStatus).
+    - [ ] `sessions` table (UUID, UserID, ExpiresAt).
+- [ ] **Backend Logic**
+    - [ ] Registration (Bcrypt password hashing).
+    - [ ] Login (Session creation + Cookie setting).
+    - [ ] Logout (Cookie clearing + Session deletion).
+    - [ ] Middleware: `RequireAuth` (Validate session from cookie).
+- [ ] **Frontend Logic**
+    - [ ] Register/Login forms with validation.
+    - [ ] Persistent login state (Check session on load).
+
+## Phase 3: Profile & Followers
+- [ ] **Database Schema**
+    - [ ] `followers` table (FollowerID, FollowingID, Status: 'pending'/'accepted').
+- [ ] **Features**
+    - [ ] Toggle Profile Privacy (Public vs Private).
+    - [ ] Follow/Unfollow logic:
+        - [ ] If Public: Auto-accept.
+        - [ ] If Private: Send request (Notification).
+    - [ ] Profile Page: Show User Info + Activity + Followers/Following lists.
+
+##  Phase 4: Posts & Comments
+- [ ] **Database Schema**
+    - [ ] `posts` table (AuthorID, Content, ImagePath, Privacy: 'public'/'almost_private'/'private').
+    - [ ] `post_allowed_users` (For 'private' posts to specific followers).
+    - [ ] `comments` table.
+- [ ] **Features**
+    - [ ] Create Post (Support JPEG, PNG, GIF).
+    - [ ] Create Comment.
+    - [ ] Post Visibility Filter:
+        - [ ] Public: Everyone.
+        - [ ] Almost Private: Followers only.
+        - [ ] Private: Only specific chosen followers.
+
+##  Phase 5: Groups & Events
+- [ ] **Database Schema**
+    - [ ] `groups` table (CreatorID, Title, Description).
+    - [ ] `group_members` table.
+    - [ ] `group_events` table (Title, Description, DateTime).
+    - [ ] `event_votes` table (Going / Not Going).
+- [ ] **Features**
+    - [ ] Create Group / Browse Groups.
+    - [ ] Join Request (Only creator accepts).
+    - [ ] Group Invitations (Members can invite others).
+    - [ ] Group Posts & Comments (Visible to members only).
+    - [ ] Event Creation & "Going/Not Going" voting.
+
+## Real-time Chat (WebSockets)
+- [ ] **Backend WebSocket Hub**
+    - [ ] Handle connections/disconnections.
+    - [ ] Map `UserID` to `websocket.Conn`.
+- [ ] **Private Chat**
+    - [ ] Logic: Only if one follows the other.
+    - [ ] Emoji support.
+- [ ] **Group Chat**
+    - [ ] Common room for all group members.
+- [ ] **Real-time Status**
+    - [ ] (Optional but good) Show who is online/offline.
+
+##  Phase 7: Notification System
+- [ ] **Features**
+    - [ ] Notify on Follow Request.
+    - [ ] Notify on Group Invitation.
+    - [ ] Notify on Group Join Request (for creator).
+    - [ ] Notify on New Group Event.
+- [ ] **UI**
+    - [ ] Notification bell visible on every page.
+    - [ ] Separate UI from private messages.
+
+##  Phase 8: Image Handling
+- [ ] **Backend Logic**
+    - [ ] Image upload handler (Validation: JPEG, PNG, GIF).
+    - [ ] File system storage (save path in DB).
+    - [ ] Static file server (to serve uploaded images).
+
+---
