@@ -20,12 +20,14 @@ func IsRequestValid(w http.ResponseWriter, r *http.Request, targetPath, allowedM
 	}
 	if r.URL.Path != targetPath {
 		// HandleError(w, http.StatusNotFound, "Page not found")
+		utils.ErrorResponse(w,"Page not found",http.StatusNotFound)
 		log.Printf("404 Path mismatch")
 		return false
 	}
 	if r.Method != allowedMethod {
 		w.WriteHeader(http.StatusMethodNotAllowed)
 		log.Printf("405 Method Not Allowed")
+	       utils.ErrorResponse(w,"Method Not Allowed",http.StatusMethodNotAllowed)
 		return false
 	}
 	return true
@@ -34,20 +36,20 @@ func ValidSignUpPayload(req *http.Request)(models.UserInfo,error){
 	var user models.UserInfo
 	contentType := req.Header.Get("Content-Type")
 	if strings.HasPrefix(contentType, "multipart/form-data") {
-		if err := req.ParseMultipartForm(20 * 1024 * 1024); err != nil {
+		if err := req.ParseMultipartForm(2>>10); err != nil {
 			// utils.HandleError(res, http.StatusBadRequest, "Failed to process uploaded data")
 			log.Printf("Error parsing multipart form: %v", err)
 			return user,fmt.Errorf("Error parsing multipart form: %v", err)
 		}
-		user.Nickname = req.FormValue("nickname")
-		user.Firstname = req.FormValue("firs_tname")
-		user.Lastname = req.FormValue("lastname")
-		user.DateOfBirth = req.FormValue("date")
+		user.Nickname = req.FormValue("nick_name")
+		user.Firstname = req.FormValue("first_name")
+		user.Lastname = req.FormValue("last_name")
+		user.DateOfBirth = req.FormValue("date_of_birth")
 
 		user.Gender = req.FormValue("gender")
 		user.Email = req.FormValue("email")
 		user.Password = req.FormValue("password")
-		user.ConfirmPassword = req.FormValue("confirmpassword")
+		user.ConfirmPassword = req.FormValue("confirm_password")
 
 		if abouuteme:=strings.TrimSpace(req.FormValue("about_me"));abouuteme!=""{
 			user.AboutMe=abouuteme

@@ -1,8 +1,10 @@
 package repositories
 
 import (
+	"database/sql"
 	"fmt"
 	"html"
+	"log"
 	"social/internal/models"
 	"social/internal/utils"
 	"strings"
@@ -20,11 +22,11 @@ func (ur *Repository) CreateUser(payload *models.UserInfo) (*models.User, error)
 		Firstname: strings.TrimSpace(payload.Firstname),
 		Lastname:  strings.TrimSpace(payload.Lastname),
 		Email:     strings.ToLower(strings.TrimSpace(payload.Email)),
-		Password:  payload.Password, 
+		Password:  payload.Password,
 		Age:       payload.Age,
 		Gender:    payload.Gender,
 		AboutMe:   html.EscapeString(payload.AboutMe),
-		IsPrivate: payload.IsPrivate == 1, 
+		IsPrivate: payload.IsPrivate == 1,
 	}
 	nickname := strings.TrimSpace(payload.Nickname)
 	if nickname == "" {
@@ -59,11 +61,48 @@ func (ur *Repository) CreateUser(payload *models.UserInfo) (*models.User, error)
 		user.Password,
 		user.AvatarURL,
 		user.AboutMe,
-		payload.IsPrivate, 
+		payload.IsPrivate,
 		//autmaaateee privete (boool )
 	)
 	if err != nil {
 		return nil, fmt.Errorf("repository: failed to insert user: %w", err)
 	}
 	return user, nil
+}
+func (ur *Repository) CheckuserIfExxist(usernameoremail string) (*models.User, bool) {
+	var UserInfo models.User
+	fmt.Println("the indefair",usernameoremail)
+	usernameoremail = strings.ToLower(usernameoremail)
+	query := `
+		SELECT 
+			id, nickname, firstname, lastname, age, gender, 
+			email, avatarURL, COALESCE(about_me, ''), COALESCE(is_private, 0), password 
+		FROM users 
+		WHERE nickname = ? OR email = ? 
+		LIMIT 1`
+
+	err := ur.DB.Database.QueryRow(query, usernameoremail, usernameoremail).Scan(
+		&UserInfo.ID,
+		&UserInfo.Nickname,
+		&UserInfo.Firstname,
+		&UserInfo.Lastname,
+		&UserInfo.Age,
+		&UserInfo.Gender,
+		&UserInfo.Email,
+		&UserInfo.AvatarURL,
+		&UserInfo.AboutMe,
+		&UserInfo.IsPrivate,
+		&UserInfo.Password,
+	)
+	fmt.Println("that is the id of user",UserInfo.ID)
+
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return nil, false 
+		}
+		log.Printf("Repository Error Fach bghit njib user:%v", err)
+		return nil, false
+	}
+
+	return &UserInfo, true
 }

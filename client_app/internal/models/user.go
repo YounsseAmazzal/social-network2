@@ -32,6 +32,6 @@ type User struct {
 	IsPrivate  bool   `json:"isPrivate"`
 }
 type UserLoign struct {
-	Identifiant string
+	IdentifierEN string
 	Password    string
 }

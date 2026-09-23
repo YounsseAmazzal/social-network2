@@ -13,12 +13,16 @@ func (Service *Service) SignUpUser(userpayload models.UserInfo) (*models.User, e
 	if err != nil {
 		return nil, errors.New("failed to secure user info")
 	}
-	userhowregisterd,err:=Service.Reepo.CreateUser(&userpayload)
-	if err!=nil{
-		if strings.Contains(err.Error(),"UNIQUE constraint failed"){
-			return nil,errors.New("useername of email is already exissts ")
+	userhowregisterd, err := Service.Reepo.CreateUser(&userpayload)
+	if err != nil {
+		if strings.Contains(err.Error(), "UNIQUE constraint failed") {
+			return nil, errors.New("useername of email is already exissts ")
 		}
 	}
-	fmt.Println("that is the password hasshed" ,hasheedpassword)
+	fmt.Println("that is the password hasshed", hasheedpassword)
 	return userhowregisterd, nil
+}
+func (Service *Service) Looign(emailorname string) (*models.User, bool) {
+	user, found := Service.Reepo.CheckuserIfExxist(emailorname)
+	return user, found
 }

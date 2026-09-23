@@ -16,3 +16,7 @@ func ResponnseSender(response http.ResponseWriter, staatuscode int, data interfa
 		log.Println("Errror fencoding Json",errr.Error())
 	}
 }
+func ErrorResponse(w http.ResponseWriter,msg string, staatusecode  int, ) {
+	errorResponse := map[string]string{"ERorr messages": msg}
+	ResponnseSender(w, staatusecode, errorResponse)
+}

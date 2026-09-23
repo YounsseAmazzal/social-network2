@@ -2,6 +2,7 @@ package utils
 
 import (
 	"errors"
+	"fmt"
 	"html"
 	"regexp"
 	"strings"
@@ -26,10 +27,14 @@ var (
 func ValidateRegistration(u *models.UserInfo) error {
 	//check emmmty fildes
 	if isAnyEmpty(u.Email, u.Password, u.Firstname, u.Lastname, u.DateOfBirth) {
+		fmt.Println("email", u.Email, u.Password, u.Firstname, u.Lastname)
+		// fmt.Println("dsfdsfsd")
+
 		return ErrRequiredFields
 	}
-
+	fmt.Println("the first confirm",u.ConfirmPassword)
 	if u.Password != u.ConfirmPassword {
+		fmt.Println("the first password",u.Password,u.ConfirmPassword)
 		return ErrPasswordMatch
 	}
 
@@ -42,7 +47,16 @@ func ValidateRegistration(u *models.UserInfo) error {
 	if u.Nickname != "" && !rxNickname.MatchString(u.Nickname) {
 		return errors.New("nickname must be 3-20 characters (letters, numbers, _, -)")
 	}
-
+	if len(u.Firstname)>50 ||len(u.Lastname)>50{
+		return errors.New("your first or last name so long ")
+	}
+	if len(u.Password)<8||len(u.Password)>50{
+		return errors.New("the password  must be long then 8 chaaaracters ")
+	}
+	fmt.Println("that is the gender",u.Gender)
+	if u.Gender!="male"&&u.Gender!="female"{
+	 	return errors.New(" i don't accepts other gender on my platform hhhh grow same balls")
+	}
 	userage, err := calculateUserAge(u.DateOfBirth)
 	if err != nil {
 		return errors.New("invalid date of birth format (use YYYY-MM-DD)")
@@ -92,4 +106,15 @@ func sanitizeUser(u *models.UserInfo) {
 	u.Firstname = html.EscapeString(strings.TrimSpace(u.Firstname))
 	u.Lastname = html.EscapeString(strings.TrimSpace(u.Lastname))
 	u.AboutMe = html.EscapeString(strings.TrimSpace(u.AboutMe))
+}
+
+
+///login
+func Logininputvalid(useeer *models.UserLoign)error{
+	if strings.TrimSpace(useeer.IdentifierEN) == "" {
+		return ErrRequiredFields
+	}else if  strings.TrimSpace(useeer.Password) == "" {
+				return ErrRequiredFields
+	}
+	return nil
 }
