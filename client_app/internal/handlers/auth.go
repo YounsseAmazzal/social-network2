@@ -3,6 +3,7 @@ package handlers
 import (
 	"encoding/json"
 	"fmt"
+	"log"
 	"net/http"
 	"social/internal/models"
 	"social/internal/requests"
@@ -22,7 +23,7 @@ func (handler *Handlers) SignUp(res http.ResponseWriter, req *http.Request) {
 		utils.ErrorResponse(res, err.Error(), http.StatusBadRequest)
 		return
 	}
-	fmt.Println("thaaat is the payload", userpayload.ConfirmPassword)
+	fmt.Println("thaaat is the payload ConfirmPassword ", userpayload)
 	if err := utils.ValidateRegistration(&userpayload); err != nil {
 		// response errorrr
 		utils.ErrorResponse(res, err.Error(), http.StatusUnprocessableEntity)
@@ -126,9 +127,40 @@ func (*Handlers) Home(res http.ResponseWriter, req *http.Request) {
 	fmt.Println("the user want to home ")
 	utils.ResponnseSender(res, http.StatusCreated, "Yourrr welcome")
 }
-func (*Handlers) Logout(res http.ResponseWriter, req *http.Request) {
-	fmt.Println("the user want to Logout ")
-	utils.ResponnseSender(res, http.StatusCreated, "User loged succesfully ")
+func ( hander *Handlers) Logout(res http.ResponseWriter, req *http.Request) {
+	// fmt.Println("the user want to Logout ")
+	if !requests.IsRequestValid(res, req, "/Logout", http.MethodDelete) {
+		return
+	}
+	cookie,err:=req.Cookie("solo_social")
+	if err!=nil{
+		utils.ErrorResponse(res,  "sesssion not valiiid ",http.StatusUnauthorized)
+		return
+	}
+	_,err=hander.services.Reepo.Checksession(cookie.Value)
+	if err!=nil{
+		// utils.ErrorResponse(res,  "Faileddd to delete the sesssions",http.StatusUnauthorized)
+		log.Printf("Loogout error",err.Error())
+		return
+	}
+	err=hander.services.Reepo.DeleteSession(cookie.Value)
+	if err!=nil{
+	utils.ErrorResponse(res,  "Faileddd to delete the sesssions",http.StatusUnauthorized)
+		return
+	}
+	http.SetCookie(res, &http.Cookie{
+		Name:     "solo_social",
+		Value:    "",
+		MaxAge:   -1,
+		HttpOnly: true,
+		Path:     "/",
+		Secure:   false,
+	})
+	
+	utils.ResponnseSender(res, http.StatusOK, map[string]string{
+		"status":  "success",
+		"message": "You Logout succesfully",
+	})
 }
 func (*Handlers) ME(res http.ResponseWriter, req *http.Request) {
 	fmt.Println("the user want to Logout ")

@@ -68,6 +68,7 @@ func ValidSignUpPayload(req *http.Request)(models.UserInfo,error){
 		}
 
 	}
+	fmt.Println("thee user retuerner ",user)
 	return user,nil
 }
 func CheckSignupInput(){

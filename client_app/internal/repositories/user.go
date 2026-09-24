@@ -8,6 +8,7 @@ import (
 	"social/internal/models"
 	"social/internal/utils"
 	"strings"
+	"time"
 
 	"github.com/gofrs/uuid"
 )
@@ -71,7 +72,7 @@ func (ur *Repository) CreateUser(payload *models.UserInfo) (*models.User, error)
 }
 func (ur *Repository) CheckuserIfExxist(usernameoremail string) (*models.User, bool) {
 	var UserInfo models.User
-	fmt.Println("the indefair",usernameoremail)
+	fmt.Println("the indefair", usernameoremail)
 	usernameoremail = strings.ToLower(usernameoremail)
 	query := `
 		SELECT 
@@ -94,15 +95,45 @@ func (ur *Repository) CheckuserIfExxist(usernameoremail string) (*models.User, b
 		&UserInfo.IsPrivate,
 		&UserInfo.Password,
 	)
-	fmt.Println("that is the id of user",UserInfo.ID)
+	fmt.Println("that is the id of user", UserInfo.ID)
 
 	if err != nil {
 		if err == sql.ErrNoRows {
-			return nil, false 
+			return nil, false
 		}
 		log.Printf("Repository Error Fach bghit njib user:%v", err)
 		return nil, false
 	}
 
 	return &UserInfo, true
+}
+func (ur *Repository) Checksession(tocccken string) (string, error) {
+	var userID string
+	var expireAt time.Time
+	//queery to data base 
+	query := "SELECT user_id, expire_at FROM sessions WHERE token = ?"
+	err := ur.DB.Database.QueryRow(query, tocccken).Scan(&userID, &expireAt)
+
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return "", fmt.Errorf("session not found")
+		}
+		return "", fmt.Errorf("database error: %w", err)
+	}
+
+	if time.Now().After(expireAt) {
+		//cleaaant the dataa base 
+		_ = ur.DeleteSession(tocccken)
+		return "", fmt.Errorf("session expired")
+	}
+
+	return userID, nil
+}
+func (ur *Repository) DeleteSession(token string) error {
+	query := "DELETE FROM sessions WHERE token = ?"
+	_, err := ur.DB.Database.Exec(query, token)
+	if err != nil {
+		return fmt.Errorf("repository: failed to delete session: %w", err)
+	}
+	return nil
 }

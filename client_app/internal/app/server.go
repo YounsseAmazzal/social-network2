@@ -34,6 +34,7 @@ func Server() {
 	fmt.Println("that is the midleware", miidl)
 	routtes := routers.Colleectrouters(handler, miidl)
 	mainHandler:=miidl.Corsmiddwaare(configg.WebOrigin)(routtes)
+	fmt.Println("---------origin----",configg.WebOrigin)
 	log.Println("the seerver will run on http:localhost:8080")
 	if err := http.ListenAndServe(":"+configg.Port, mainHandler); err != nil {
 		log.Fatal("error on server")
