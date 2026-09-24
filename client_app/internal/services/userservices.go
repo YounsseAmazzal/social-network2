@@ -9,6 +9,7 @@ import (
 )
 
 func (Service *Service) SignUpUser(userpayload models.UserInfo) (*models.User, error) {
+	fmt.Println("enter to SignUpUser SignUpUserSignUpUserSignUpUser")
 	hasheedpassword, err := utils.HashPassword(userpayload.Password)
 	if err != nil {
 		return nil, errors.New("failed to secure user info")

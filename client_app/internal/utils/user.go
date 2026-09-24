@@ -26,28 +26,37 @@ var (
 
 func ValidateRegistration(u *models.UserInfo) error {
 	//check emmmty fildes
+	// check:=isAnyEmpty(u.Email, u.Password, u.Firstname, u.Lastname, u.DateOfBirth)
+	// fmt.Println("cheeck ",check)
 	if isAnyEmpty(u.Email, u.Password, u.Firstname, u.Lastname, u.DateOfBirth) {
-		fmt.Println("email", u.Email, u.Password, u.Firstname, u.Lastname)
+		// fmt.Println("-------------", u.Email, u.Password, u.Firstname, u.Lastname,"-----------")
+		// fmt.Println("email",u.Password)
+		// fmt.Println("email",u.Lastname)
+		// fmt.Println("email",u.Firstname)
+		// fmt.Println("email",u.DateOfBirth)
 		// fmt.Println("dsfdsfsd")
-
+		
 		return ErrRequiredFields
 	}
-	fmt.Println("the first confirm",u.ConfirmPassword)
+	// fmt.Println("everry thing is good here ")
+	// fmt.Println("the first confirm",u.ConfirmPassword)
 	if u.Password != u.ConfirmPassword {
 		fmt.Println("the first password",u.Password,u.ConfirmPassword)
 		return ErrPasswordMatch
 	}
-
+	
 	if !rxEmail.MatchString(u.Email) {
 		return ErrInvalidEmail
 	}
 	if !rxName.MatchString(u.Firstname) || !rxName.MatchString(u.Lastname) {
 		return errors.New("names must contain only letters")
 	}
+	// fmt.Println("-----------heeeeeeeeeeeeeeeere--------------") 
 	if u.Nickname != "" && !rxNickname.MatchString(u.Nickname) {
 		return errors.New("nickname must be 3-20 characters (letters, numbers, _, -)")
 	}
 	if len(u.Firstname)>50 ||len(u.Lastname)>50{
+		
 		return errors.New("your first or last name so long ")
 	}
 	if len(u.Password)<8||len(u.Password)>50{
@@ -55,7 +64,7 @@ func ValidateRegistration(u *models.UserInfo) error {
 	}
 	fmt.Println("that is the gender",u.Gender)
 	if u.Gender!="male"&&u.Gender!="female"{
-	 	return errors.New(" i don't accepts other gender on my platform hhhh grow same balls")
+		return errors.New(" i don't accepts other gender on my platform hhhh grow same balls")
 	}
 	userage, err := calculateUserAge(u.DateOfBirth)
 	if err != nil {
@@ -65,11 +74,11 @@ func ValidateRegistration(u *models.UserInfo) error {
 		return ErrAgeLimit
 	}
 	u.Age = userage
-
+	
 	if len(u.AboutMe) > 1000 {
 		return errors.New("about me description is too long (max 1000 chars)")
 	}
-
+	
 	sanitizeUser(u)
 	return nil
 }
@@ -111,10 +120,13 @@ func sanitizeUser(u *models.UserInfo) {
 
 ///login
 func Logininputvalid(useeer *models.UserLoign)error{
+	fmt.Println("indetef",useeer.IdentifierEN)
+	fmt.Println("indetef",useeer.Password)
+
 	if strings.TrimSpace(useeer.IdentifierEN) == "" {
 		return ErrRequiredFields
 	}else if  strings.TrimSpace(useeer.Password) == "" {
-				return ErrRequiredFields
+		return ErrRequiredFields
 	}
 	return nil
 }

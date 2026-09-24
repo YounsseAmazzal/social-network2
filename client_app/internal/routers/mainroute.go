@@ -15,6 +15,7 @@ func Colleectrouters(handler *handlers.Handlers, middleware *middleware.Miiiddew
 	servermux := http.DefaultServeMux
 	serverstactic(servermux)
 	Auhentication(servermux, handler, middleware)
+	ProfileAndFollowers(servermux,handler,middleware)
 	newratelimeter := utils.NewRateLimiter(time.Minute)
 	return newratelimeter.ApplyMiddleware("normalapi",servermux)
 }

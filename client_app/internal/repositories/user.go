@@ -137,3 +137,65 @@ func (ur *Repository) DeleteSession(token string) error {
 	}
 	return nil
 }
+func (ur *Repository) GetUserByToken(token string) (*models.User, error) {
+	var UseerId string
+	var expireAt time.Time
+	//taaaake the sesssion and ensure that it is good 
+	query := "SELECT user_id, expire_at FROM sessions WHERE token = ?"
+	err := ur.DB.Database.QueryRow(query, token).Scan(&UseerId, &expireAt)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return nil, fmt.Errorf("session not found")
+		}
+		return nil, fmt.Errorf("database error during session lookup: %w", err)
+	}
+	// the expireetion
+	if time.Now().After(expireAt) {
+		//deeelte the session automatlcty
+		_, _ = ur.DB.Database.Exec("DELETE FROM sessions WHERE token = ?", token)
+		return nil, fmt.Errorf("session expired")
+	}
+
+	exaactuser, err := ur.BringUserByid(UseerId)
+	if err != nil {
+		return nil, fmt.Errorf("failed to fetch user for active session: %w", err)
+	}
+
+	return exaactuser, nil
+}
+func (ur *Repository) BringUserByid(usseridd string)(*models.User,error){
+      var useeer models.User
+	// i prefer that way to query to data ((Backticks
+	query := `
+		SELECT 
+			id, nickname, firstname, lastname, age, gender, 
+			email, avatarURL, COALESCE(about_me, ''), COALESCE(is_private, 0) 
+		FROM user 
+		WHERE id = ? 
+		LIMIT 1`
+
+	err := ur.DB.Database.QueryRow(query, usseridd).Scan(
+		&useeer.ID,
+		&useeer.Nickname,
+		&useeer.Firstname,
+		&useeer.Lastname,
+		&useeer.Age,
+		&useeer.Gender,
+		&useeer.Email,
+		&useeer.AvatarURL,
+		&useeer.AboutMe,
+		&useeer.IsPrivate,
+	)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return nil, fmt.Errorf("user not found: %w", err)
+		}
+		return nil, fmt.Errorf("repository: failed to get user by id: %w", err)
+	}
+
+	return &useeer, nil
+}
+func (ur *Repository) TakeUserProfile(useeerid string,Profileid string)(*models.ProfileResponse,error){
+
+	// return  
+}

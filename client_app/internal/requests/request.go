@@ -36,11 +36,12 @@ func ValidSignUpPayload(req *http.Request)(models.UserInfo,error){
 	var user models.UserInfo
 	contentType := req.Header.Get("Content-Type")
 	if strings.HasPrefix(contentType, "multipart/form-data") {
-		if err := req.ParseMultipartForm(2>>10); err != nil {
+		if err := req.ParseMultipartForm(32 << 20); err != nil {
 			// utils.HandleError(res, http.StatusBadRequest, "Failed to process uploaded data")
 			log.Printf("Error parsing multipart form: %v", err)
 			return user,fmt.Errorf("Error parsing multipart form: %v", err)
 		}
+
 		user.Nickname = req.FormValue("nick_name")
 		user.Firstname = req.FormValue("first_name")
 		user.Lastname = req.FormValue("last_name")
@@ -68,7 +69,7 @@ func ValidSignUpPayload(req *http.Request)(models.UserInfo,error){
 		}
 
 	}
-	fmt.Println("thee user retuerner ",user)
+	fmt.Println("@@@@@@@@thee user retuerner ",user.DateOfBirth)
 	return user,nil
 }
 func CheckSignupInput(){

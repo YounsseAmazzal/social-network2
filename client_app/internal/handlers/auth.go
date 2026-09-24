@@ -3,7 +3,6 @@ package handlers
 import (
 	"encoding/json"
 	"fmt"
-	"log"
 	"net/http"
 	"social/internal/models"
 	"social/internal/requests"
@@ -15,6 +14,7 @@ func (handler *Handlers) SignUp(res http.ResponseWriter, req *http.Request) {
 	if !requests.IsRequestValid(res, req, "/Signup", http.MethodPost) {
 		return
 	}
+	// fmt.Println("the resquet content",req.Header)
 	// var userPayload models.UserPayload
 	userpayload, err := requests.ValidSignUpPayload(req)
 	if err != nil {
@@ -23,9 +23,10 @@ func (handler *Handlers) SignUp(res http.ResponseWriter, req *http.Request) {
 		utils.ErrorResponse(res, err.Error(), http.StatusBadRequest)
 		return
 	}
-	fmt.Println("thaaat is the payload ConfirmPassword ", userpayload)
+	// fmt.Println("thaaat is the payload ConfirmPassword ", userpayload)
 	if err := utils.ValidateRegistration(&userpayload); err != nil {
 		// response errorrr
+		// log.Fatal("probleeem on validation ",err.Error())
 		utils.ErrorResponse(res, err.Error(), http.StatusUnprocessableEntity)
 		return
 	}
@@ -78,8 +79,10 @@ func (handler *Handlers) Login(res http.ResponseWriter, req *http.Request) {
 		utils.ErrorResponse(res, "Invalid JSON format", http.StatusBadRequest)
 		return
 	}
+	fmt.Println("the useeer crediantial", userlogin.IdentifierEN)
 	err := utils.Logininputvalid(&userlogin)
 	if err != nil {
+		// log.Fatal("hnaaaaaaaaaaaaaaaaaaya")
 		utils.ErrorResponse(res, err.Error(), http.StatusBadRequest)
 		return
 	}
@@ -127,25 +130,25 @@ func (*Handlers) Home(res http.ResponseWriter, req *http.Request) {
 	fmt.Println("the user want to home ")
 	utils.ResponnseSender(res, http.StatusCreated, "Yourrr welcome")
 }
-func ( hander *Handlers) Logout(res http.ResponseWriter, req *http.Request) {
+func (hander *Handlers) Logout(res http.ResponseWriter, req *http.Request) {
 	// fmt.Println("the user want to Logout ")
 	if !requests.IsRequestValid(res, req, "/Logout", http.MethodDelete) {
 		return
 	}
-	cookie,err:=req.Cookie("solo_social")
-	if err!=nil{
-		utils.ErrorResponse(res,  "sesssion not valiiid ",http.StatusUnauthorized)
+	cookie, err := req.Cookie("solo_social")
+	if err != nil {
+		utils.ErrorResponse(res, "sesssion not valiiid ", http.StatusUnauthorized)
 		return
 	}
-	_,err=hander.services.Reepo.Checksession(cookie.Value)
-	if err!=nil{
-		// utils.ErrorResponse(res,  "Faileddd to delete the sesssions",http.StatusUnauthorized)
-		log.Printf("Loogout error",err.Error())
+	_, err = hander.services.Reepo.Checksession(cookie.Value)
+	if err != nil {
+		utils.ErrorResponse(res, "Faileddd to delete the sesssions", http.StatusUnauthorized)
+		// log.Printf("Loogout error",err.Error())
 		return
 	}
-	err=hander.services.Reepo.DeleteSession(cookie.Value)
-	if err!=nil{
-	utils.ErrorResponse(res,  "Faileddd to delete the sesssions",http.StatusUnauthorized)
+	err = hander.services.Reepo.DeleteSession(cookie.Value)
+	if err != nil {
+		utils.ErrorResponse(res, "Faileddd to delete the sesssions", http.StatusUnauthorized)
 		return
 	}
 	http.SetCookie(res, &http.Cookie{
@@ -156,7 +159,7 @@ func ( hander *Handlers) Logout(res http.ResponseWriter, req *http.Request) {
 		Path:     "/",
 		Secure:   false,
 	})
-	
+
 	utils.ResponnseSender(res, http.StatusOK, map[string]string{
 		"status":  "success",
 		"message": "You Logout succesfully",

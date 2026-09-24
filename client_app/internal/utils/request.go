@@ -2,6 +2,7 @@ package utils
 
 import (
 	"encoding/json"
+	"fmt"
 	"log"
 	"net/http"
 )
@@ -15,8 +16,9 @@ func ResponnseSender(response http.ResponseWriter, staatuscode int, data interfa
 	if errr!=nil{
 		log.Println("Errror fencoding Json",errr.Error())
 	}
+	fmt.Println("THEEEE RESPONSE SENDED SUCCESFULLY")
 }
 func ErrorResponse(w http.ResponseWriter,msg string, staatusecode  int, ) {
-	errorResponse := map[string]string{"ERorr messages": msg}
+	errorResponse := map[string]string{"ERorrmessages": msg}
 	ResponnseSender(w, staatusecode, errorResponse)
 }
