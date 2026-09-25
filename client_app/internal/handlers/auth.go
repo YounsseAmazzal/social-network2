@@ -92,7 +92,10 @@ func (handler *Handlers) Login(res http.ResponseWriter, req *http.Request) {
 		utils.ErrorResponse(res, "Invaaalid IdentifierEN or password", http.StatusBadRequest)
 		return
 	}
-	if utils.CompareHashedpassword(userlogin.Password, useeer.Password) {
+	// fmt.Println("that is the the passsword 1",useeer.Password)
+	// fmt.Println("that is the the passsword 2",userlogin.Password)
+	if !utils.CompareHashedpassword(userlogin.Password, useeer.Password) {
+		fmt.Println("@@@@@@there is an problem on compeere @@@@@")
 		utils.ResponnseSender(res, http.StatusCreated, "Invaaalid IdentifierEN or password")
 		return
 	}
@@ -165,7 +168,45 @@ func (hander *Handlers) Logout(res http.ResponseWriter, req *http.Request) {
 		"message": "You Logout succesfully",
 	})
 }
-func (*Handlers) ME(res http.ResponseWriter, req *http.Request) {
-	fmt.Println("the user want to Logout ")
-	utils.ResponnseSender(res, http.StatusCreated, "User loged succesfully ")
+func (handler *Handlers) ME(res http.ResponseWriter, req *http.Request) {
+	fmt.Println("the user want to HimSelf ")
+	if !requests.IsRequestValid(res, req, "/Me", http.MethodGet) {
+		return
+	}
+	coookie, err := req.Cookie("solo_social")
+	if err != nil {
+		utils.ErrorResponse(res, "sesssion not valiiid ", http.StatusUnauthorized)
+		return
+	}
+
+	userID, err := handler.services.Reepo.Checksession(coookie.Value)
+	if err != nil {
+		utils.ErrorResponse(res, "NO Valid session exist", http.StatusUnauthorized)
+		// log.Printf("Loogout error",err.Error())
+		return
+	}
+	usserInfo, err := handler.services.Reepo.BringUserByid(userID)
+	if err != nil {
+		utils.ErrorResponse(res, "NO Valid session exist", http.StatusUnauthorized)
+	}
+	takeuser := models.User{
+		ID:         usserInfo.ID,
+		Nickname:   usserInfo.Nickname,
+		Username:   usserInfo.Nickname,
+		Firstname:  usserInfo.Firstname,
+		Lastname:   usserInfo.Lastname,
+		Age:        usserInfo.Age,
+		IsLoggedIn: true,
+		Gender:     usserInfo.Gender,
+		Email:      usserInfo.Email,
+		AvatarURL:  usserInfo.AvatarURL,
+		Avatar:     usserInfo.AvatarURL,
+		AboutMe:    usserInfo.AboutMe,
+		IsPrivate:  true,
+	}
+
+	utils.ResponnseSender(res, http.StatusOK, map[string]any{
+		"message":  "GOT THe user Succefully",
+		"Userinfo": takeuser,
+	})
 }

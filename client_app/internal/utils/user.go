@@ -121,7 +121,7 @@ func sanitizeUser(u *models.UserInfo) {
 ///login
 func Logininputvalid(useeer *models.UserLoign)error{
 	fmt.Println("indetef",useeer.IdentifierEN)
-	fmt.Println("indetef",useeer.Password)
+	fmt.Println("indetefpassword",useeer.Password)
 
 	if strings.TrimSpace(useeer.IdentifierEN) == "" {
 		return ErrRequiredFields

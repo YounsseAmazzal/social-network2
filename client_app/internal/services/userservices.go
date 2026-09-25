@@ -14,6 +14,7 @@ func (Service *Service) SignUpUser(userpayload models.UserInfo) (*models.User, e
 	if err != nil {
 		return nil, errors.New("failed to secure user info")
 	}
+	userpayload.Password=hasheedpassword
 	userhowregisterd, err := Service.Reepo.CreateUser(&userpayload)
 	if err != nil {
 		if strings.Contains(err.Error(), "UNIQUE constraint failed") {

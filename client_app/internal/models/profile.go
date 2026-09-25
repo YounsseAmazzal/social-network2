@@ -2,8 +2,8 @@ package models
 type ProfileResponse struct {
 	User           User           `json:"user"`
 	IsPrivate      bool           `json:"isPrivate"`
-	IsOwner        bool           `json:"isOwner"`        // هل هذا ملفي الشخصي؟ (لإظهار زر التعديل)
-	IsFollowing    bool           `json:"isFollowing"`    // هل أنا أتابع هذا الشخص؟ (لتبديل أزرار Follow/Unfollow)
+	IsOwner        bool           `json:"isOwner"`     
+	IsFollowing    bool           `json:"isFollowing"`   
 	FollowersCount int            `json:"followersCount"`
 	FollowingCount int            `json:"followingCount"`
 	PostsCount     int            `json:"postsCount"`

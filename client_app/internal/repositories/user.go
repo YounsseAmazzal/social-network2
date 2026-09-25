@@ -149,6 +149,7 @@ func (ur *Repository) GetUserByToken(token string) (*models.User, error) {
 		}
 		return nil, fmt.Errorf("database error during session lookup: %w", err)
 	}
+	// fmt.Println("$$$$$$$$user from session")
 	// the expireetion
 	if time.Now().After(expireAt) {
 		//deeelte the session automatlcty
@@ -160,7 +161,6 @@ func (ur *Repository) GetUserByToken(token string) (*models.User, error) {
 	if err != nil {
 		return nil, fmt.Errorf("failed to fetch user for active session: %w", err)
 	}
-
 	return exaactuser, nil
 }
 func (ur *Repository) BringUserByid(usseridd string)(*models.User,error){
@@ -170,7 +170,7 @@ func (ur *Repository) BringUserByid(usseridd string)(*models.User,error){
 		SELECT 
 			id, nickname, firstname, lastname, age, gender, 
 			email, avatarURL, COALESCE(about_me, ''), COALESCE(is_private, 0) 
-		FROM user 
+		FROM users 
 		WHERE id = ? 
 		LIMIT 1`
 
@@ -196,6 +196,48 @@ func (ur *Repository) BringUserByid(usseridd string)(*models.User,error){
 	return &useeer, nil
 }
 func (ur *Repository) TakeUserProfile(useeerid string,Profileid string)(*models.ProfileResponse,error){
-
+	fmt.Println("he is teh profile owner")
+	userinfoo,err:=ur.fetchBasicUserInfo(Profileid)
+	if err!=nil{
+		return nil,fmt.Errorf("Proofie not found %w",&err)
+	}
+	isOwner := useeerid == Profileid
+	isFollowing := ur.checkFollowStatus(useeerid, Profileid)
+	profile := &models.ProfileResponse{
+		User:        *userinfoo,
+		IsPrivate:   userinfoo.IsPrivate,
+		IsOwner:     isOwner,
+		IsFollowing: isFollowing,
+	}
+	//return profile info for now without checking following and bringing the posts
+	return profile,nil
 	// return  
+}
+func (ur *Repository) checkFollowStatus(followerID, followingID string) bool {
+	var status string
+	err := ur.DB.Database.QueryRow("SELECT status FROM followers WHERE follower_id = ? AND following_id = ?", 
+		followerID, followingID).Scan(&status)
+	return err == nil && status == "accepted"
+}
+func (ur *Repository) fetchBasicUserInfo(ProoofileId string)(*models.User,error){
+	fmt.Println("The profile id",ProoofileId)
+	var usserr models.User
+	quuery:=`
+		SELECT id, nickname, firstname,
+		 lastname,
+		  age, gender, email,
+		  avatarURL,
+			   COALESCE(about_me, ''), 
+			   COALESCE(is_private, 0)
+		FROM users WHERE id = ?`
+	err := ur.DB.Database.QueryRow(quuery, ProoofileId).Scan(
+		&usserr.ID, &usserr.Nickname, &usserr.Firstname, &usserr.Lastname,
+		&usserr.Age, &usserr.Gender, &usserr.Email, &usserr.AvatarURL,
+		&usserr.AboutMe, &usserr.IsPrivate,
+	)
+	fmt.Println("!!!!!!!!!!!!!!I find it!!!!!!!!!!!",err)
+	if err == sql.ErrNoRows {
+		return nil, fmt.Errorf("user not found")
+	}
+	return  &usserr,err
 }
