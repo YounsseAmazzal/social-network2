@@ -58,7 +58,7 @@ func (handler *Handlers) SignUp(res http.ResponseWriter, req *http.Request) {
 		AvatarURL: userpayload.AvatarURL,
 		Avatar:    userpayload.AvatarURL,
 		AboutMe:   userpayload.AboutMe,
-		IsPrivate: userpayload.IsPrivate == 1,
+		IsPrivate: userpayload.IsPrivate==1,
 	}
 	fmt.Println("that is the user payload", usersingup)
 	utils.ResponnseSender(res, http.StatusCreated, map[string]any{
@@ -119,7 +119,7 @@ func (handler *Handlers) Login(res http.ResponseWriter, req *http.Request) {
 		AvatarURL:  useeer.AvatarURL,
 		Avatar:     useeer.AvatarURL,
 		AboutMe:    useeer.AboutMe,
-		IsPrivate:  false,
+		IsPrivate:  useeer.IsPrivate,
 	}
 	utils.ResponnseSender(res, http.StatusCreated, map[string]any{
 		"status":  "success",
@@ -202,7 +202,7 @@ func (handler *Handlers) ME(res http.ResponseWriter, req *http.Request) {
 		AvatarURL:  usserInfo.AvatarURL,
 		Avatar:     usserInfo.AvatarURL,
 		AboutMe:    usserInfo.AboutMe,
-		IsPrivate:  true,
+		IsPrivate:  usserInfo.IsPrivate,
 	}
 
 	utils.ResponnseSender(res, http.StatusOK, map[string]any{

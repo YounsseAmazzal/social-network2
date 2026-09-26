@@ -27,7 +27,7 @@ func (ur *Repository) CreateUser(payload *models.UserInfo) (*models.User, error)
 		Age:       payload.Age,
 		Gender:    payload.Gender,
 		AboutMe:   html.EscapeString(payload.AboutMe),
-		IsPrivate: payload.IsPrivate == 1,
+		IsPrivate: payload.IsPrivate==1,
 	}
 	nickname := strings.TrimSpace(payload.Nickname)
 	if nickname == "" {
@@ -196,7 +196,7 @@ func (ur *Repository) BringUserByid(usseridd string)(*models.User,error){
 	return &useeer, nil
 }
 func (ur *Repository) TakeUserProfile(useeerid string,Profileid string)(*models.ProfileResponse,error){
-	fmt.Println("he is teh profile owner")
+	fmt.Println("he is teh profile owner Profile",Profileid)
 	userinfoo,err:=ur.fetchBasicUserInfo(Profileid)
 	if err!=nil{
 		return nil,fmt.Errorf("Proofie not found %w",&err)
@@ -235,7 +235,7 @@ func (ur *Repository) fetchBasicUserInfo(ProoofileId string)(*models.User,error)
 		&usserr.Age, &usserr.Gender, &usserr.Email, &usserr.AvatarURL,
 		&usserr.AboutMe, &usserr.IsPrivate,
 	)
-	fmt.Println("!!!!!!!!!!!!!!I find it!!!!!!!!!!!",err)
+	// fmt.Println("!!!!!!!!!!!!!!I find it!!!!!!!!!!!",err)
 	if err == sql.ErrNoRows {
 		return nil, fmt.Errorf("user not found")
 	}
