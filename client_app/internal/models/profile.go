@@ -19,3 +19,8 @@ type PostPreview struct {
 	CommentsCount int    `json:"commentsCount"`
 	CreatedAt     string `json:"createdAt"`
 }
+type UpdateProfileRequest struct {
+	Nickname  *string `json:"nickname"`
+	AboutMe   *string `json:"about_me"`
+	IsPrivate *bool   `json:"is_private"`
+}

@@ -2,8 +2,11 @@ package handlers
 
 import (
 	"database/sql"
+	"encoding/json"
 	"fmt"
+	"html"
 	"net/http"
+	"social/internal/models"
 	"social/internal/requests"
 	"social/internal/utils"
 	"strings"
@@ -47,7 +50,70 @@ func (handler *Handlers) UserProfile(res http.ResponseWriter, req *http.Request)
 
 }
 func (handler *Handlers) ProfileUppdate(res http.ResponseWriter, req *http.Request) {
-	fmt.Println("The user want the profile")
+	fmt.Println("The user want to Update the profile")
+	if !requests.IsRequestValid(res, req, "/ProfileUppdate", http.MethodPatch) {
+		return
+	}
+	cookie, err := req.Cookie("solo_social")
+	if err != nil {
+		utils.ErrorResponse(res, "sesssion not valiiid ", http.StatusUnauthorized)
+		return
+	}
+	_, err = handler.services.Reepo.Checksession(cookie.Value)
+	if err != nil {
+		utils.ErrorResponse(res, "Your Session Not valid", http.StatusUnauthorized)
+		// log.Printf("Your Session Not valid", err.Error())
+		return
+	}
+	user, err := handler.services.Reepo.GetUserByToken(cookie.Value)
+	if err != nil {
+		utils.ErrorResponse(res, "Your Session Not validd", http.StatusUnauthorized)
+		return
+	}
+	var payload models.UpdateProfileRequest
+	if err := json.NewDecoder(req.Body).Decode(&payload); err != nil {
+		utils.ErrorResponse(res, "Invalid JSON format", http.StatusBadRequest)
+		return
+	}
+	newNickname := user.Nickname
+	newAboutMe := user.AboutMe
+	newIsPrivate := user.IsPrivate
+	if payload.Nickname != nil {
+		cleanNick := strings.ToLower(strings.TrimSpace(*payload.Nickname))
+		if cleanNick != "" {
+			newNickname = html.EscapeString(cleanNick)
+		}
+	}
+	if payload.AboutMe != nil {
+		cleanAbout := strings.TrimSpace(*payload.AboutMe)
+		if len(cleanAbout) > 200 {
+			utils.ErrorResponse(res, "About me too long (max 200)", http.StatusBadRequest)
+			return
+		}
+		newAboutMe = html.EscapeString(cleanAbout)
+	}
+		if payload.IsPrivate != nil {
+			newIsPrivate = *payload.IsPrivate
+		}
+		err = handler.services.Reepo.UpdateProfileSettings(user.ID, newNickname, newAboutMe, newIsPrivate)
+		if err != nil {
+		// (Unique Constraint)
+		if strings.Contains(err.Error(), "UNIQUE") {
+			utils.ErrorResponse(res, "Nickname already taken",http.StatusConflict)
+			return
+		}
+		utils.ErrorResponse(res, "Database update failed",http.StatusInternalServerError)
+		return
+	}
+		utils.ResponnseSender(res, http.StatusOK, map[string]any{
+		"message": "Profile updated successfully",
+		"user": map[string]any{
+			"nickname":   newNickname,
+			"about_me":   newAboutMe,
+			"is_private": newIsPrivate,
+		},
+	})
+
 }
 func (handler *Handlers) FollowersAccept(res http.ResponseWriter, req *http.Request) {
 	fmt.Println("The user want the profile")
@@ -79,27 +145,27 @@ func (handler *Handlers) UserUnfollow(res http.ResponseWriter, req *http.Request
 		utils.ErrorResponse(res, "Your Session Not validd", http.StatusUnauthorized)
 		return
 	}
-	followedID,err := requests.ValidUnfollow(req, user.ID)
-	if err!=nil{
-		utils.ErrorResponse(res,err.Error(),http.StatusBadRequest)
+	followedID, err := requests.ValidUnfollow(req, user.ID)
+	if err != nil {
+		utils.ErrorResponse(res, err.Error(), http.StatusBadRequest)
 		return
 	}
 	ProfileTarget, err := handler.services.Reepo.TakeUserProfile(user.ID, followedID)
 	// _, err = handler.services.Reepo.TakeUserProfile(user.ID, followedID)
-	if err!=nil{
+	if err != nil {
 		utils.ErrorResponse(res, err.Error(), http.StatusUnauthorized)
 		return
 	}
-	ProfileTarget.IsPrivate=true
-	message:="You unFollow the user" 
-	err=handler.services.Reepo.Unfollowing(user.ID,followedID)
-	if err!=nil{
+	ProfileTarget.IsPrivate = true
+	message := "You unFollow the user"
+	err = handler.services.Reepo.Unfollowing(user.ID, followedID)
+	if err != nil {
 		utils.ErrorResponse(res, err.Error(), http.StatusUnauthorized)
 		return
 	}
 	utils.ResponnseSender(res, http.StatusOK, map[string]any{
-			"status":  "success",
-			"message":message ,
+		"status":  "success",
+		"message": message,
 	})
 
 }
@@ -123,52 +189,52 @@ func (handler *Handlers) Userfollowinng(res http.ResponseWriter, req *http.Reque
 		utils.ErrorResponse(res, "Your Session Not validd", http.StatusUnauthorized)
 		return
 	}
-	
-			// TheFollower:=user.ID
-			// TheFollowed:=req.URL.Query().Get("Userfollowinng_id")
-			// if TheFollowed==""{
-		// 	utils.ErrorResponse(res, "The taget follow not found", http.StatusUnauthorized)
-		// 		return
-		// }
-				// if TheFollowed==TheFollower{
-			// 	utils.ErrorResponse(res, "You Couldn't follow your self hh", http.StatusBadRequest)
-			// 	return
-			// }
-			followedID,err := requests.ValidFollowReq(req, user.ID)
-			if err!=nil{
-				utils.ErrorResponse(res,err.Error(),http.StatusBadRequest)
-				return
-			}
-			// fmt.Println("HEEEEEEEEEEEEEEREEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEe",followedID)
-			 ProfileTarget, err := handler.services.Reepo.TakeUserProfile(user.ID, followedID)
-			 fmt.Println("$$$$$$$$$$$$$$$$Check the Privicy$$$$$$$",ProfileTarget.IsPrivate)
-			 ProfileTarget.IsPrivate=true
-			// _, err = handler.services.Reepo.TakeUserProfile(user.ID, followedID)
-			if err!=nil{
-			 	utils.ErrorResponse(res, err.Error(), http.StatusUnauthorized)
-				return
-			}
-			// if !ProfileTarget.IsPrivate{
-			// 	//handelt the accepten and the nothification
-			// 	fmt.Println("!!!!!!!!!!!!!!!Profile is Privite!!!!!!!!!!!!!")
-				
-			// }
-			Followstatuss,err := handler.services.Reepo.Follwing(user.ID,followedID)
-			if Followstatuss=="followpending"{
-				fmt.Println("The follow is Penddding")
-				//// push the nothification
-				return
-			}
-		message := "You are now following this user"
-			if Followstatuss == "followpending" {
-				message = "Follow request sent and pending approval"
-			}
-			//nothification
-		utils.ResponnseSender(res, http.StatusOK, map[string]any{
-			"status":  "success",
-			"message":message ,
-			"data": map[string]string{
-			"follow_status": Followstatuss, 
+
+	// TheFollower:=user.ID
+	// TheFollowed:=req.URL.Query().Get("Userfollowinng_id")
+	// if TheFollowed==""{
+	// 	utils.ErrorResponse(res, "The taget follow not found", http.StatusUnauthorized)
+	// 		return
+	// }
+	// if TheFollowed==TheFollower{
+	// 	utils.ErrorResponse(res, "You Couldn't follow your self hh", http.StatusBadRequest)
+	// 	return
+	// }
+	followedID, err := requests.ValidFollowReq(req, user.ID)
+	if err != nil {
+		utils.ErrorResponse(res, err.Error(), http.StatusBadRequest)
+		return
+	}
+	// fmt.Println("HEEEEEEEEEEEEEEREEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEe",followedID)
+	ProfileTarget, err := handler.services.Reepo.TakeUserProfile(user.ID, followedID)
+	fmt.Println("$$$$$$$$$$$$$$$$Check the Privicy$$$$$$$", ProfileTarget.IsPrivate)
+	ProfileTarget.IsPrivate = true
+	// _, err = handler.services.Reepo.TakeUserProfile(user.ID, followedID)
+	if err != nil {
+		utils.ErrorResponse(res, err.Error(), http.StatusUnauthorized)
+		return
+	}
+	// if !ProfileTarget.IsPrivate{
+	// 	//handelt the accepten and the nothification
+	// 	fmt.Println("!!!!!!!!!!!!!!!Profile is Privite!!!!!!!!!!!!!")
+
+	// }
+	Followstatuss, err := handler.services.Reepo.Follwing(user.ID, followedID)
+	if Followstatuss == "followpending" {
+		fmt.Println("The follow is Penddding")
+		//// push the nothification
+		return
+	}
+	message := "You are now following this user"
+	if Followstatuss == "followpending" {
+		message = "Follow request sent and pending approval"
+	}
+	//nothification
+	utils.ResponnseSender(res, http.StatusOK, map[string]any{
+		"status":  "success",
+		"message": message,
+		"data": map[string]string{
+			"follow_status": Followstatuss,
 		},
 	})
 }

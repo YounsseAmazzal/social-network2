@@ -213,6 +213,19 @@ func (ur *Repository) TakeUserProfile(useeerid string,Profileid string)(*models.
 	return profile,nil
 	// return  
 }
+func (ur *Repository) UpdateProfileSettings(userID, nickname, aboutMe string, isPrivate bool)error{ 
+	query := `
+		UPDATE users 
+		SET nickname = ?, about_me = ?, is_private = ? 
+		WHERE id = ?`
+
+	privateInt := 0
+	if isPrivate {
+		privateInt = 1
+	}
+	_, err := ur.DB.Database.Exec(query, nickname, aboutMe, privateInt, userID)
+	return err
+}
 func (ur *Repository) checkFollowStatus(followerID, followingID string) bool {
 	var status string
 	err := ur.DB.Database.QueryRow("SELECT status FROM followers WHERE follower_id = ? AND following_id = ?", 
