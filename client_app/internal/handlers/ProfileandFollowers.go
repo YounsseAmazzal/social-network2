@@ -142,7 +142,8 @@ func (handler *Handlers) FollowersAccept(res http.ResponseWriter, req *http.Requ
 		return
 	}
 	// fmt.Println("Heee came here ")
-	pendding, errr := handler.services.Reepo.CheckPending(user.ID, followedID)
+	pendding, errr := handler.services.Reepo.CheckPending(followedID,user.ID)
+	fmt.Println("PEEEEEEEEEEEEEEEEEEEEEEEENDIIING And error",pendding,err)
 	if errr != nil {
 		utils.ErrorResponse(res, "Reequeest invalid", http.StatusInternalServerError)
 		return
@@ -151,7 +152,7 @@ func (handler *Handlers) FollowersAccept(res http.ResponseWriter, req *http.Requ
 		utils.ErrorResponse(res, "THere is no pendding requests heere", http.StatusInternalServerError)
 		return
 	}
-	err = handler.services.Reepo.AcceptFollowRequest(user.ID, followedID)
+	err= handler.services.Reepo.AcceptFollowRequest(followedID,user.ID)
 	if err != nil {
 		utils.ErrorResponse(res, err.Error(), http.StatusInternalServerError)
 		return
@@ -166,7 +167,34 @@ func (handler *Handlers) FollowersAccept(res http.ResponseWriter, req *http.Requ
 	utils.ResponnseSender(res, http.StatusOK, "Follow request accepted")
 }
 func (handler *Handlers) FollowersPendiing(res http.ResponseWriter, req *http.Request) {
-	fmt.Println("The user want the profile")
+	fmt.Println("The user want the FollowersPendiing")
+	if !requests.IsRequestValid(res, req, "/followers/Pendiing", http.MethodGet) {
+		return
+	}
+	cookie, err := req.Cookie("solo_social")
+	if err != nil {
+		utils.ErrorResponse(res, "sesssion not valiiid ", http.StatusUnauthorized)
+		return
+	}
+	_, err = handler.services.Reepo.Checksession(cookie.Value)
+	if err != nil {
+		utils.ErrorResponse(res, "Your Session Not valid", http.StatusUnauthorized)
+		// log.Printf("Your Session Not valid", err.Error())
+		return
+	}
+	user, err := handler.services.Reepo.GetUserByToken(cookie.Value)
+	if err != nil {
+		utils.ErrorResponse(res, "Your Session Not validd", http.StatusUnauthorized)
+		return
+	}
+	followingrequests, err := handler.services.Reepo.BringPendingFollowers(user.ID)
+	if err != nil {
+		utils.ErrorResponse(res, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	utils.ResponnseSender(res, http.StatusOK, map[string]any{
+		"message": followingrequests,
+		"status":  "success"})
 }
 func (handler *Handlers) FollowersDeclineinng(res http.ResponseWriter, req *http.Request) {
 	fmt.Println("The user want FollowersDeclineinng")
@@ -200,7 +228,7 @@ func (handler *Handlers) FollowersDeclineinng(res http.ResponseWriter, req *http
 		utils.ErrorResponse(res, "Reequeest invalid", http.StatusInternalServerError)
 		return
 	}
-	fmt.Println("The follow pendding",pendding)
+	fmt.Println("The follow pendding", pendding)
 	if !pendding {
 		utils.ErrorResponse(res, "THere is no pendding requests heere", http.StatusInternalServerError)
 		return
@@ -299,13 +327,13 @@ func (handler *Handlers) Userfollowinng(res http.ResponseWriter, req *http.Reque
 	}
 	// fmt.Println("HEEEEEEEEEEEEEEREEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEe",followedID)
 	ProfileTarget, err := handler.services.Reepo.TakeUserProfile(user.ID, followedID)
-	fmt.Println("$$$$$$$$$$$$$$$$Check the Privicy$$$$$$$", ProfileTarget.IsPrivate)
-	ProfileTarget.IsPrivate = true
-	// _, err = handler.services.Reepo.TakeUserProfile(user.ID, followedID)
 	if err != nil {
 		utils.ErrorResponse(res, err.Error(), http.StatusUnauthorized)
 		return
 	}
+	fmt.Println("$$$$$$$$$$$$$$$$Check the Privicy$$$$$$$", ProfileTarget.IsPrivate)
+	// ProfileTarget.IsPrivate = true
+	// _, err = handler.services.Reepo.TakeUserProfile(user.ID, followedID)
 	// if !ProfileTarget.IsPrivate{
 	// 	//handelt the accepten and the nothification
 	// 	fmt.Println("!!!!!!!!!!!!!!!Profile is Privite!!!!!!!!!!!!!")
@@ -315,8 +343,8 @@ func (handler *Handlers) Userfollowinng(res http.ResponseWriter, req *http.Reque
 	if Followstatuss == "followpending" {
 		fmt.Println("The follow is Penddding")
 		//// push the nothification
-		utils.ResponnseSender(res,http.StatusOK, map[string]any{
-			"message":"The follow penddding while unitil the user accept"})
+		utils.ResponnseSender(res, http.StatusOK, map[string]any{
+			"message": "The follow penddding while unitil the user accept"})
 		return
 	}
 	message := "You are now following this user"
@@ -333,7 +361,81 @@ func (handler *Handlers) Userfollowinng(res http.ResponseWriter, req *http.Reque
 	})
 }
 func (handler *Handlers) Userfollowers(res http.ResponseWriter, req *http.Request) {
-	fmt.Println("The user want the profile")
+	fmt.Println("The user want the Userfollowers")
+	if !requests.IsRequestValid(res, req, "/Userfollowers", http.MethodGet) {
+		return
+	}
+	cookie, err := req.Cookie("solo_social")
+	if err != nil {
+		utils.ErrorResponse(res, "sesssion not valiiid ", http.StatusUnauthorized)
+		return
+	}
+	_, err = handler.services.Reepo.Checksession(cookie.Value)
+	if err != nil {
+		utils.ErrorResponse(res, "Your Session Not valid", http.StatusUnauthorized)
+		// log.Printf("Your Session Not valid", err.Error())
+		return
+	}
+	user, err := handler.services.Reepo.GetUserByToken(cookie.Value)
+	if err != nil {
+		utils.ErrorResponse(res, "Your Session Not validd", http.StatusUnauthorized)
+		return
+	}
+	Useeerid := req.URL.Query().Get("useeer_id")
+	if Useeerid == "" {
+		fmt.Println("the useer id ", Useeerid)
+		Useeerid = user.ID
+	}
+	if Useeerid != user.ID {
+		targetProfile, err := handler.services.Reepo.TakeUserProfile(user.ID, Useeerid)
+		if err != nil {
+			utils.ErrorResponse(res, "User not found", http.StatusNotFound)
+			return
+		}
+
+		// (Authorization Logic)  not the owner  profile privite the user not follow  the user
+		if targetProfile.IsPrivate && !targetProfile.IsOwner && !targetProfile.IsFollowing {
+			utils.ResponnseSender(res, http.StatusForbidden, map[string]string{
+				"error": "This account is private. Follow the user to see their content.",
+			})
+			return
+		}
+	}
+	followersData, err := handler.services.Reepo.GetUserList("Userfollowers", Useeerid)
+	if err != nil {
+		utils.ErrorResponse(res, "Faild to bring data of the followers user", http.StatusInternalServerError)
+		return
+	}
+	utils.ResponnseSender(res, http.StatusOK, map[string]any{
+		"status": "success",
+		"data":   followersData,
+	})
+}
+func (handler *Handlers) FetchNetwork(res http.ResponseWriter, req *http.Request) {
+	connect := req.URL.Query().Get("connect")
+	cookie, err := req.Cookie("solo_social")
+	if err != nil {
+		utils.ErrorResponse(res, "sesssion not valiiid ", http.StatusUnauthorized)
+		return
+	}
+	Userrrid, err := handler.services.Reepo.Checksession(cookie.Value)
+	if err != nil {
+		utils.ErrorResponse(res, "Your Session Not valid", http.StatusUnauthorized)
+		// log.Printf("Your Session Not valid", err.Error())
+		return
+	}
+	ContactData, err := handler.services.Reepo.GetUserList(connect, Userrrid)
+	fmt.Println("bring all those",ContactData)
+	if err != nil {
+		fmt.Println("the erro from dataabase",err.Error())
+		utils.ErrorResponse(res, "Faild to bring data of the followers user", http.StatusInternalServerError)
+		return
+	}
+	utils.ResponnseSender(res, http.StatusOK, map[string]any{
+		"status":      "success",
+		"Contactdata": ContactData,
+	})
+
 }
 func extractprofileID(req *http.Request, profileeeid string) string {
 	tackenid := strings.TrimSpace(req.URL.Query().Get("id"))

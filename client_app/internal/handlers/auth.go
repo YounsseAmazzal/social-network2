@@ -30,6 +30,7 @@ func (handler *Handlers) SignUp(res http.ResponseWriter, req *http.Request) {
 		utils.ErrorResponse(res, err.Error(), http.StatusUnprocessableEntity)
 		return
 	}
+
 	usersingup, err := handler.services.SignUpUser(userpayload)
 	if err != nil {
 		fmt.Println("there is problem on user creations")
@@ -38,7 +39,7 @@ func (handler *Handlers) SignUp(res http.ResponseWriter, req *http.Request) {
 		utils.ErrorResponse(res, err.Error(), http.StatusBadRequest)
 		return
 	}
-	errrrr := handler.services.Reepo.CreateUserSession(res, userpayload.ID)
+	errrrr := handler.services.Reepo.CreateUserSession(res, usersingup.ID)
 	if errrrr != nil {
 		fmt.Println("i couldn't maaake session forr user")
 		utils.ErrorResponse(res, err.Error(), http.StatusInternalServerError)

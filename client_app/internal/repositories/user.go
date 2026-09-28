@@ -199,6 +199,7 @@ func (ur *Repository) TakeUserProfile(useeerid string,Profileid string)(*models.
 	fmt.Println("he is teh profile owner Profile",Profileid)
 	userinfoo,err:=ur.fetchBasicUserInfo(Profileid)
 	if err!=nil{
+		// log.Fatal("heeeeessddfsdsdfdsf")
 		return nil,fmt.Errorf("Proofie not found %w",&err)
 	}
 	isOwner := useeerid == Profileid

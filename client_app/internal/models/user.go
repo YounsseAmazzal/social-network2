@@ -24,11 +24,12 @@ type User struct {
 	Age        int    `json:"age"`
 	Gender     string `json:"gender"`
 	IsLoggedIn bool   `json:"is_logged_in"`
-	Password        string `json:"-"`
+	Password   string `json:"-"`
 	Email      string `json:"email"`
 	AvatarURL  string `json:"avatar_url"`
 	Avatar     any    `json:"avatar,omitempty"`
 	AboutMe    string `json:"aboutMe,omitempty"`
+	Rolation string   `json:"Rolation"`
 	IsPrivate  bool   `json:"isPrivate"`
 }
 type UserLoign struct {
