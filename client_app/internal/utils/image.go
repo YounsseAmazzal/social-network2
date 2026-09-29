@@ -7,7 +7,7 @@ import (
 	"errors"
 	"fmt"
 	"image"
-	_ "image/gif"  // تسجيل الـ decoders ضروري لـ image.Decode
+	_ "image/gif" 
 	_ "image/jpeg"
 	_ "image/png"
 	"io"
@@ -19,7 +19,7 @@ import (
 const (
 	MaxUploadSize    = 20 << 20 
 	MaxPixelSize     = 8000   
-	UploadDirectory  = "static/media"
+	UploadDirectory  = "socialuk"
 	FilePermissions  = 0644
 	DirPermissions   = 0755
 )
@@ -46,6 +46,7 @@ func ValidateImageContent(imgData []byte) (string, error) {
 	}
 
 	ext, isSupported := supportedExtaaions[format]
+	fmt.Println("Imaaage format:",format)
 	if !isSupported {
 		return "", fmt.Errorf("unsupported format: %s (only PNG, JPEG, GIF allowed)", format)
 	}
@@ -65,6 +66,7 @@ func ProcessImageUpload(file multipart.File, header *multipart.FileHeader) (stri
 	}
 	//preee cheeck 
 	if header.Size > MaxUploadSize {
+		// fmt.Println("IIIIIIIIIIIIMMMMMAAAAAAAAAAGEEE",header.Size)
 		return "", fmt.Errorf("file size (%d) exceeds limit of 20MB", header.Size)
 	}
 	//reaaad on memoery 

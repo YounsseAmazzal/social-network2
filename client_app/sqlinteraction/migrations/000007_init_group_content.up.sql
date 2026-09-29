@@ -1,4 +1,4 @@
-CREATE TABLE IF NOT EXISTS group_posts (
+CREATE TABLE IF NOT EXISTS posts_of_group (
     id TEXT PRIMARY KEY,
     group_id TEXT,
     member_id TEXT,

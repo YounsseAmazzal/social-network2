@@ -1,4 +1,4 @@
-CREATE TABLE IF NOT EXISTS post (
+CREATE TABLE IF NOT EXISTS posts (
     id TEXT PRIMARY KEY,
     title TEXT NOT NULL,
     description TEXT NOT NULL,
@@ -18,7 +18,7 @@ CREATE TABLE IF NOT EXISTS post_shared_users (
 );
 
 
-CREATE TABLE IF NOT EXISTS post_vote (
+CREATE TABLE IF NOT EXISTS post_rating (
     user_id TEXT NOT NULL,
     post_id TEXT NOT NULL,
     vote INTEGER NOT NULL,
