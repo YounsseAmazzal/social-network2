@@ -78,3 +78,40 @@ func ExtractPosstid(request *http.Request) (string, error) {
 	}
 	return Postt_id,nil
 }
+func Parsecommmenpyload(req *http.Request) (models.Comment, error) {
+	var commentpyload models.Comment
+	contentType := req.Header.Get("Content-Type")
+	if strings.HasPrefix(contentType, "multipart/form-data") {
+		if err := req.ParseMultipartForm(32 << 20); err != nil {
+			log.Printf("Error parsing multipart form on comment ")
+			return commentpyload, fmt.Errorf("Error parsing multipart form: %v", err)
+		}
+
+		commentpyload.Content = req.FormValue("Content")
+		if file_image, header, err := req.FormFile("comment_immmage"); err == nil {
+			defer file_image.Close()
+			if header != nil || header.Size > 0 {
+				Imagename, err := utils.ProcessImageUpload(file_image, header)
+				if err != nil {
+					return commentpyload, fmt.Errorf("failed to save post image file: %w", err)
+				}
+				commentpyload.Image = Imagename
+			}
+		}
+
+	}
+	fmt.Println("Returneer payload",commentpyload)
+	return commentpyload, nil
+}
+func ValidCommentpy(commentpayload *models.Comment)(error){
+		if commentpayload.Content == "" {
+		return errors.New("contennt cannot be eempty")
+	}
+	if len(commentpayload.Content) > 1000  {
+		return errors.New("the title is longer then (50) char ")
+	}
+	if commentpayload.Image==""{
+		return errors.New("Select an Image and it should be valid!!!")
+	}
+	return nil
+}

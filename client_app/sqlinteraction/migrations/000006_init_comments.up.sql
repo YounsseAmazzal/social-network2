@@ -1,11 +1,11 @@
 CREATE TABLE IF NOT EXISTS comments (
     id TEXT PRIMARY KEY,
-    text TEXT NOT NULL,
-    authorID TEXT NOT NULL,
+    content TEXT NOT NULL,
+    createrID TEXT NOT NULL,
     postID TEXT NOT NULL,
     createDate TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    image TEXT,
-    FOREIGN KEY (authorID) REFERENCES users(id) ON DELETE CASCADE,
+    comment_image TEXT,
+    FOREIGN KEY (createrID) REFERENCES users(id) ON DELETE CASCADE,
     FOREIGN KEY (postID) REFERENCES post(id) ON DELETE CASCADE
 );
 
