@@ -29,4 +29,5 @@ type Post struct {
 type PostDetails struct{
 	Post
 	Raaating *string `json:"userrating"`
+	PostComments []*CommentResponse
 }

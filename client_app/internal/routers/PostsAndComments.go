@@ -15,6 +15,8 @@ func PooostsandComments(servermux *http.ServeMux, handler *handlers.Handlers, mi
 	servermux.Handle("/GetPost", neewratelimiter.ApplyMiddleware("normalapi", (http.HandlerFunc(handler.GETpost))))
 	servermux.Handle("/AllPosts", neewratelimiter.ApplyMiddleware("normalapi", (http.HandlerFunc(handler.AllPosts))))
 	servermux.Handle("/CreateComment", neewratelimiter.ApplyMiddleware("normalapi", (http.HandlerFunc(handler.CreateComment))))
-	servermux.Handle("/GetComment", neewratelimiter.ApplyMiddleware("normalapi", (http.HandlerFunc(handler.CreateComment))))
-	servermux.Handle("/AllComment", neewratelimiter.ApplyMiddleware("normalapi", (http.HandlerFunc(handler.AllComments))))
+	// servermux.Handle("/GetComment", neewratelimiter.ApplyMiddleware("normalapi", (http.HandlerFunc(handler.GetComment))))
+	// servermux.Handle("/AllPostComment", neewratelimiter.ApplyMiddleware("normalapi", (http.HandlerFunc(handler.GetComments))))
+	// servermux.Handle("/RatePost", neewratelimiter.ApplyMiddleware("normalapi", (http.HandlerFunc(handler.AllComments))))
+	// servermux.Handle("/Ratecomment", neewratelimiter.ApplyMiddleware("normalapi", (http.HandlerFunc(handler.AllComments))))
 }

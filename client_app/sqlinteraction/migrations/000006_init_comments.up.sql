@@ -9,10 +9,3 @@ CREATE TABLE IF NOT EXISTS comments (
     FOREIGN KEY (postID) REFERENCES post(id) ON DELETE CASCADE
 );
 
-CREATE TABLE IF NOT EXISTS comment_vote (
-    user_id TEXT NOT NULL,
-    comment_id TEXT NOT NULL,
-    vote INTEGER NOT NULL,
-    FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE CASCADE,
-    UNIQUE(user_id, comment_id)
-);

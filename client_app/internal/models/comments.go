@@ -17,8 +17,5 @@ type CommentResponse struct {
 	CreaterName    string  `json:"creater_name"`
 	Createravatar  string  `json:"creater_avatar"`
 	Image         string  `json:"image_url,omitempty"`
-	LikesNum    int     `json:"likes_Num"`
-	DislikesNum int     `json:"dislikesNum"`
-	UserRate     *string `json:"user_rating"` 
 	CreatedAt     string  `json:"created_date"`
 }

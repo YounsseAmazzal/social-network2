@@ -110,8 +110,8 @@ func ValidCommentpy(commentpayload *models.Comment)(error){
 	if len(commentpayload.Content) > 1000  {
 		return errors.New("the title is longer then (50) char ")
 	}
-	if commentpayload.Image==""{
-		return errors.New("Select an Image and it should be valid!!!")
-	}
+	// if commentpayload.Image==""{
+	// 	return errors.New("Select an Image and it should be valid!!!")
+	// }
 	return nil
 }

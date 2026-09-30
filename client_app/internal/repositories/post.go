@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
+	"log"
 	"social/internal/models"
 	"social/internal/utils"
 
@@ -137,7 +138,21 @@ func (postr *Repository) CheckPostOnGroupposts(postid string) (bool, error) {
 	}
 	return kaayn, nil
 }
+func(postrepo *Repository) CheeeckPostidvalid(postid string) (bool,error){
+	var kayn int 
+	query := `SELECT COUNT(id) FROM posts WHERE id = ?`
 
+	err := postrepo.DB.Database.QueryRow(query, postid).Scan(&kayn)
+	if err != nil {
+		log.Fatal("errrrr",err)
+		return false, fmt.Errorf("database error: %w", err)
+	}
+	if kayn==0{
+		return false,nil
+	}
+	return true ,nil
+
+}
 func (r *Repository) GetCompletePostByID(postID, viewerID string) (*models.PostDetails, error) {
 	var post models.PostDetails
 	var userVote sql.NullString
