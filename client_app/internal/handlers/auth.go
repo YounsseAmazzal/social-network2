@@ -2,7 +2,6 @@ package handlers
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
 	"social/internal/models"
 	"social/internal/requests"
@@ -10,20 +9,20 @@ import (
 )
 
 func (handler *Handlers) SignUp(res http.ResponseWriter, req *http.Request) {
-	fmt.Println("the user want to SignUp ")
+	//fmt.Println("the user want to SignUp ")
 	if !requests.IsRequestValid(res, req, "/Signup", http.MethodPost) {
 		return
 	}
-	// fmt.Println("the resquet content",req.Header)
+	// //fmt.Println("the resquet content",req.Header)
 	// var userPayload models.UserPayload
 	userpayload, err := requests.ValidSignUpPayload(req)
 	if err != nil {
 		//i will add a helper to send error
-		// fmt.Println("the payload mismached")
+		// //fmt.Println("the payload mismached")
 		utils.ErrorResponse(res, err.Error(), http.StatusBadRequest)
 		return
 	}
-	// fmt.Println("thaaat is the payload ConfirmPassword ", userpayload)
+	// //fmt.Println("thaaat is the payload ConfirmPassword ", userpayload)
 	if err := utils.ValidateRegistration(&userpayload); err != nil {
 		// response errorrr
 		// log.Fatal("probleeem on validation ",err.Error())
@@ -33,7 +32,7 @@ func (handler *Handlers) SignUp(res http.ResponseWriter, req *http.Request) {
 
 	usersingup, err := handler.services.SignUpUser(userpayload)
 	if err != nil {
-		fmt.Println("there is problem on user creations")
+		//fmt.Println("there is problem on user creations")
 		// khaasni nspisefe error from database or what
 		//i will add a hander error response
 		utils.ErrorResponse(res, err.Error(), http.StatusBadRequest)
@@ -41,7 +40,7 @@ func (handler *Handlers) SignUp(res http.ResponseWriter, req *http.Request) {
 	}
 	errrrr := handler.services.Reepo.CreateUserSession(res, usersingup.ID)
 	if errrrr != nil {
-		fmt.Println("i couldn't maaake session forr user")
+		//fmt.Println("i couldn't maaake session forr user")
 		utils.ErrorResponse(res, err.Error(), http.StatusInternalServerError)
 		return
 		//add the handler error here
@@ -59,9 +58,9 @@ func (handler *Handlers) SignUp(res http.ResponseWriter, req *http.Request) {
 		AvatarURL: userpayload.AvatarURL,
 		Avatar:    userpayload.AvatarURL,
 		AboutMe:   userpayload.AboutMe,
-		IsPrivate: userpayload.IsPrivate==1,
+		IsPrivate: userpayload.IsPrivate == 1,
 	}
-	fmt.Println("that is the user payload", usersingup)
+	//fmt.Println("that is the user payload", usersingup)
 	utils.ResponnseSender(res, http.StatusCreated, map[string]any{
 		"status":  "success",
 		"message": "Welcome to the social network",
@@ -71,7 +70,7 @@ func (handler *Handlers) SignUp(res http.ResponseWriter, req *http.Request) {
 	})
 }
 func (handler *Handlers) Login(res http.ResponseWriter, req *http.Request) {
-	// fmt.Println("the user want to Logout ")
+	// //fmt.Println("the user want to Logout ")
 	if !requests.IsRequestValid(res, req, "/Signin", http.MethodPost) {
 		return
 	}
@@ -80,7 +79,7 @@ func (handler *Handlers) Login(res http.ResponseWriter, req *http.Request) {
 		utils.ErrorResponse(res, "Invalid JSON format", http.StatusBadRequest)
 		return
 	}
-	fmt.Println("the useeer crediantial", userlogin.IdentifierEN)
+	//fmt.Println("the useeer crediantial", userlogin.IdentifierEN)
 	err := utils.Logininputvalid(&userlogin)
 	if err != nil {
 		// log.Fatal("hnaaaaaaaaaaaaaaaaaaya")
@@ -93,16 +92,16 @@ func (handler *Handlers) Login(res http.ResponseWriter, req *http.Request) {
 		utils.ErrorResponse(res, "Invaaalid IdentifierEN or password", http.StatusBadRequest)
 		return
 	}
-	// fmt.Println("that is the the passsword 1",useeer.Password)
-	// fmt.Println("that is the the passsword 2",userlogin.Password)
+	// //fmt.Println("that is the the passsword 1",useeer.Password)
+	// //fmt.Println("that is the the passsword 2",userlogin.Password)
 	if !utils.CompareHashedpassword(userlogin.Password, useeer.Password) {
-		fmt.Println("@@@@@@there is an problem on compeere @@@@@")
+		//fmt.Println("@@@@@@there is an problem on compeere @@@@@")
 		utils.ResponnseSender(res, http.StatusCreated, "Invaaalid IdentifierEN or password")
 		return
 	}
 	errrrr := handler.services.Reepo.CreateUserSession(res, useeer.ID)
 	if errrrr != nil {
-		fmt.Println("i couldn't maaake session forr user")
+		//fmt.Println("i couldn't maaake session forr user")
 		utils.ErrorResponse(res, err.Error(), http.StatusInternalServerError)
 		return
 		//add the handler error here
@@ -131,11 +130,11 @@ func (handler *Handlers) Login(res http.ResponseWriter, req *http.Request) {
 	})
 }
 func (*Handlers) Home(res http.ResponseWriter, req *http.Request) {
-	fmt.Println("the user want to home ")
+	//fmt.Println("the user want to home ")
 	utils.ResponnseSender(res, http.StatusCreated, "Yourrr welcome")
 }
 func (hander *Handlers) Logout(res http.ResponseWriter, req *http.Request) {
-	// fmt.Println("the user want to Logout ")
+	// //fmt.Println("the user want to Logout ")
 	if !requests.IsRequestValid(res, req, "/Logout", http.MethodDelete) {
 		return
 	}
@@ -170,7 +169,7 @@ func (hander *Handlers) Logout(res http.ResponseWriter, req *http.Request) {
 	})
 }
 func (handler *Handlers) ME(res http.ResponseWriter, req *http.Request) {
-	fmt.Println("the user want to HimSelf ")
+	//fmt.Println("the user want to HimSelf ")
 	if !requests.IsRequestValid(res, req, "/Me", http.MethodGet) {
 		return
 	}

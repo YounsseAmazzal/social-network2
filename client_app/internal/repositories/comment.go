@@ -10,12 +10,12 @@ import (
 )
 
 func (postr *Repository) CreaatComment(commentpyyload *models.Comment) error {
-	// fmt.Println("commment content ",commentpyyload.Content)
-	// fmt.Println("commment content ",commentpyyload.CreatedAt)
-	// fmt.Println("commment content ",commentpyyload.Image)
-	// fmt.Println("commment content ",commentpyyload.CreaterID)
-	// fmt.Println("commment content ",commentpyyload.PostID)
-	// fmt.Println("commment content ",commentpyyload.ID)
+	// //fmt.Println("commment content ",commentpyyload.Content)
+	// //fmt.Println("commment content ",commentpyyload.CreatedAt)
+	// //fmt.Println("commment content ",commentpyyload.Image)
+	// //fmt.Println("commment content ",commentpyyload.CreaterID)
+	// //fmt.Println("commment content ",commentpyyload.PostID)
+	// //fmt.Println("commment content ",commentpyyload.ID)
 	newID, err := uuid.NewV4()
 	if err != nil {
 		return errors.New("repository: failed to generate uuid")
@@ -37,7 +37,7 @@ func (postr *Repository) CreaatComment(commentpyyload *models.Comment) error {
 		commentpyyload.PostID, commentpyyload.Image,
 	)
 	if err != nil {
-		fmt.Println("THe commment error", err)
+		//fmt.Println("THe commment error", err)
 		return errors.New("repository: failed to insert Comments")
 	}
 	// acccept all the channgments
@@ -67,14 +67,14 @@ func (comment *Repository) GetPostCommensts(userId string, posstId string) ([]*m
 
 	for rows.Next() {
 		c := &models.CommentResponse{}
-		
+
 		err := rows.Scan(
-			&c.ID, 
-			&c.Content, 
-			&c.CreaterID, 
-			&c.CreatedAt, 
+			&c.ID,
+			&c.Content,
+			&c.CreaterID,
+			&c.CreatedAt,
 			&c.Image,
-			&c.CreaterName, 
+			&c.CreaterName,
 			&c.Createravatar,
 		)
 		if err != nil {
@@ -88,13 +88,13 @@ func (comment *Repository) GetPostCommensts(userId string, posstId string) ([]*m
 		if c.Createravatar != "" {
 			c.Createravatar = "/socialup/" + c.Createravatar
 		}
-		
+
 		comments = append(comments, c)
 	}
 
 	if err = rows.Err(); err != nil {
 		return nil, err
 	}
-	// fmt.Println("WE BRING THE POSTS COMMENTS HERE ",comments)
+	// //fmt.Println("WE BRING THE POSTS COMMENTS HERE ",comments)
 	return comments, nil
 }

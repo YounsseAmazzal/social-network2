@@ -22,12 +22,12 @@ func PostPyloadParse(req *http.Request) (models.PostCreation, error) {
 		postPyyload.Title = req.FormValue("PostTitle")
 		postPyyload.Description = req.FormValue("PostContent")
 		postPyyload.Postprivecy = req.FormValue("privacy")
-		fmt.Println("!!!!!!!!!!THee Post Privercy!!!!!!!!!!!!1", postPyyload.Postprivecy)
+		//fmt.Println("!!!!!!!!!!THee Post Privercy!!!!!!!!!!!!1", postPyyload.Postprivecy)
 		if postPyyload.Postprivecy == "followers_chosen" {
-			fmt.Println("EEEEEEEEEE@@@@#####")
+			//fmt.Println("EEEEEEEEEE@@@@#####")
 			shared_ids := req.Form["followers_chosen"]
 			for _, id := range shared_ids {
-				fmt.Println("THe shareed post", id)
+				//fmt.Println("THe shareed post", id)
 				postPyyload.SharedWith = append(postPyyload.SharedWith, id)
 			}
 		}
@@ -43,7 +43,7 @@ func PostPyloadParse(req *http.Request) (models.PostCreation, error) {
 		}
 
 	}
-	// fmt.Println("@@@@@@@@thee user retuerner ", postPyyload.DateOfBirth)
+	// //fmt.Println("@@@@@@@@thee user retuerner ", postPyyload.DateOfBirth)
 	return postPyyload, nil
 }
 func ValidPostPyload(paylod *models.PostCreation) error {
@@ -66,7 +66,7 @@ func ValidPostPyload(paylod *models.PostCreation) error {
 		return errors.New("You should choice people to share with them this possst hh")
 	}
 	if paylod.Image == "" {
-		fmt.Println("PPPPPPPPPPPPPPPPPPOSST PIIC", paylod.Image)
+		//fmt.Println("PPPPPPPPPPPPPPPPPPOSST PIIC", paylod.Image)
 		return errors.New("Enter an image it's nooot option enter valid image !!! ")
 	}
 	return nil
@@ -76,7 +76,7 @@ func ExtractPosstid(request *http.Request) (string, error) {
 	if Postt_id == "" {
 		return "", fmt.Errorf("Post Id not Foundd")
 	}
-	return Postt_id,nil
+	return Postt_id, nil
 }
 func Parsecommmenpyload(req *http.Request) (models.Comment, error) {
 	var commentpyload models.Comment
@@ -100,14 +100,14 @@ func Parsecommmenpyload(req *http.Request) (models.Comment, error) {
 		}
 
 	}
-	fmt.Println("Returneer payload",commentpyload)
+	//fmt.Println("Returneer payload",commentpyload)
 	return commentpyload, nil
 }
-func ValidCommentpy(commentpayload *models.Comment)(error){
-		if commentpayload.Content == "" {
+func ValidCommentpy(commentpayload *models.Comment) error {
+	if commentpayload.Content == "" {
 		return errors.New("contennt cannot be eempty")
 	}
-	if len(commentpayload.Content) > 1000  {
+	if len(commentpayload.Content) > 1000 {
 		return errors.New("the title is longer then (50) char ")
 	}
 	// if commentpayload.Image==""{

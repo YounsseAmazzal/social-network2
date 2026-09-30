@@ -27,7 +27,7 @@ func (ur *Repository) CreateUser(payload *models.UserInfo) (*models.User, error)
 		Age:       payload.Age,
 		Gender:    payload.Gender,
 		AboutMe:   html.EscapeString(payload.AboutMe),
-		IsPrivate: payload.IsPrivate==1,
+		IsPrivate: payload.IsPrivate == 1,
 	}
 	nickname := strings.TrimSpace(payload.Nickname)
 	if nickname == "" {
@@ -72,7 +72,7 @@ func (ur *Repository) CreateUser(payload *models.UserInfo) (*models.User, error)
 }
 func (ur *Repository) CheckuserIfExxist(usernameoremail string) (*models.User, bool) {
 	var UserInfo models.User
-	fmt.Println("the indefair", usernameoremail)
+	//fmt.Println("the indefair", usernameoremail)
 	usernameoremail = strings.ToLower(usernameoremail)
 	query := `
 		SELECT 
@@ -95,7 +95,7 @@ func (ur *Repository) CheckuserIfExxist(usernameoremail string) (*models.User, b
 		&UserInfo.IsPrivate,
 		&UserInfo.Password,
 	)
-	fmt.Println("that is the id of user", UserInfo.ID)
+	//fmt.Println("that is the id of user", UserInfo.ID)
 
 	if err != nil {
 		if err == sql.ErrNoRows {
@@ -110,7 +110,7 @@ func (ur *Repository) CheckuserIfExxist(usernameoremail string) (*models.User, b
 func (ur *Repository) Checksession(tocccken string) (string, error) {
 	var userID string
 	var expireAt time.Time
-	//queery to data base 
+	//queery to data base
 	query := "SELECT user_id, expire_at FROM sessions WHERE token = ?"
 	err := ur.DB.Database.QueryRow(query, tocccken).Scan(&userID, &expireAt)
 
@@ -122,7 +122,7 @@ func (ur *Repository) Checksession(tocccken string) (string, error) {
 	}
 
 	if time.Now().After(expireAt) {
-		//cleaaant the dataa base 
+		//cleaaant the dataa base
 		_ = ur.DeleteSession(tocccken)
 		return "", fmt.Errorf("session expired")
 	}
@@ -140,7 +140,7 @@ func (ur *Repository) DeleteSession(token string) error {
 func (ur *Repository) GetUserByToken(token string) (*models.User, error) {
 	var UseerId string
 	var expireAt time.Time
-	//taaaake the sesssion and ensure that it is good 
+	//taaaake the sesssion and ensure that it is good
 	query := "SELECT user_id, expire_at FROM sessions WHERE token = ?"
 	err := ur.DB.Database.QueryRow(query, token).Scan(&UseerId, &expireAt)
 	if err != nil {
@@ -149,7 +149,7 @@ func (ur *Repository) GetUserByToken(token string) (*models.User, error) {
 		}
 		return nil, fmt.Errorf("database error during session lookup: %w", err)
 	}
-	// fmt.Println("$$$$$$$$user from session")
+	// //fmt.Println("$$$$$$$$user from session")
 	// the expireetion
 	if time.Now().After(expireAt) {
 		//deeelte the session automatlcty
@@ -163,8 +163,8 @@ func (ur *Repository) GetUserByToken(token string) (*models.User, error) {
 	}
 	return exaactuser, nil
 }
-func (ur *Repository) BringUserByid(usseridd string)(*models.User,error){
-      var useeer models.User
+func (ur *Repository) BringUserByid(usseridd string) (*models.User, error) {
+	var useeer models.User
 	// i prefer that way to query to data ((Backticks
 	query := `
 		SELECT 
@@ -195,12 +195,12 @@ func (ur *Repository) BringUserByid(usseridd string)(*models.User,error){
 
 	return &useeer, nil
 }
-func (ur *Repository) TakeUserProfile(useeerid string,Profileid string)(*models.ProfileResponse,error){
-	fmt.Println("he is teh profile owner Profile",Profileid)
-	userinfoo,err:=ur.fetchBasicUserInfo(Profileid)
-	if err!=nil{
+func (ur *Repository) TakeUserProfile(useeerid string, Profileid string) (*models.ProfileResponse, error) {
+	//fmt.Println("he is teh profile owner Profile",Profileid)
+	userinfoo, err := ur.fetchBasicUserInfo(Profileid)
+	if err != nil {
 		// log.Fatal("heeeeessddfsdsdfdsf")
-		return nil,fmt.Errorf("Proofie not found %w",&err)
+		return nil, fmt.Errorf("Proofie not found %w", &err)
 	}
 	isOwner := useeerid == Profileid
 	isFollowing := ur.checkFollowStatus(useeerid, Profileid)
@@ -211,10 +211,10 @@ func (ur *Repository) TakeUserProfile(useeerid string,Profileid string)(*models.
 		IsFollowing: isFollowing,
 	}
 	//return profile info for now without checking following and bringing the posts
-	return profile,nil
-	// return  
+	return profile, nil
+	// return
 }
-func (ur *Repository) UpdateProfileSettings(userID, nickname, aboutMe string, isPrivate bool)error{ 
+func (ur *Repository) UpdateProfileSettings(userID, nickname, aboutMe string, isPrivate bool) error {
 	query := `
 		UPDATE users 
 		SET nickname = ?, about_me = ?, is_private = ? 
@@ -229,14 +229,14 @@ func (ur *Repository) UpdateProfileSettings(userID, nickname, aboutMe string, is
 }
 func (ur *Repository) checkFollowStatus(followerID, followingID string) bool {
 	var status string
-	err := ur.DB.Database.QueryRow("SELECT status FROM followers WHERE follower_id = ? AND following_id = ?", 
+	err := ur.DB.Database.QueryRow("SELECT status FROM followers WHERE follower_id = ? AND following_id = ?",
 		followerID, followingID).Scan(&status)
 	return err == nil && status == "accepted"
 }
-func (ur *Repository) fetchBasicUserInfo(ProoofileId string)(*models.User,error){
-	fmt.Println("The profile id",ProoofileId)
+func (ur *Repository) fetchBasicUserInfo(ProoofileId string) (*models.User, error) {
+	//fmt.Println("The profile id",ProoofileId)
 	var usserr models.User
-	quuery:=`
+	quuery := `
 		SELECT id, nickname, firstname,
 		 lastname,
 		  age, gender, email,
@@ -249,9 +249,9 @@ func (ur *Repository) fetchBasicUserInfo(ProoofileId string)(*models.User,error)
 		&usserr.Age, &usserr.Gender, &usserr.Email, &usserr.AvatarURL,
 		&usserr.AboutMe, &usserr.IsPrivate,
 	)
-	// fmt.Println("!!!!!!!!!!!!!!I find it!!!!!!!!!!!",err)
+	// //fmt.Println("!!!!!!!!!!!!!!I find it!!!!!!!!!!!",err)
 	if err == sql.ErrNoRows {
 		return nil, fmt.Errorf("user not found")
 	}
-	return  &usserr,err
+	return &usserr, err
 }

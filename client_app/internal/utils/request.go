@@ -2,7 +2,6 @@ package utils
 
 import (
 	"encoding/json"
-	"fmt"
 	"log"
 	"net/http"
 )
@@ -12,13 +11,13 @@ func ResponnseSender(response http.ResponseWriter, staatuscode int, data interfa
 	// dima
 	response.WriteHeader(staatuscode)
 	var errr error
-	errr= json.NewEncoder(response).Encode(data)
-	if errr!=nil{
-		log.Println("Errror fencoding Json",errr.Error())
+	errr = json.NewEncoder(response).Encode(data)
+	if errr != nil {
+		log.Println("Errror fencoding Json", errr.Error())
 	}
-	fmt.Println("THEEEE RESPONSE SENDED SUCCESFULLY")
+	//fmt.Println("THEEEE RESPONSE SENDED SUCCESFULLY")
 }
-func ErrorResponse(w http.ResponseWriter,msg string, staatusecode  int, ) {
+func ErrorResponse(w http.ResponseWriter, msg string, staatusecode int) {
 	errorResponse := map[string]string{"ERorrmessages": msg}
 	ResponnseSender(w, staatusecode, errorResponse)
 }

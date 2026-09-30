@@ -7,7 +7,7 @@ import (
 	"errors"
 	"fmt"
 	"image"
-	_ "image/gif" 
+	_ "image/gif"
 	_ "image/jpeg"
 	_ "image/png"
 	"io"
@@ -17,11 +17,11 @@ import (
 )
 
 const (
-	MaxUploadSize    = 20 << 20 
-	MaxPixelSize     = 8000   
-	UploadDirectory  = "socialuk"
-	FilePermissions  = 0644
-	DirPermissions   = 0755
+	MaxUploadSize   = 20 << 20
+	MaxPixelSize    = 8000
+	UploadDirectory = "socialuk"
+	FilePermissions = 0644
+	DirPermissions  = 0755
 )
 
 var supportedExtaaions = map[string]string{
@@ -30,7 +30,7 @@ var supportedExtaaions = map[string]string{
 	"gif":  ".gif",
 }
 
-// check the safty of the image 
+// check the safty of the image
 func ValidateImageContent(imgData []byte) (string, error) {
 	if len(imgData) == 0 {
 		return "", errors.New("image data is empty")
@@ -46,12 +46,12 @@ func ValidateImageContent(imgData []byte) (string, error) {
 	}
 
 	ext, isSupported := supportedExtaaions[format]
-	fmt.Println("Imaaage format:",format)
+	//fmt.Println("Imaaage format:",format)
 	if !isSupported {
 		return "", fmt.Errorf("unsupported format: %s (only PNG, JPEG, GIF allowed)", format)
 	}
 
-//(Security Check) all the imaaage
+	//(Security Check) all the imaaage
 	if _, _, err := image.Decode(bytes.NewReader(imgData)); err != nil {
 		return "", fmt.Errorf("corrupted image data: %w", err)
 	}
@@ -59,17 +59,17 @@ func ValidateImageContent(imgData []byte) (string, error) {
 	return ext, nil
 }
 
-// save image with hash ,uploead and save the immage 
+// save image with hash ,uploead and save the immage
 func ProcessImageUpload(file multipart.File, header *multipart.FileHeader) (string, error) {
 	if file == nil || header == nil {
 		return "", errors.New("no file was uploaded")
 	}
-	//preee cheeck 
+	//preee cheeck
 	if header.Size > MaxUploadSize {
-		// fmt.Println("IIIIIIIIIIIIMMMMMAAAAAAAAAAGEEE",header.Size)
+		// //fmt.Println("IIIIIIIIIIIIMMMMMAAAAAAAAAAGEEE",header.Size)
 		return "", fmt.Errorf("file size (%d) exceeds limit of 20MB", header.Size)
 	}
-	//reaaad on memoery 
+	//reaaad on memoery
 	fileBuffer, err := io.ReadAll(io.LimitReader(file, MaxUploadSize+1))
 	if err != nil {
 		return "", fmt.Errorf("failed to read file: %w", err)

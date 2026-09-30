@@ -45,7 +45,7 @@ func ValidSignUpPayload(req *http.Request) (models.UserInfo, error) {
 		}
 
 	}
-	fmt.Println("@@@@@@@@thee user retuerner ", user.DateOfBirth)
+	//fmt.Println("@@@@@@@@thee user retuerner ", user.DateOfBirth)
 	return user, nil
 }
 func CheckSignupInput() {

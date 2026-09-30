@@ -73,9 +73,9 @@ func (postr *Repository) GetAllVisiblePosts(viewerID string) ([]*models.Post, er
 			p.id, p.title, u.nickname AS authorName, p.createDate,
 			(SELECT COUNT(*) FROM comments WHERE postID = p.id) AS Commentsnum,
 			COALESCE(p.Image, '') AS image_url,
-			COUNT(DISTINCT CASE WHEN v.vote = 1 THEN v.user_id END) AS likesNum,
-			COUNT(DISTINCT CASE WHEN v.vote = 0 THEN v.user_id END) AS dislikesNum,
-			COALESCE(my_vote.vote, -1) AS viewer_vote_status
+			COUNT(DISTINCT CASE WHEN v.rate = 1 THEN v.user_id END) AS likesNum,
+			COUNT(DISTINCT CASE WHEN v.rate = 0 THEN v.user_id END) AS dislikesNum,
+			COALESCE(my_vote.rate, -1) AS viewer_vote_status
 		FROM posts p
 		JOIN users u ON p.authorID = u.id
 		LEFT JOIN comments c ON p.id = c.postID
@@ -138,20 +138,20 @@ func (postr *Repository) CheckPostOnGroupposts(postid string) (bool, error) {
 	}
 	return kaayn, nil
 }
-func(postrepo *Repository) CheeeckPostidvalid(postid string) (bool,error){
-	fmt.Println("POSSSSSSSSSSSSST  ID ",postid)
-	var kayn int 
+func (postrepo *Repository) CheeeckPostidvalid(postid string) (bool, error) {
+	//fmt.Println("POSSSSSSSSSSSSST  ID ",postid)
+	var kayn int
 	query := `SELECT COUNT(id) FROM posts WHERE id = ?`
 
 	err := postrepo.DB.Database.QueryRow(query, postid).Scan(&kayn)
 	if err != nil {
-		log.Fatal("errrrr",err)
+		log.Fatal("errrrr", err)
 		return false, fmt.Errorf("database error: %w", err)
 	}
-	if kayn==0{
-		return false,nil
+	if kayn == 0 {
+		return false, nil
 	}
-	return true ,nil
+	return true, nil
 
 }
 func (r *Repository) GetCompletePostByID(postID, viewerID string) (*models.PostDetails, error) {
@@ -161,9 +161,9 @@ func (r *Repository) GetCompletePostByID(postID, viewerID string) (*models.PostD
 		SELECT
 			p.id, p.title, p.description, p.authorID, u.nickname,
 			COALESCE(u.avatarURL, ''), p.createDate, COALESCE(p.Image, ''),
-			(SELECT COUNT(*) FROM post_rating WHERE post_id = p.id AND vote = 1) AS likesnum,
-			(SELECT COUNT(*) FROM post_rating WHERE post_id = p.id AND vote = 0) AS dislikesnum,
-			(SELECT CASE WHEN vote = 1 THEN 'like' WHEN vote = 0 THEN 'dislike' END
+			(SELECT COUNT(*) FROM post_rating WHERE post_id = p.id AND rate = 1) AS likesnum,
+			(SELECT COUNT(*) FROM post_rating WHERE post_id = p.id AND rate = 0) AS dislikesnum,
+			(SELECT CASE WHEN rate = 1 THEN 'like' WHEN rate = 0 THEN 'dislike' END
 			 FROM post_rating WHERE post_id = p.id AND user_id = ?) AS user_vote
 		FROM posts p
 		JOIN users u ON u.id = p.authorID

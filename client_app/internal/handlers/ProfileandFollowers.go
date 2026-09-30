@@ -13,7 +13,7 @@ import (
 )
 
 func (handler *Handlers) UserProfile(res http.ResponseWriter, req *http.Request) {
-	// fmt.Println("The user want the profile")
+	// //fmt.Println("The user want the profile")
 
 	if !requests.IsRequestValid(res, req, "/UserProfile", http.MethodGet) {
 		return
@@ -34,7 +34,7 @@ func (handler *Handlers) UserProfile(res http.ResponseWriter, req *http.Request)
 		utils.ErrorResponse(res, "Your Session Not validd", http.StatusUnauthorized)
 		return
 	}
-	// fmt.Println("********the profilee id**** ",user.ID)
+	// //fmt.Println("********the profilee id**** ",user.ID)
 	ProfileeID := extractprofileID(req, user.ID)
 	useerProfile, err := handler.services.Reepo.TakeUserProfile(user.ID, ProfileeID)
 	if err != nil {
@@ -50,7 +50,7 @@ func (handler *Handlers) UserProfile(res http.ResponseWriter, req *http.Request)
 
 }
 func (handler *Handlers) ProfileUppdate(res http.ResponseWriter, req *http.Request) {
-	fmt.Println("The user want to Update the profile")
+	//fmt.Println("The user want to Update the profile")
 	if !requests.IsRequestValid(res, req, "/ProfileUppdate", http.MethodPatch) {
 		return
 	}
@@ -116,7 +116,7 @@ func (handler *Handlers) ProfileUppdate(res http.ResponseWriter, req *http.Reque
 
 }
 func (handler *Handlers) FollowersAccept(res http.ResponseWriter, req *http.Request) {
-	fmt.Println("The user want the FollowersAccept")
+	//fmt.Println("The user want the FollowersAccept")
 	if !requests.IsRequestValid(res, req, "/followers/Accepting", http.MethodPost) {
 		return
 	}
@@ -141,9 +141,9 @@ func (handler *Handlers) FollowersAccept(res http.ResponseWriter, req *http.Requ
 		utils.ErrorResponse(res, err.Error(), http.StatusBadRequest)
 		return
 	}
-	// fmt.Println("Heee came here ")
-	pendding, errr := handler.services.Reepo.CheckPending(followedID,user.ID)
-	fmt.Println("PEEEEEEEEEEEEEEEEEEEEEEEENDIIING And error",pendding,err)
+	// //fmt.Println("Heee came here ")
+	pendding, errr := handler.services.Reepo.CheckPending(followedID, user.ID)
+	//fmt.Println("PEEEEEEEEEEEEEEEEEEEEEEEENDIIING And error",pendding,err)
 	if errr != nil {
 		utils.ErrorResponse(res, "Reequeest invalid", http.StatusInternalServerError)
 		return
@@ -152,7 +152,7 @@ func (handler *Handlers) FollowersAccept(res http.ResponseWriter, req *http.Requ
 		utils.ErrorResponse(res, "THere is no pendding requests heere", http.StatusInternalServerError)
 		return
 	}
-	err= handler.services.Reepo.AcceptFollowRequest(followedID,user.ID)
+	err = handler.services.Reepo.AcceptFollowRequest(followedID, user.ID)
 	if err != nil {
 		utils.ErrorResponse(res, err.Error(), http.StatusInternalServerError)
 		return
@@ -167,7 +167,7 @@ func (handler *Handlers) FollowersAccept(res http.ResponseWriter, req *http.Requ
 	utils.ResponnseSender(res, http.StatusOK, "Follow request accepted")
 }
 func (handler *Handlers) FollowersPendiing(res http.ResponseWriter, req *http.Request) {
-	fmt.Println("The user want the FollowersPendiing")
+	//fmt.Println("The user want the FollowersPendiing")
 	if !requests.IsRequestValid(res, req, "/followers/Pendiing", http.MethodGet) {
 		return
 	}
@@ -197,7 +197,7 @@ func (handler *Handlers) FollowersPendiing(res http.ResponseWriter, req *http.Re
 		"status":  "success"})
 }
 func (handler *Handlers) FollowersDeclineinng(res http.ResponseWriter, req *http.Request) {
-	fmt.Println("The user want FollowersDeclineinng")
+	//fmt.Println("The user want FollowersDeclineinng")
 	if !requests.IsRequestValid(res, req, "/followers/Declineinng", http.MethodPost) {
 		return
 	}
@@ -222,13 +222,13 @@ func (handler *Handlers) FollowersDeclineinng(res http.ResponseWriter, req *http
 		utils.ErrorResponse(res, err.Error(), http.StatusBadRequest)
 		return
 	}
-	// fmt.Println("Heee came here ")
+	// //fmt.Println("Heee came here ")
 	pendding, errr := handler.services.Reepo.CheckPending(followedID, user.ID)
 	if errr != nil {
 		utils.ErrorResponse(res, "Reequeest invalid", http.StatusInternalServerError)
 		return
 	}
-	fmt.Println("The follow pendding", pendding)
+	//fmt.Println("The follow pendding", pendding)
 	if !pendding {
 		utils.ErrorResponse(res, "THere is no pendding requests heere", http.StatusInternalServerError)
 		return
@@ -245,7 +245,7 @@ func (handler *Handlers) FollowersDeclineinng(res http.ResponseWriter, req *http
 	})
 }
 func (handler *Handlers) UserUnfollow(res http.ResponseWriter, req *http.Request) {
-	fmt.Println("The user want UserUnfollow")
+	//fmt.Println("The user want UserUnfollow")
 	if !requests.IsRequestValid(res, req, "/UserUnfollow", http.MethodPost) {
 		return
 	}
@@ -325,7 +325,7 @@ func (handler *Handlers) Userfollowinng(res http.ResponseWriter, req *http.Reque
 		utils.ErrorResponse(res, err.Error(), http.StatusBadRequest)
 		return
 	}
-	// fmt.Println("HEEEEEEEEEEEEEEREEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEe",followedID)
+	// //fmt.Println("HEEEEEEEEEEEEEEREEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEe",followedID)
 	ProfileTarget, err := handler.services.Reepo.TakeUserProfile(user.ID, followedID)
 	if err != nil {
 		utils.ErrorResponse(res, err.Error(), http.StatusUnauthorized)
@@ -336,12 +336,12 @@ func (handler *Handlers) Userfollowinng(res http.ResponseWriter, req *http.Reque
 	// _, err = handler.services.Reepo.TakeUserProfile(user.ID, followedID)
 	// if !ProfileTarget.IsPrivate{
 	// 	//handelt the accepten and the nothification
-	// 	fmt.Println("!!!!!!!!!!!!!!!Profile is Privite!!!!!!!!!!!!!")
+	// 	//fmt.Println("!!!!!!!!!!!!!!!Profile is Privite!!!!!!!!!!!!!")
 
 	// }
 	Followstatuss, err := handler.services.Reepo.Follwing(user.ID, followedID)
 	if Followstatuss == "followpending" {
-		fmt.Println("The follow is Penddding")
+		//fmt.Println("The follow is Penddding")
 		//// push the nothification
 		utils.ResponnseSender(res, http.StatusOK, map[string]any{
 			"message": "The follow penddding while unitil the user accept"})
@@ -361,7 +361,7 @@ func (handler *Handlers) Userfollowinng(res http.ResponseWriter, req *http.Reque
 	})
 }
 func (handler *Handlers) Userfollowers(res http.ResponseWriter, req *http.Request) {
-	fmt.Println("The user want the Userfollowers")
+	//fmt.Println("The user want the Userfollowers")
 	if !requests.IsRequestValid(res, req, "/Userfollowers", http.MethodGet) {
 		return
 	}
@@ -383,7 +383,7 @@ func (handler *Handlers) Userfollowers(res http.ResponseWriter, req *http.Reques
 	}
 	Useeerid := req.URL.Query().Get("useeer_id")
 	if Useeerid == "" {
-		fmt.Println("the useer id ", Useeerid)
+		//fmt.Println("the useer id ", Useeerid)
 		Useeerid = user.ID
 	}
 	if Useeerid != user.ID {
@@ -425,9 +425,9 @@ func (handler *Handlers) FetchNetwork(res http.ResponseWriter, req *http.Request
 		return
 	}
 	ContactData, err := handler.services.Reepo.GetUserList(connect, Userrrid)
-	fmt.Println("bring all those",ContactData)
+	//fmt.Println("bring all those",ContactData)
 	if err != nil {
-		fmt.Println("the erro from dataabase",err.Error())
+		//fmt.Println("the erro from dataabase",err.Error())
 		utils.ErrorResponse(res, "Faild to bring data of the followers user", http.StatusInternalServerError)
 		return
 	}
@@ -442,12 +442,12 @@ func extractprofileID(req *http.Request, profileeeid string) string {
 	if tackenid != "" {
 		return tackenid
 	}
-	// fmt.Println("555555555555555555555555555555555555555")
+	// //fmt.Println("555555555555555555555555555555555555555")
 	UrlPath := strings.TrimPrefix(req.URL.Path, "/UserProfile")
 	tackenid1 := strings.Trim(UrlPath, "/")
 	if tackenid1 != "" {
 		return tackenid1
 	}
-	// fmt.Println("666666666666666666666666",profileeeid)
+	// //fmt.Println("666666666666666666666666",profileeeid)
 	return profileeeid
 }

@@ -57,7 +57,7 @@ func (followrepo *Repository) Unfollowing(followerID, targetID string) error {
 
 	return nil
 }
-func (followrepo *Repository) BringPendingFollowers(userId string)([]*models.User, error) {
+func (followrepo *Repository) BringPendingFollowers(userId string) ([]*models.User, error) {
 	// treat with empty value with using COALESCE
 	query := `
 		SELECT 
@@ -67,7 +67,7 @@ func (followrepo *Repository) BringPendingFollowers(userId string)([]*models.Use
 		FROM followers f
 		JOIN users u ON u.id = f.follower_id
 		WHERE f.following_id = ? AND f.status = 'followpending'
-		ORDER BY f.created_at DESC` 
+		ORDER BY f.created_at DESC`
 
 	rows, err := followrepo.DB.Database.Query(query, userId)
 	if err != nil {
@@ -90,7 +90,7 @@ func (followrepo *Repository) BringPendingFollowers(userId string)([]*models.Use
 		}
 		requests = append(requests, user)
 	}
-	//check errors here 
+	//check errors here
 	if err = rows.Err(); err != nil {
 		return nil, fmt.Errorf("repository: error during rows iteration: %w", err)
 	}
@@ -101,8 +101,8 @@ func (followrepo *Repository) BringPendingFollowers(userId string)([]*models.Use
 func (followrepo *Repository) CheckPending(followerID, targetID string) (bool, error) {
 	var ThereIsPanding int
 	//query for pending
-	fmt.Println("THE user ID ",followerID)
-	fmt.Println("THE Target ID ",targetID)
+	//fmt.Println("THE user ID ",followerID)
+	//fmt.Println("THE Target ID ",targetID)
 	query := `
 		SELECT 1 FROM followers 
 		WHERE follower_id = ? AND following_id = ? AND status = 'followpending' 
@@ -130,8 +130,8 @@ func (followrepo *Repository) AcceptFollowRequest(followerID, userID string) err
 	if err != nil {
 		return fmt.Errorf("repository: failed to update follow status: %w", err)
 	}
-	fmt.Println("RESULT  OF ACCEPPTING FOLLOWING",result)
-	//for check if the request handled or not 
+	//fmt.Println("RESULT  OF ACCEPPTING FOLLOWING",result)
+	//for check if the request handled or not
 	rowsAffected, err := result.RowsAffected()
 	if err != nil {
 		return fmt.Errorf("repository: error checking affected rows: %w", err)
@@ -139,17 +139,17 @@ func (followrepo *Repository) AcceptFollowRequest(followerID, userID string) err
 	// fmt.Printf("DEBUG: Looking for follower: %s, following: %s, with status: followpending\n", followerID, userID)
 
 	if rowsAffected == 0 {
-		// fmt.Println("ERRRROR OF ROWAFFECTED")
+		// //fmt.Println("ERRRROR OF ROWAFFECTED")
 		return errors.New("no pending follow request found to accept")
 	}
 
 	return nil
 }
 
- //get the users with the relation like all ,followers amd following
+// get the users with the relation like all ,followers amd following
 func (followrepo *Repository) GetUserList(action string, userID string) ([]*models.User, error) {
 	var query string
-	// fmt.Println("$$$$$$$$$$$bring followers from db")
+	// //fmt.Println("$$$$$$$$$$$bring followers from db")
 	var args []interface{}
 	//define the query depend on the actions
 	switch action {
@@ -163,7 +163,7 @@ func (followrepo *Repository) GetUserList(action string, userID string) ([]*mode
 		args = []interface{}{userID, userID}
 
 	case "All":
-		// all users 
+		// all users
 		query = followrepo.getDiscoverQuery()
 		args = []interface{}{userID, userID, userID}
 
@@ -177,8 +177,8 @@ func (followrepo *Repository) GetUserList(action string, userID string) ([]*mode
 	}
 	defer rows.Close()
 	// discover every result
-	// fmt.Println("%%%%%%%%%%%%%%%%")
-	fmt.Println("The followers rows ",rows)
+	// //fmt.Println("%%%%%%%%%%%%%%%%")
+	//fmt.Println("The followers rows ",rows)
 	return followrepo.scanUsers(rows)
 }
 
@@ -229,14 +229,14 @@ func (r *Repository) getDiscoverQuery() string {
 		WHERE u.id != ?`
 }
 
-// scanUsers to reaad the rowws and change them to a structs 
+// scanUsers to reaad the rowws and change them to a structs
 func (followrepo *Repository) scanUsers(rows *sql.Rows) ([]*models.User, error) {
 	var users []*models.User
 	for rows.Next() {
 		u := &models.User{}
 		err := rows.Scan(
 			&u.ID, &u.Firstname, &u.Lastname, &u.Nickname,
-			&u.AvatarURL, &u.IsPrivate,&u.Rolation,
+			&u.AvatarURL, &u.IsPrivate, &u.Rolation,
 		)
 		if err != nil {
 			return nil, fmt.Errorf("repository: failed to scan user: %w", err)
@@ -246,6 +246,6 @@ func (followrepo *Repository) scanUsers(rows *sql.Rows) ([]*models.User, error) 
 	if err := rows.Err(); err != nil {
 		return nil, err
 	}
-	fmt.Println("users ",users)
+	//fmt.Println("users ",users)
 	return users, nil
 }

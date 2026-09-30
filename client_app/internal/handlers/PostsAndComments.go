@@ -1,14 +1,13 @@
 package handlers
 
 import (
-	"fmt"
 	"net/http"
 	"social/internal/requests"
 	"social/internal/utils"
 )
 
 func (handler *Handlers) CreatePosst(res http.ResponseWriter, req *http.Request) {
-	fmt.Println("The user want to create post")
+	//fmt.Println("The user want to create post")
 	if !requests.IsRequestValid(res, req, "/CreatePost", http.MethodPost) {
 		return
 	}
@@ -31,7 +30,7 @@ func (handler *Handlers) CreatePosst(res http.ResponseWriter, req *http.Request)
 	postPyyload, err := requests.PostPyloadParse(req)
 	err = requests.ValidPostPyload(&postPyyload)
 	if err != nil {
-		fmt.Println("YAAAAAAAAAAAK", err)
+		//fmt.Println("YAAAAAAAAAAAK", err)
 		utils.ErrorResponse(res, err.Error(), http.StatusUnauthorized)
 		return
 	}
@@ -48,7 +47,7 @@ func (handler *Handlers) CreatePosst(res http.ResponseWriter, req *http.Request)
 }
 
 func (handler *Handlers) GETpost(res http.ResponseWriter, req *http.Request) {
-	fmt.Println("The user want to Get GetPost")
+	//fmt.Println("The user want to Get GetPost")
 	if !requests.IsRequestValid(res, req, "/GetPost", http.MethodGet) {
 		return
 	}
@@ -83,19 +82,19 @@ func (handler *Handlers) GETpost(res http.ResponseWriter, req *http.Request) {
 		return
 	}
 	postcomments, err := handler.services.Reepo.GetPostCommensts(user.ID, Post_id)
-	if err!=nil{
+	if err != nil {
 		utils.ErrorResponse(res, "WE HAVE A trouble try again", http.StatusInternalServerError)
 		return
 	}
-	post.PostComments=postcomments
-	fmt.Println("PPPPPOOOOOST COMMMENTS",postcomments)
+	post.PostComments = postcomments
+	//fmt.Println("PPPPPOOOOOST COMMMENTS",postcomments)
 	utils.ResponnseSender(res, http.StatusOK, map[string]any{
-		"message":      "Taaake All posts",
-		"status":       "success",
-		"PostDetails":  post,
+		"message":     "Taaake All posts",
+		"status":      "success",
+		"PostDetails": post,
 	})
 }
-func (handler *Handlers) LikePost(res http.ResponseWriter, req *http.Request){
+func (handler *Handlers) LikePost(res http.ResponseWriter, req *http.Request) {
 	if !requests.IsRequestValid(res, req, "/Postlike", http.MethodPost) {
 		return
 	}
@@ -116,20 +115,20 @@ func (handler *Handlers) LikePost(res http.ResponseWriter, req *http.Request){
 		return
 	}
 	Post_id, err := requests.ExtractPosstid(req)
-	// fmt.Println("::::::::::::::::::::::::::::::::::::::")
-	// fmt.Println("::::::::::::::::::::::::::::::::::::::")
-	// fmt.Println("::::::::::::::::::::::::::::::::::::::")
-	// fmt.Println(":::::::::::::post id:::::::::::::")
-	// fmt.Println("::::::::::::::::::::::::::::::::::::::",Post_id)
-	// fmt.Println("::::::::::::::::::::::::::::::::::::::")
+	// //fmt.Println("::::::::::::::::::::::::::::::::::::::")
+	// //fmt.Println("::::::::::::::::::::::::::::::::::::::")
+	// //fmt.Println("::::::::::::::::::::::::::::::::::::::")
+	// //fmt.Println(":::::::::::::post id:::::::::::::")
+	// //fmt.Println("::::::::::::::::::::::::::::::::::::::",Post_id)
+	// //fmt.Println("::::::::::::::::::::::::::::::::::::::")
 	if err != nil {
 		utils.ErrorResponse(res, "Poost Nooot Found ", http.StatusNotFound)
 		return
 	}
 
-	postexist,err:= handler.services.Reepo.CheeeckPostidvalid(Post_id)
+	postexist, err := handler.services.Reepo.CheeeckPostidvalid(Post_id)
 	if !postexist {
-			utils.ErrorResponse(res,"POST NOT FOUND", http.StatusNotFound)
+		utils.ErrorResponse(res, "POST NOT FOUND", http.StatusNotFound)
 		return
 	}
 	// userhasrate,rateexit,err:=handler.services.Reepo.GetPostrating(Post_id,user.ID)
@@ -137,21 +136,21 @@ func (handler *Handlers) LikePost(res http.ResponseWriter, req *http.Request){
 	// 	utils.ErrorResponse(res, "Problem on raating sytem ", http.StatusUnauthorized)
 	// 	return
 	// }
-	err=handler.services.Reepo.PostLike(1,user.ID,Post_id)
-	if err!=nil{
+	err = handler.services.Reepo.PostLike(1, user.ID, Post_id)
+	if err != nil {
 		utils.ErrorResponse(res, err.Error(), http.StatusInternalServerError)
 		return
 	}
 	// if userhasrate{
-	// 	////send notification 
+	// 	////send notification
 	// }
 	utils.ResponnseSender(res, http.StatusOK, map[string]any{
-		"message":      "post liked on success",
-		"status":       "success",
+		"message": "post liked on success",
+		"status":  "success",
 	})
 
 }
-func (handler *Handlers) DislikePost(res http.ResponseWriter, req *http.Request){
+func (handler *Handlers) DislikePost(res http.ResponseWriter, req *http.Request) {
 	if !requests.IsRequestValid(res, req, "/Postdislike", http.MethodPost) {
 		return
 	}
@@ -176,9 +175,9 @@ func (handler *Handlers) DislikePost(res http.ResponseWriter, req *http.Request)
 		utils.ErrorResponse(res, "Poost Nooot Found ", http.StatusUnauthorized)
 		return
 	}
-	postexist,err:= handler.services.Reepo.CheeeckPostidvalid(Post_id)
+	postexist, err := handler.services.Reepo.CheeeckPostidvalid(Post_id)
 	if !postexist {
-		utils.ErrorResponse(res,"POST NOT FOUND ON DISLIKE ", http.StatusUnauthorized)
+		utils.ErrorResponse(res, "POST NOT FOUND ON DISLIKE ", http.StatusUnauthorized)
 		return
 	}
 	// userhasrate,rateexit,err:=handler.services.Reepo.GetPostrating(Post_id,user.ID)
@@ -186,23 +185,22 @@ func (handler *Handlers) DislikePost(res http.ResponseWriter, req *http.Request)
 	// 	utils.ErrorResponse(res, "Problem on raating sytem ", http.StatusUnauthorized)
 	// 	return
 	// }
-	err=handler.services.Reepo.PostLike(0,user.ID,Post_id)
-	if err!=nil{
+	err = handler.services.Reepo.PostLike(0, user.ID, Post_id)
+	if err != nil {
 		utils.ErrorResponse(res, err.Error(), http.StatusInternalServerError)
 		return
 	}
 	// if userhasrate{
-	// 	////send notification 
+	// 	////send notification
 	// }
 	utils.ResponnseSender(res, http.StatusOK, map[string]any{
-		"message":      "post disliked on success",
-		"status":       "success",
+		"message": "post disliked on success",
+		"status":  "success",
 	})
-
 
 }
 func (handler *Handlers) AllPosts(res http.ResponseWriter, req *http.Request) {
-	fmt.Println("The user want  All posts")
+	//fmt.Println("The user want  All posts")
 	if !requests.IsRequestValid(res, req, "/AllPosts", http.MethodGet) {
 		return
 	}
@@ -235,7 +233,7 @@ func (handler *Handlers) AllPosts(res http.ResponseWriter, req *http.Request) {
 
 }
 func (handler *Handlers) CreateComment(res http.ResponseWriter, req *http.Request) {
-	fmt.Println("The user want  to create comment")
+	//fmt.Println("The user want  to create comment")
 	if !requests.IsRequestValid(res, req, "/CreateComment", http.MethodPost) {
 		return
 	}
@@ -256,7 +254,7 @@ func (handler *Handlers) CreateComment(res http.ResponseWriter, req *http.Reques
 		return
 	}
 	Post_id, err := requests.ExtractPosstid(req)
-	// fmt.Println("THeeeeeeeee post id of the comment",Post_id)
+	// //fmt.Println("THeeeeeeeee post id of the comment",Post_id)
 	if err != nil {
 		utils.ErrorResponse(res, err.Error(), http.StatusInternalServerError)
 		return
@@ -266,9 +264,9 @@ func (handler *Handlers) CreateComment(res http.ResponseWriter, req *http.Reques
 		/// posttt of grouuuup
 		return
 	}
-	postexist,err:= handler.services.Reepo.CheeeckPostidvalid(Post_id)
+	postexist, err := handler.services.Reepo.CheeeckPostidvalid(Post_id)
 	if !postexist {
-			utils.ErrorResponse(res,"POST NOT FOUND", http.StatusUnauthorized)
+		utils.ErrorResponse(res, "POST NOT FOUND", http.StatusUnauthorized)
 		return
 	}
 	commentpayload, err := requests.Parsecommmenpyload(req)
@@ -292,7 +290,7 @@ func (handler *Handlers) CreateComment(res http.ResponseWriter, req *http.Reques
 }
 
 // func (handler *Handlers) GetComments(res http.ResponseWriter, req *http.Request) {
-// 	// fmt.Println("The user want  to create comment")
+// 	// //fmt.Println("The user want  to create comment")
 // 	if !requests.IsRequestValid(res, req, "/AllPostComment", http.MethodGet) {
 // 		return
 // 	}
@@ -323,5 +321,5 @@ func (handler *Handlers) CreateComment(res http.ResponseWriter, req *http.Reques
 
 // }
 // func (handler *Handlers) GetPostComment(res http.ResponseWriter, req *http.Request) {
-// 	fmt.Println("The user want to Get GetPostComment")
+// 	//fmt.Println("The user want to Get GetPostComment")
 // }
