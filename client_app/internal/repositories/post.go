@@ -71,7 +71,7 @@ func (postr *Repository) GetAllVisiblePosts(viewerID string) ([]*models.Post, er
 	query := `
 		SELECT 
 			p.id, p.title, u.nickname AS authorName, p.createDate,
-			COUNT(DISTINCT c.id) AS Commentsnum,
+			(SELECT COUNT(*) FROM comments WHERE postID = p.id) AS Commentsnum,
 			COALESCE(p.Image, '') AS image_url,
 			COUNT(DISTINCT CASE WHEN v.vote = 1 THEN v.user_id END) AS likesNum,
 			COUNT(DISTINCT CASE WHEN v.vote = 0 THEN v.user_id END) AS dislikesNum,
@@ -86,7 +86,7 @@ func (postr *Repository) GetAllVisiblePosts(viewerID string) ([]*models.Post, er
 			OR p.authorID = ?                                   
 			OR (p.Privecytype = 'only_followers' AND EXISTS (   
 				SELECT 1 FROM followers f 
-				WHERE f.following_id = p.authorID AND f.follower_id = ? AND f.status = 'accepted'
+				WHERE f.following_id = p.authorID AND f.follower_id = ? AND f.status = 'folowAccepted'
 			))
 			OR (p.Privecytype = 'followers_chosen' AND EXISTS (          
 				SELECT 1 FROM post_shared_users psu 
@@ -139,6 +139,7 @@ func (postr *Repository) CheckPostOnGroupposts(postid string) (bool, error) {
 	return kaayn, nil
 }
 func(postrepo *Repository) CheeeckPostidvalid(postid string) (bool,error){
+	fmt.Println("POSSSSSSSSSSSSST  ID ",postid)
 	var kayn int 
 	query := `SELECT COUNT(id) FROM posts WHERE id = ?`
 

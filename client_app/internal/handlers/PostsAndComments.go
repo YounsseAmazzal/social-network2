@@ -95,6 +95,112 @@ func (handler *Handlers) GETpost(res http.ResponseWriter, req *http.Request) {
 		"PostDetails":  post,
 	})
 }
+func (handler *Handlers) LikePost(res http.ResponseWriter, req *http.Request){
+	if !requests.IsRequestValid(res, req, "/Postlike", http.MethodPost) {
+		return
+	}
+	cookie, err := req.Cookie("solo_social")
+	if err != nil {
+		utils.ErrorResponse(res, "sesssion not valiiid ", http.StatusUnauthorized)
+		return
+	}
+	_, err = handler.services.Reepo.Checksession(cookie.Value)
+	if err != nil {
+		utils.ErrorResponse(res, "Your Session Not valid", http.StatusUnauthorized)
+		// log.Printf("Your Session Not valid", err.Error())
+		return
+	}
+	user, err := handler.services.Reepo.GetUserByToken(cookie.Value)
+	if err != nil {
+		utils.ErrorResponse(res, "Your Session Not validd", http.StatusUnauthorized)
+		return
+	}
+	Post_id, err := requests.ExtractPosstid(req)
+	// fmt.Println("::::::::::::::::::::::::::::::::::::::")
+	// fmt.Println("::::::::::::::::::::::::::::::::::::::")
+	// fmt.Println("::::::::::::::::::::::::::::::::::::::")
+	// fmt.Println(":::::::::::::post id:::::::::::::")
+	// fmt.Println("::::::::::::::::::::::::::::::::::::::",Post_id)
+	// fmt.Println("::::::::::::::::::::::::::::::::::::::")
+	if err != nil {
+		utils.ErrorResponse(res, "Poost Nooot Found ", http.StatusNotFound)
+		return
+	}
+
+	postexist,err:= handler.services.Reepo.CheeeckPostidvalid(Post_id)
+	if !postexist {
+			utils.ErrorResponse(res,"POST NOT FOUND", http.StatusNotFound)
+		return
+	}
+	// userhasrate,rateexit,err:=handler.services.Reepo.GetPostrating(Post_id,user.ID)
+	// if err!=nil{
+	// 	utils.ErrorResponse(res, "Problem on raating sytem ", http.StatusUnauthorized)
+	// 	return
+	// }
+	err=handler.services.Reepo.PostLike(1,user.ID,Post_id)
+	if err!=nil{
+		utils.ErrorResponse(res, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	// if userhasrate{
+	// 	////send notification 
+	// }
+	utils.ResponnseSender(res, http.StatusOK, map[string]any{
+		"message":      "post liked on success",
+		"status":       "success",
+	})
+
+}
+func (handler *Handlers) DislikePost(res http.ResponseWriter, req *http.Request){
+	if !requests.IsRequestValid(res, req, "/Postdislike", http.MethodPost) {
+		return
+	}
+	cookie, err := req.Cookie("solo_social")
+	if err != nil {
+		utils.ErrorResponse(res, "sesssion not valiiid ", http.StatusUnauthorized)
+		return
+	}
+	_, err = handler.services.Reepo.Checksession(cookie.Value)
+	if err != nil {
+		utils.ErrorResponse(res, "Your Session Not valid", http.StatusUnauthorized)
+		// log.Printf("Your Session Not valid", err.Error())
+		return
+	}
+	user, err := handler.services.Reepo.GetUserByToken(cookie.Value)
+	if err != nil {
+		utils.ErrorResponse(res, "Your Session Not validd", http.StatusUnauthorized)
+		return
+	}
+	Post_id, err := requests.ExtractPosstid(req)
+	if err != nil {
+		utils.ErrorResponse(res, "Poost Nooot Found ", http.StatusUnauthorized)
+		return
+	}
+	postexist,err:= handler.services.Reepo.CheeeckPostidvalid(Post_id)
+	if !postexist {
+		utils.ErrorResponse(res,"POST NOT FOUND ON DISLIKE ", http.StatusUnauthorized)
+		return
+	}
+	// userhasrate,rateexit,err:=handler.services.Reepo.GetPostrating(Post_id,user.ID)
+	// if err!=nil{
+	// 	utils.ErrorResponse(res, "Problem on raating sytem ", http.StatusUnauthorized)
+	// 	return
+	// }
+	err=handler.services.Reepo.PostLike(0,user.ID,Post_id)
+	if err!=nil{
+		utils.ErrorResponse(res, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	// if userhasrate{
+	// 	////send notification 
+	// }
+	utils.ResponnseSender(res, http.StatusOK, map[string]any{
+		"message":      "post disliked on success",
+		"status":       "success",
+	})
+
+
+}
 func (handler *Handlers) AllPosts(res http.ResponseWriter, req *http.Request) {
 	fmt.Println("The user want  All posts")
 	if !requests.IsRequestValid(res, req, "/AllPosts", http.MethodGet) {
@@ -184,37 +290,38 @@ func (handler *Handlers) CreateComment(res http.ResponseWriter, req *http.Reques
 	})
 	// handler.services.CreatePostComment(res,req)
 }
-func (handler *Handlers) GetComments(res http.ResponseWriter, req *http.Request) {
-	// fmt.Println("The user want  to create comment")
-	if !requests.IsRequestValid(res, req, "/AllPostComment", http.MethodGet) {
-		return
-	}
-	cookie, err := req.Cookie("solo_social")
-	if err != nil {
-		utils.ErrorResponse(res, "sesssion not valiiid ", http.StatusUnauthorized)
-		return
-	}
-	_, err = handler.services.Reepo.Checksession(cookie.Value)
-	if err != nil {
-		utils.ErrorResponse(res, "Your Session Not valid", http.StatusUnauthorized)
-		// log.Printf("Your Session Not valid", err.Error())
-		return
-	}
-	// user, err := handler.services.Reepo.GetUserByToken(cookie.Value)
-	// if err != nil {
-	// 	utils.ErrorResponse(res, "Your Session Not validd", http.StatusUnauthorized)
-	// 	return
-	// }
-	// handler.services.Reepo.
-		utils.ResponnseSender(res, http.StatusOK, map[string]string{
-		"message": "The Comment created with success",
-		"status":  "success",
-	})
-	// handler.services.CreatePostComment(res,req)
-}
-func CreateThepost(res *http.ResponseWriter, reeq *http.Request) {
 
-}
-func (handler *Handlers) GetPostComment(res http.ResponseWriter, req *http.Request) {
-	fmt.Println("The user want to Get GetPostComment")
-}
+// func (handler *Handlers) GetComments(res http.ResponseWriter, req *http.Request) {
+// 	// fmt.Println("The user want  to create comment")
+// 	if !requests.IsRequestValid(res, req, "/AllPostComment", http.MethodGet) {
+// 		return
+// 	}
+// 	cookie, err := req.Cookie("solo_social")
+// 	if err != nil {
+// 		utils.ErrorResponse(res, "sesssion not valiiid ", http.StatusUnauthorized)
+// 		return
+// 	}
+// 	_, err = handler.services.Reepo.Checksession(cookie.Value)
+// 	if err != nil {
+// 		utils.ErrorResponse(res, "Your Session Not valid", http.StatusUnauthorized)
+// 		// log.Printf("Your Session Not valid", err.Error())
+// 		return
+// 	}
+// 	// user, err := handler.services.Reepo.GetUserByToken(cookie.Value)
+// 	// if err != nil {
+// 	// 	utils.ErrorResponse(res, "Your Session Not validd", http.StatusUnauthorized)
+// 	// 	return
+// 	// }
+// 	// handler.services.Reepo.
+// 		utils.ResponnseSender(res, http.StatusOK, map[string]string{
+// 		"message": "The Comment created with success",
+// 		"status":  "success",
+// 	})
+// 	// handler.services.CreatePostComment(res,req)
+// }
+// func CreateThepost(res *http.ResponseWriter, reeq *http.Request) {
+
+// }
+// func (handler *Handlers) GetPostComment(res http.ResponseWriter, req *http.Request) {
+// 	fmt.Println("The user want to Get GetPostComment")
+// }
