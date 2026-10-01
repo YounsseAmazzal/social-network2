@@ -13,8 +13,8 @@ func Groupsandevents(servermux *http.ServeMux, handler *handlers.Handlers, midwa
 	//alll groups  routes
 	servermux.Handle("/CreateGroup", neewratelimiter.ApplyMiddleware("normalapi", (http.HandlerFunc(handler.CreateGroup))))
 	servermux.Handle("/DiscoverGroups", neewratelimiter.ApplyMiddleware("normalapi", (http.HandlerFunc(handler.DiscooverGroups))))
-	// servermux.Handle("/GetPost", neewratelimiter.ApplyMiddleware("normalapi", (http.HandlerFunc(handler.GETpost))))
-	// servermux.Handle("/AllPosts", neewratelimiter.ApplyMiddleware("normalapi", (http.HandlerFunc(handler.AllPosts))))
+	servermux.Handle("/JoinedGroups", neewratelimiter.ApplyMiddleware("normalapi", (http.HandlerFunc(handler.JoinedGroups))))
+	servermux.Handle("/SeeeTheGroup", neewratelimiter.ApplyMiddleware("normalapi", (http.HandlerFunc(handler.SeeeTheGroup))))
 	// servermux.Handle("/CreateComment", neewratelimiter.ApplyMiddleware("normalapi", (http.HandlerFunc(handler.CreateComment))))
 	// servermux.Handle("/Postlike", neewratelimiter.ApplyMiddleware("normalapi", (http.HandlerFunc(handler.LikePost))))
 	// servermux.Handle("/Postdislike", neewratelimiter.ApplyMiddleware("normalapi", (http.HandlerFunc(handler.DislikePost))))
