@@ -13,7 +13,7 @@ CREATE TABLE IF NOT EXISTS group_events (
     FOREIGN KEY (member_id) REFERENCES users(id) ON DELETE CASCADE
 );
 
-CREATE TABLE IF NOT EXISTS group_events_votes (
+CREATE TABLE IF NOT EXISTS group_events_rating (
     id TEXT PRIMARY KEY,
     event_id TEXT,
     member_id TEXT,
@@ -24,32 +24,32 @@ CREATE TABLE IF NOT EXISTS group_events_votes (
 
 -- TRIGGERS
 CREATE TRIGGER IF NOT EXISTS upsert_vote
-BEFORE INSERT ON group_events_votes
+BEFORE INSERT ON group_events_rating
 FOR EACH ROW
 BEGIN
-    DELETE FROM group_events_votes
+    DELETE FROM group_events_rating
     WHERE event_id = NEW.event_id
     AND member_id = NEW.member_id;
 END;
 
 CREATE TRIGGER IF NOT EXISTS update_vote_counts_after_insert
-AFTER INSERT ON group_events_votes
+AFTER INSERT ON group_events_rating
 FOR EACH ROW
 BEGIN
     UPDATE group_events
     SET
-        total_going = (SELECT COUNT(*) FROM group_events_votes WHERE event_id = NEW.event_id AND status = 'going'),
-        total_not_going = (SELECT COUNT(*) FROM group_events_votes WHERE event_id = NEW.event_id AND status = 'not going')
+        total_going = (SELECT COUNT(*) FROM group_events_rating WHERE event_id = NEW.event_id AND status = 'going'),
+        total_not_going = (SELECT COUNT(*) FROM group_events_rating WHERE event_id = NEW.event_id AND status = 'not going')
     WHERE id = NEW.event_id;
 END;
 
 CREATE TRIGGER IF NOT EXISTS update_vote_counts_after_delete
-AFTER DELETE ON group_events_votes
+AFTER DELETE ON group_events_rating
 FOR EACH ROW
 BEGIN
     UPDATE group_events
     SET
-        total_going = (SELECT COUNT(*) FROM group_events_votes WHERE event_id = OLD.event_id AND status = 'going'),
-        total_not_going = (SELECT COUNT(*) FROM group_events_votes WHERE event_id = OLD.event_id AND status = 'not going')
+        total_going = (SELECT COUNT(*) FROM group_events_rating WHERE event_id = OLD.event_id AND status = 'going'),
+        total_not_going = (SELECT COUNT(*) FROM group_events_rating WHERE event_id = OLD.event_id AND status = 'not going')
     WHERE id = OLD.event_id;
 END;

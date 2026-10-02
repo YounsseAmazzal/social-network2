@@ -256,6 +256,17 @@ func (handler *Handlers) CreatePostGroup(res http.ResponseWriter, req *http.Requ
 		utils.ErrorResponse(res, "Grouup Not Fouund", http.StatusNotFound)
 		return
 	}
+	ismember, errr := handler.services.Reepo.CheckifUsserMember(user.ID, grouupid)
+	fmt.Println("The user is Member ?????", ismember)
+	if errr != nil {
+		fmt.Println("THE MEEEEMER CHECB err", errr)
+		utils.ErrorResponse(res, "Problem on checking membership", http.StatusNotFound)
+		return
+	}
+	if !ismember {
+		utils.ErrorResponse(res, "You  are not a member to see this group", http.StatusNotFound)
+		return
+	}
 	postPyyload.GroupPost.CreaterID = user.ID
 	postPyyload.GrouupID = grouupid
 	err = handler.services.Reepo.CreatePostGroup(&postPyyload)
@@ -337,11 +348,77 @@ func (handler *Handlers) GroupPosts(res http.ResponseWriter, req *http.Request) 
 func (handler *Handlers) GroupMembers(res http.ResponseWriter, req *http.Request) {
 	fmt.Println("the user want to get the groups members ")
 }
-func (handler *Handlers) GroupCreateEvent(res http.ResponseWriter, req *http.Request) {
+func (handler *Handlers) CreateGPComment(res http.ResponseWriter, req *http.Request) {
+	if !requests.IsRequestValid(res, req, "/CreateGPComment", http.MethodPost) {
+		return
+	}
+	cookie, err := req.Cookie("solo_social")
+	if err != nil {
+		utils.ErrorResponse(res, "sesssion not valiiid ", http.StatusUnauthorized)
+		return
+	}
+	_, err = handler.services.Reepo.Checksession(cookie.Value)
+	if err != nil {
+		utils.ErrorResponse(res, "Your Session Not valid", http.StatusUnauthorized)
+		// log.Printf("Your Session Not valid", err.Error())
+		return
+	}
+	user, err := handler.services.Reepo.GetUserByToken(cookie.Value)
+	if err != nil {
+		utils.ErrorResponse(res, "Your Session Not validd", http.StatusUnauthorized)
+		return
+	}
+	Commentpy, err := requests.Parsecommmenpyload(req)
+	err = requests.ValidCommentpy(&Commentpy)
+	if err != nil {
+		//fmt.Println("YAAAAAAAAAAAK", err)
+		utils.ErrorResponse(res, err.Error(), http.StatusUnauthorized)
+		return
+	}
+	grouupid, err := requests.ExtraactGroupId(req)
+	if err != nil {
+		utils.ErrorResponse(res, "Grouuup not Found", http.StatusUnauthorized)
+		return
+	}
+	Groupexist, err := handler.services.Reepo.GoupExist(grouupid)
+	if !Groupexist {
+		utils.ErrorResponse(res, "Grouup Not Fouund", http.StatusNotFound)
+		return
+	}
+	ismember, errr := handler.services.Reepo.CheckifUsserMember(user.ID, grouupid)
+	fmt.Println("The user is Member ?????", ismember)
+	if errr != nil {
+		fmt.Println("THE MEEEEMER CHECB err", errr)
+		utils.ErrorResponse(res, "Problem on checking membership", http.StatusNotFound)
+		return
+	}
+	if !ismember {
+		utils.ErrorResponse(res, "You  are not a member to see this group to comment", http.StatusNotFound)
+		return
+	}
+	Post_id, err := requests.ExtractPosstid(req)
+	if err != nil {
+		utils.ErrorResponse(res, "Poost Nooot Found ", http.StatusUnauthorized)
+		return
+	}
+	kaynonGroup, err := handler.services.Reepo.CheckPostOnGroupposts(Post_id)
+	if kaynonGroup {
+		// fmt.Println("COmmmment on group")
+		Commentpy.CreaterID=user.ID
+		Commentpy.PostID=Post_id
+		err =handler.services.Reepo.CreateGroupComment(&Commentpy)
+		if err!=nil{
+			utils.ErrorResponse(res, "Problem on creation Group Post Comment try again  ", http.StatusInternalServerError)
+			return 
+		}
+			utils.ResponnseSender(res, http.StatusOK, map[string]string{
+		"message": "The Group Comment Post Created success",
+		"status":  "success",
+	})
+		return
+	}
+	utils.ErrorResponse(res, "somthing went wrong ....", http.StatusInternalServerError)
 }
-func (handler *Handlers) GroupEvents(res http.ResponseWriter, req *http.Request) {
-}
-func (handler *Handlers) GroupEventParrticipate(res http.ResponseWriter, req *http.Request) {
-}
+
 func (handler *Handlers) GroupInvite(res http.ResponseWriter, req *http.Request) {
 }

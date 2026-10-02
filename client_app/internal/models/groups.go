@@ -27,6 +27,10 @@ type GroupPostCreation struct{
 	GrouupID string `json:"group_id"`
 	GroupPost PostCreation
 }
+type GroupCommentCreation struct{
+	GrouupID string `json:"group_id"`
+	GroupPost PostCreation
+}
 type GrouupPR struct {
 	Offset int `json:"offset"` // 0000
 	Limit  int `json:"limit"`       
@@ -57,4 +61,13 @@ type GroupCommentResponse struct {
 	Createravatar  string  `json:"creater_avatar"`
 	Image         string  `json:"image_url,omitempty"`
 	CreatedAt     string  `json:"created_date"`
+}
+
+type GroupComment struct {
+	ID        string `json:"id"`
+	PostID    string `json:"post_id"`
+	CreaterID  string `json:"creater_id"`
+	Content   string `json:"content"` 
+	Image     string `json:"image,omitempty"`
+	CreatedAt string `json:"created_at"`
 }

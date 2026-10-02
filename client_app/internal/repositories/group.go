@@ -233,7 +233,7 @@ func (grourepo *Repository) GrouupMembers(groupid string) ([]models.User, error)
 			return nil, fmt.Errorf("repository: failed to scan member: %w", err)
 		}
 		if u.AvatarURL != "" {
-			u.AvatarURL = "/socialup/" + u.AvatarURL
+			u.AvatarURL = u.AvatarURL
 		}
 		members = append(members, u)
 	}
@@ -272,6 +272,38 @@ func (grouprepo *Repository) CreatePostGroup(postGroup *models.GroupPostCreation
 	)
 	if err != nil {
 		return fmt.Errorf("repository: failed to insert group post: %w", err)
+	}
+	if err := tx.Commit(); err != nil {
+		return fmt.Errorf("repository: failed to commit transaction: %w", err)
+	}
+	return nil
+}
+func (grouprepo *Repository) CreateGroupComment(Commentgp *models.Comment) error {
+	now := time.Now()
+	newID, err := uuid.NewV4()
+	if err != nil {
+		return errors.New("repository: failed to generate uuid")
+	}
+	tx, err := grouprepo.DB.Database.Begin()
+	/// dayer 9aahwa ocha3eel garouu
+	if err != nil {
+		return fmt.Errorf("repository: failed to start transaction: %w", err)
+	}
+	Commentgp.ID=newID.String()
+	defer tx.Rollback()
+	query := `
+		INSERT INTO group_comments (id, group_post_id, member_id, content, image, created_at)
+		VALUES (?, ?, ?, ?, ?, ?)`
+	_, err = tx.Exec(query,
+		Commentgp.ID,
+		Commentgp.PostID,
+		Commentgp.CreaterID,
+		Commentgp.Content,
+		Commentgp.Image,
+		now,
+	)
+	if err != nil {
+		return fmt.Errorf("repository: failed to insert group post commment : %w", err)
 	}
 	if err := tx.Commit(); err != nil {
 		return fmt.Errorf("repository: failed to commit transaction: %w", err)
@@ -400,7 +432,7 @@ func (grouprepo *Repository) PostGrouupDetailed(usserid, poostid string) (*model
 }
 func (grouprepo *Repository) PostGroupComments(usserid, poostid string) ([]*models.GroupCommentResponse, error) {
 	var groupcomments []*models.GroupCommentResponse
-	query := `
+		query := `
 		SELECT
 			c.id, c.content, c.member_id, c.created_at, COALESCE(c.image, ''),
 			u.nickname, COALESCE(u.avatarURL, '')
@@ -414,29 +446,32 @@ func (grouprepo *Repository) PostGroupComments(usserid, poostid string) ([]*mode
 		)
 		ORDER BY c.created_at ASC`
 	// the vieweer should be member of the grouuuup
-	rows, err := grouprepo.DB.Database.Query(query, usserid, poostid, usserid)
+	rows, err := grouprepo.DB.Database.Query(query, poostid, usserid)
 	if err != nil {
 		return nil, fmt.Errorf("repository: failed to fetch group comments: %w", err)
 	}
 	defer rows.Close()
 	for rows.Next() {
 		commentgp := &models.GroupCommentResponse{}
-		var userVote sql.NullString
 
 		err := rows.Scan(
-			&commentgp.ID, &commentgp.Content, &commentgp.CreaterID, &commentgp.CreatedAt, &commentgp.Image,
-			&commentgp.CreaterName, &commentgp.Createravatar,
-			&userVote,
+			&commentgp.ID, 
+			&commentgp.Content, 
+			&commentgp.CreaterID, 
+			&commentgp.CreatedAt, 
+			&commentgp.Image,
+			&commentgp.CreaterName, 
+			&commentgp.Createravatar,
 		)
 		if err != nil {
 			return nil, fmt.Errorf("repository: failed to scan group comment: %w", err)
 		}
 		commentgp.CreatedAt = utils.RegleThedate(commentgp.CreatedAt)
 		if commentgp.Image != "" {
-			commentgp.Image = "/socialup/" + commentgp.Image
+			commentgp.Image =  commentgp.Image
 		}
 		if commentgp.Createravatar != "" {
-			commentgp.Createravatar = "/socialup/" + commentgp.Createravatar
+			commentgp.Createravatar =  commentgp.Createravatar
 		}
 		groupcomments = append(groupcomments, commentgp)
 	}

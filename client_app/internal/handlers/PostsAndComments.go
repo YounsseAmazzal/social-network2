@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"fmt"
+	"log"
 	"net/http"
 	"social/internal/requests"
 	"social/internal/utils"
@@ -76,23 +77,28 @@ func (handler *Handlers) GETpost(res http.ResponseWriter, req *http.Request) {
 	kaynonGroup, err := handler.services.Reepo.CheckPostOnGroupposts(Post_id)
 	if kaynonGroup {
 		// fmt.Println("Post EXISTS on grouuuuup post ,")
-		postgroup,err :=handler.services.Reepo.PostGrouupDetailed(user.ID,Post_id)
-		if err!=nil{
+		postgroup, err := handler.services.Reepo.PostGrouupDetailed(user.ID, Post_id)
+		if err != nil {
 			fmt.Println("EDDDDDDDDDD")
 			utils.ErrorResponse(res, "Probem to serve post or you are not member", http.StatusUnauthorized)
 			return
 		}
-		GrouppostComments,err:=handler.services.Reepo.PostGroupComments(user.ID,Post_id)
-		if err!=nil{
+		GrouppostComments, err := handler.services.Reepo.PostGroupComments(user.ID, Post_id)
+		if err != nil {
 			fmt.Println("HHEHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH")
 			utils.ErrorResponse(res, "Probem to serve post or you are not member", http.StatusUnauthorized)
 			return
 		}
-		postgroup.PostComments=GrouppostComments
+		fmt.Println("@@@@@@@@@@@@@@@@@@@@@@POstttt Commments@@@@@@@@@@@@@@@")
+		fmt.Println("@@@", GrouppostComments)
+		fmt.Println("@@@@@@@@@@@@@@@@@@@@@@POstttt Commments@@@@@@@@@@@@@@@")
+		fmt.Println("@@@@@@@@@@@@@@@@@@@@@@POstttt Commments@@@@@@@@@@@@@@@")
+
+		postgroup.PostComments = GrouppostComments
 		utils.ResponnseSender(res, http.StatusOK, map[string]any{
-			"message":     "Get group post detailed" ,
-				"status":      "success",
-				"PostGroupDetailed": postgroup,
+			"message":           "Get group post detailed",
+			"status":            "success",
+			"PostGroupDetailed": postgroup,
 		})
 		/// posttt of grouuuup
 		return
@@ -254,7 +260,6 @@ func (handler *Handlers) AllPosts(res http.ResponseWriter, req *http.Request) {
 
 }
 func (handler *Handlers) CreateComment(res http.ResponseWriter, req *http.Request) {
-	//fmt.Println("The user want  to create comment")
 	if !requests.IsRequestValid(res, req, "/CreateComment", http.MethodPost) {
 		return
 	}
@@ -280,8 +285,30 @@ func (handler *Handlers) CreateComment(res http.ResponseWriter, req *http.Reques
 		utils.ErrorResponse(res, err.Error(), http.StatusInternalServerError)
 		return
 	}
+	
+	commentpayload, err := requests.Parsecommmenpyload(req)
+	err = requests.ValidCommentpy(&commentpayload)
+	if err != nil {
+		utils.ErrorResponse(res, err.Error(), http.StatusUnauthorized)
+		return
+	}
 	postOngroupGroup, err := handler.services.Reepo.CheckPostOnGroupposts(Post_id)
+	
+	commentpayload.PostID = Post_id
+	commentpayload.CreaterID = user.ID
+	// log.Fatal("YAAAAAAAAAAAAAAAAAAAAAAAAK ")
 	if postOngroupGroup {
+		err = handler.services.Reepo.CreateGroupComment(&commentpayload)
+		if err!=nil{
+			log.Fatal("YAAAAAAAAAAAAAAAAAAAAAK ")
+				utils.ErrorResponse(res, err.Error(), http.StatusUnauthorized)
+			return
+		}
+		// log.Fatal("commment created")
+		utils.ResponnseSender(res, http.StatusOK, map[string]string{
+		"message": "The Comment Post Group created with success",
+		"status":  "success",
+		})
 		/// posttt of grouuuup
 		return
 	}
@@ -290,14 +317,6 @@ func (handler *Handlers) CreateComment(res http.ResponseWriter, req *http.Reques
 		utils.ErrorResponse(res, "POST NOT FOUND", http.StatusUnauthorized)
 		return
 	}
-	commentpayload, err := requests.Parsecommmenpyload(req)
-	err = requests.ValidCommentpy(&commentpayload)
-	if err != nil {
-		utils.ErrorResponse(res, err.Error(), http.StatusUnauthorized)
-		return
-	}
-	commentpayload.PostID = Post_id
-	commentpayload.CreaterID = user.ID
 	err = handler.services.Reepo.CreaatComment(&commentpayload)
 	if err != nil {
 		utils.ErrorResponse(res, "Problem on creating Comments  try again ", http.StatusInternalServerError)
