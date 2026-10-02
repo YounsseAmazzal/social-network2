@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"fmt"
 	"net/http"
 	"social/internal/requests"
 	"social/internal/utils"
@@ -74,7 +75,27 @@ func (handler *Handlers) GETpost(res http.ResponseWriter, req *http.Request) {
 	}
 	kaynonGroup, err := handler.services.Reepo.CheckPostOnGroupposts(Post_id)
 	if kaynonGroup {
+		// fmt.Println("Post EXISTS on grouuuuup post ,")
+		postgroup,err :=handler.services.Reepo.PostGrouupDetailed(user.ID,Post_id)
+		if err!=nil{
+			fmt.Println("EDDDDDDDDDD")
+			utils.ErrorResponse(res, "Probem to serve post or you are not member", http.StatusUnauthorized)
+			return
+		}
+		GrouppostComments,err:=handler.services.Reepo.PostGroupComments(user.ID,Post_id)
+		if err!=nil{
+			fmt.Println("HHEHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH")
+			utils.ErrorResponse(res, "Probem to serve post or you are not member", http.StatusUnauthorized)
+			return
+		}
+		postgroup.PostComments=GrouppostComments
+		utils.ResponnseSender(res, http.StatusOK, map[string]any{
+			"message":     "Get group post detailed" ,
+				"status":      "success",
+				"PostGroupDetailed": postgroup,
+		})
 		/// posttt of grouuuup
+		return
 	}
 	post, errr := handler.services.Reepo.GetCompletePostByID(Post_id, user.ID)
 	if errr != nil {
