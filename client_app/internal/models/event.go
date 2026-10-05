@@ -21,3 +21,20 @@ type GroupEvent struct {
 	TotalNotGoing int       `json:"total_participate"`
 	Creator        User      `json:"Creator,omitempty"`
 }
+
+type EventPagination struct {
+	Offset int `json:"offset"` // 0000
+	Limit  int `json:"limit"`       
+}
+
+func (p *EventPagination) SetEventDefaults() {
+	if p.Limit <= 0 {
+		p.Limit = 10 //  
+	}
+	if p.Limit > 100 {
+		p.Limit = 100 // plaafou
+	}
+	if p.Offset < 0 {
+		p.Offset = 0
+	}
+}

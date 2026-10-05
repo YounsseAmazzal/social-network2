@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"net/http"
 	"social/internal/models"
+	"strconv"
 	"strings"
 	"time"
 )
@@ -28,4 +29,19 @@ func Vaalidevent(event *models.Eventplyload) error {
 		return errors.New("event cannot be scheduled more than 5 years in advance")
 	}
 	return nil
+}
+func EventPagination(request *http.Request) models.EventPagination {
+	liimit := request.URL.Query().Get("limit")
+	offsetstr := request.URL.Query().Get("offset")
+	limit, err := strconv.Atoi(liimit)
+	if err != nil {
+		limit = 10
+	}
+	offset, err := strconv.Atoi(offsetstr)
+	if err != nil {
+		offset = 0
+	}
+	EventPagination := models.EventPagination{Limit: limit, Offset: offset}
+	EventPagination.SetEventDefaults()
+	return EventPagination
 }

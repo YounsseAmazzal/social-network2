@@ -112,7 +112,10 @@ func (handler *Handlers) GroupEvents(res http.ResponseWriter, req *http.Request)
 		utils.ErrorResponse(res, "You  are not a member to see this group", http.StatusNotFound)
 		return
 	}
-	GetGroupEvents,err:=handler.services.Reepo.GetGroupEvents(grouupid,user.ID)
+	Eventpaagination:= requests.EventPagination(req)
+			fmt.Println("THe limit event and the offset$$$$$$$$$$", Eventpaagination.Limit)
+			fmt.Println("THe limit and event the offset$$$$$$$$$$", Eventpaagination.Offset)
+	GetGroupEvents,err:=handler.services.Reepo.GetGroupEvents(grouupid,user.ID,Eventpaagination.Limit,Eventpaagination.Offset)
 		if err != nil {
 		utils.ErrorResponse(res, err.Error(), http.StatusInternalServerError)
 		// utils.ErrorResponse(res, err.Error(), http.StatusInternalServerError)

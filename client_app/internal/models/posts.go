@@ -38,10 +38,10 @@ type PostPagination struct {
 
 func (p *PostPagination) SetPostDefaults() {
 	if p.Limit <= 0 {
-		p.Limit = 10 //  
+		p.Limit = 5 //  
 	}
-	if p.Limit > 100 {
-		p.Limit = 100 // plaafou
+	if p.Limit > 10 {
+		p.Limit = 10 // plaafou
 	}
 	if p.Offset < 0 {
 		p.Offset = 0

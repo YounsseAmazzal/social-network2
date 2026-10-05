@@ -54,7 +54,7 @@ func (eventrepo *Repository) CreateEvent(event *models.Eventplyload, userid stri
 	return groupEvent, nil
 }
 
-func (eventrepo *Repository) GetGroupEvents(groupid, userid string) ([]*models.GroupEvent, error) {
+func (eventrepo *Repository) GetGroupEvents(groupid, userid string , limit,offset int) ([]*models.GroupEvent, error) {
 	query := `
 		SELECT 
 			e.id, e.title, e.description, e.event_date, e.created_at,
@@ -65,8 +65,9 @@ func (eventrepo *Repository) GetGroupEvents(groupid, userid string) ([]*models.G
 		LEFT JOIN group_events_rating ev ON ev.event_id = e.id AND ev.member_id = ?
 		JOIN users u ON u.id = e.member_id
 		WHERE e.group_id = ?
-		ORDER BY e.event_date ASC` 
-	rows, err := eventrepo.DB.Database.Query(query, userid, groupid)
+		ORDER BY e.event_date ASC
+		LIMIT ? OFFSET ?` 
+	rows, err := eventrepo.DB.Database.Query(query, userid, groupid, limit,offset)
 	if err != nil {
 		return nil, fmt.Errorf("repository: failed to query group events: %w", err)
 	}
