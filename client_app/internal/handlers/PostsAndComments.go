@@ -153,16 +153,31 @@ func (handler *Handlers) LikePost(res http.ResponseWriter, req *http.Request) {
 		return
 	}
 
+	// userhasrate,rateexit,err:=handler.services.Reepo.GetPostrating(Post_id,user.ID)
+	// if err!=nil{
+		// 	utils.ErrorResponse(res, "Problem on raating sytem ", http.StatusUnauthorized)
+		// 	return
+		// }
+	kaynonGroup, err := handler.services.Reepo.CheckPostOnGroupposts(Post_id)
+	if kaynonGroup {
+			fmt.Println("The post exxist on group posts ")
+				err = handler.services.Reepo.GroupPostLike(1, user.ID, Post_id)
+				if err != nil {
+					utils.ErrorResponse(res, err.Error(), http.StatusInternalServerError)
+					return
+				}
+					utils.ResponnseSender(res, http.StatusOK, map[string]any{
+							"message": "group post liked on success",
+							"status":  "success",
+					})
+			/// posttt of grouuuup
+			return
+	}
 	postexist, err := handler.services.Reepo.CheeeckPostidvalid(Post_id)
 	if !postexist {
 		utils.ErrorResponse(res, "POST NOT FOUND", http.StatusNotFound)
 		return
 	}
-	// userhasrate,rateexit,err:=handler.services.Reepo.GetPostrating(Post_id,user.ID)
-	// if err!=nil{
-	// 	utils.ErrorResponse(res, "Problem on raating sytem ", http.StatusUnauthorized)
-	// 	return
-	// }
 	err = handler.services.Reepo.PostLike(1, user.ID, Post_id)
 	if err != nil {
 		utils.ErrorResponse(res, err.Error(), http.StatusInternalServerError)
@@ -201,6 +216,21 @@ func (handler *Handlers) DislikePost(res http.ResponseWriter, req *http.Request)
 	if err != nil {
 		utils.ErrorResponse(res, "Poost Nooot Found ", http.StatusUnauthorized)
 		return
+	}
+	kaynonGroup, err := handler.services.Reepo.CheckPostOnGroupposts(Post_id)
+	if kaynonGroup {
+			fmt.Println("The post exxist on group posts ")
+				err = handler.services.Reepo.GroupPostLike(0, user.ID, Post_id)
+				if err != nil {
+					utils.ErrorResponse(res, err.Error(), http.StatusInternalServerError)
+					return
+				}
+					utils.ResponnseSender(res, http.StatusOK, map[string]any{
+							"message": "group post disliked on success",
+							"status":  "success",
+					})
+			/// posttt of grouuuup
+			return
 	}
 	postexist, err := handler.services.Reepo.CheeeckPostidvalid(Post_id)
 	if !postexist {

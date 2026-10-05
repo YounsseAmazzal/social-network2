@@ -80,7 +80,7 @@ func (eventrepo *Repository) GetGroupEvents(groupid, userid string) ([]*models.G
 		err := rows.Scan(
 			&event.ID, &event.Title, &event.Description, &event.EventDate, &event.CreatedAt,
 			&event.TotalGoing, &event.TotalNotGoing,
-			&event, 
+			&event.Userrate, 
 			&event.Creator.ID, &event.Creator.Firstname, &event.Creator.Lastname, 
 			&event.Creator.Nickname, &event.Creator.AvatarURL,
 		)

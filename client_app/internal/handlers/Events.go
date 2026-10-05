@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"fmt"
+	"log"
 	"net/http"
 	"social/internal/requests"
 	"social/internal/utils"
@@ -58,7 +59,8 @@ func (handler *Handlers) GroupCreateEvent(res http.ResponseWriter, req *http.Req
 	Eventplyload.GrouupID=grouupid
 	eventCreated,err:= handler.services.Reepo.CreateEvent(&Eventplyload,user.ID)
 	if err != nil {
-		utils.ErrorResponse(res, "Problem on creating Group post try again ", http.StatusInternalServerError)
+		log.Fatal("hi")
+		utils.ErrorResponse(res, err.Error(), http.StatusInternalServerError)
 		// utils.ErrorResponse(res, err.Error(), http.StatusInternalServerError)
 		return
 	}
@@ -112,14 +114,14 @@ func (handler *Handlers) GroupEvents(res http.ResponseWriter, req *http.Request)
 	}
 	GetGroupEvents,err:=handler.services.Reepo.GetGroupEvents(grouupid,user.ID)
 		if err != nil {
-		utils.ErrorResponse(res, "Problem on creating Group Events try again ", http.StatusInternalServerError)
+		utils.ErrorResponse(res, err.Error(), http.StatusInternalServerError)
 		// utils.ErrorResponse(res, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	fmt.Println("Those is Grouuup Events",GetGroupEvents)
+	// fmt.Println("Those is Grouuup Events",GetGroupEvents)
 	utils.ResponnseSender(res, http.StatusOK, map[string]any{
 		"message": "The Group post created with success",
-		"eventCreated":GetGroupEvents,
+		"GroupEvents":GetGroupEvents,
 		"status":  "success",
 	})
 }

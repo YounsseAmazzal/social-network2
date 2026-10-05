@@ -326,8 +326,8 @@ func (grouprepo *Repository) GetAllGroupPosts(GrouuupID string, liimit, offset i
 			p.id, p.title, p.content, p.member_id, COALESCE(p.image, '') AS image_path, p.created_at,
 			u.nickname, COALESCE(u.avatarURL, ''),
 			(SELECT COUNT(*) FROM group_comments WHERE group_post_id = p.id) AS comments_count,
-			(SELECT COUNT(*) FROM post_rating WHERE post_id = p.id AND rate = 1) AS likes_count,
-			(SELECT COUNT(*) FROM post_rating WHERE post_id = p.id AND rate = 0) AS dislikes_count
+			(SELECT COUNT(*) FROM post_group_rating WHERE post_id = p.id AND rate = 1) AS likes_count,
+			(SELECT COUNT(*) FROM post_group_rating WHERE post_id = p.id AND rate = 0) AS dislikes_count
 		FROM posts_of_group p
 		JOIN users u ON u.id = p.member_id
 		WHERE p.group_id = ?
@@ -380,10 +380,10 @@ func (grouprepo *Repository) PostGrouupDetailed(usserid, poostid string) (*model
 	SELECT
 	gp.id, gp.member_id, u.nickname, COALESCE(u.avatarURL, ''),
 	gp.title, gp.content, COALESCE(gp.image, ''), gp.created_at,
-	(SELECT COUNT(*) FROM post_rating WHERE post_id = gp.id AND rate = 1) AS likes_count,
-	(SELECT COUNT(*) FROM post_rating WHERE post_id = gp.id AND rate = 0) AS dislikes_count,
+	(SELECT COUNT(*) FROM post_group_rating WHERE post_id = gp.id AND rate = 1) AS likes_count,
+	(SELECT COUNT(*) FROM post_group_rating WHERE post_id = gp.id AND rate = 0) AS dislikes_count,
 	(SELECT CASE WHEN rate = 1 THEN 'like' WHEN rate = 0 THEN 'dislike' END 
-	FROM post_rating WHERE post_id = gp.id AND user_id = ?) AS viewer_vote
+	FROM post_group_rating WHERE post_id = gp.id AND user_id = ?) AS viewer_vote
 	FROM posts_of_group gp
 	JOIN users u ON u.id = gp.member_id
 	WHERE gp.id = ? 
@@ -479,4 +479,43 @@ func (grouprepo *Repository) PostGroupComments(usserid, poostid string) ([]*mode
 		return nil, err
 	}
 	return groupcomments, nil
+}
+
+func (grouprepo *Repository) GroupPostLike(rate int ,useerid string, postid string ) error {
+	var rateexxist int
+	/// check if there is a rprevious rate
+	querySelect := `SELECT rate FROM post_group_rating WHERE post_id = ? AND user_id = ?`
+	err := grouprepo.DB.Database.QueryRow(querySelect, postid, useerid).Scan(&rateexxist)
+
+	if err != nil {
+		/// if there is not rate add onnnne 
+		if errors.Is(err, sql.ErrNoRows) {
+			queryInsert := `INSERT INTO post_group_rating (post_id, user_id, rate) VALUES (?, ?, ?)`
+			_, err = grouprepo.DB.Database.Exec(queryInsert, postid, useerid, rate)
+			if err != nil {
+				return fmt.Errorf("repository: failed to insert rate: %w", err)
+			}
+			return nil
+		}
+		return fmt.Errorf("repository: failed to check existing rate", err)
+	}
+
+	// if i foound a rate
+	if rateexxist == rate {
+		//(toggle off ) if the user click on the same button twince
+		queryDelete := `DELETE FROM post_group_rating WHERE post_id = ? AND user_id = ?`
+		_, err = grouprepo.DB.Database.Exec(queryDelete, postid, useerid)
+		if err != nil {
+			return fmt.Errorf("repository: failed to remove vote: %w", err)
+		}
+	} else {
+		// (Switching) the user choice anthor state like/ddislike
+		queryUpdate := `UPDATE post_group_rating SET rate = ? WHERE post_id = ? AND user_id = ?`
+		_, err = grouprepo.DB.Database.Exec(queryUpdate, rate, postid, useerid)
+		if err != nil {
+			return fmt.Errorf("repository: failed to update rate: %w", err)
+		}
+	}
+
+	return nil
 }

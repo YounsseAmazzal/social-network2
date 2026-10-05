@@ -10,7 +10,13 @@ CREATE TABLE IF NOT EXISTS posts_of_group (
     FOREIGN KEY (group_id) REFERENCES groups(id) ON DELETE CASCADE ON UPDATE CASCADE,
     FOREIGN KEY (member_id) REFERENCES users(id) ON DELETE CASCADE ON UPDATE CASCADE
 );
-
+CREATE TABLE IF NOT EXISTS post_group_rating (
+    user_id TEXT NOT NULL,
+    post_id TEXT NOT NULL,
+    rate INTEGER NOT NULL,
+    FOREIGN KEY(user_id) REFERENCES user(id) ON DELETE CASCADE,
+    UNIQUE(user_id, post_id)
+);
 CREATE TABLE IF NOT EXISTS group_messages (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     sender_id TEXT NOT NULL,
