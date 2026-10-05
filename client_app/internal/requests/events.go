@@ -18,6 +18,15 @@ func Eventplyload(req *http.Request) (models.Eventplyload, error) {
 	}
 	return Eventplyload, nil
 }
+
+func ExtractEventID(request *http.Request) (string, error) {
+	Groupid := request.URL.Query().Get("Event_id")
+	if Groupid == "" {
+		return "", fmt.Errorf("Event_id  Id not Foundd")
+	}
+	return Groupid, nil
+}
+
 func Vaalidevent(event *models.Eventplyload) error {
 	if strings.TrimSpace(event.Title) == "" || len(event.Title) > 100 {
 		return errors.New("title is required and must be under 100 characters")
