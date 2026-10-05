@@ -113,8 +113,8 @@ func (handler *Handlers) GroupEvents(res http.ResponseWriter, req *http.Request)
 		return
 	}
 	Eventpaagination := requests.EventPagination(req)
-	fmt.Println("THe limit event and the offset$$$$$$$$$$", Eventpaagination.Limit)
-	fmt.Println("THe limit and event the offset$$$$$$$$$$", Eventpaagination.Offset)
+	// fmt.Println("THe limit event and the offset$$$$$$$$$$", Eventpaagination.Limit)
+	// fmt.Println("THe limit and event the offset$$$$$$$$$$", Eventpaagination.Offset)
 	GetGroupEvents, err := handler.services.Reepo.GetGroupEvents(grouupid, user.ID, Eventpaagination.Limit, Eventpaagination.Offset)
 	if err != nil {
 		utils.ErrorResponse(res, err.Error(), http.StatusInternalServerError)
@@ -180,7 +180,8 @@ func (handler *Handlers) GroupEventParrticipate(res http.ResponseWriter, req *ht
 		utils.ErrorResponse(res, "event Not Fouund", http.StatusNotFound)
 		return
 	}
-	errr = handler.services.Reepo.Eventparticipate(eventid, user.ID, "going")
+	voteStatus:=requests.ExtractEventVote(req)
+	errr = handler.services.Reepo.Eventparticipate(eventid, user.ID, voteStatus)
 	if errr != nil {
 		utils.ErrorResponse(res, err.Error(), http.StatusNotFound)
 		return

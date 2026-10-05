@@ -44,6 +44,8 @@ func (handler *Handlers) UserProfile(res http.ResponseWriter, req *http.Request)
 		}
 		utils.ErrorResponse(res, "We Couldn't provide the profile", http.StatusInternalServerError)
 	}
+	// for now always true
+	useerProfile.CanSeeTheprofile=true
 	utils.ResponnseSender(res, http.StatusOK, map[string]any{
 		"Seeprofile": useerProfile,
 	})

@@ -8,6 +8,7 @@ type ProfileResponse struct {
 	FollowingCount int            `json:"followingCount"`
 	PostsCount     int            `json:"postsCount"`
 	Posts          []PostPreview  `json:"posts,omitempty"`
+	CanSeeTheprofile bool    	`json:"canSee"`
 }
 
 type PostPreview struct {

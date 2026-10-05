@@ -15,7 +15,7 @@ CREATE TABLE IF NOT EXISTS group_members (
     PRIMARY KEY (group_id, member_id)
 );
 
-CREATE TABLE IF NOT EXISTS group_requests (
+CREATE TABLE IF NOT EXISTS group_Join_requests (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     group_id TEXT NOT NULL,
     sender_id TEXT NOT NULL,

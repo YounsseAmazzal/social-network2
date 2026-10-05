@@ -18,7 +18,7 @@ type GroupEvent struct {
 	CreatedAt     time.Time `json:"created_at"`   
 	Userrate      string    `json:"user_rate,omitempty"` 
 	TotalGoing    int       `json:"total_participate"`
-	TotalNotGoing int       `json:"total_participate"`
+	TotalNotGoing int       `json:"total_Not_participate"`
 	Creator        User      `json:"Creator,omitempty"`
 }
 

@@ -369,6 +369,7 @@ func (handler *Handlers) CreateComment(res http.ResponseWriter, req *http.Reques
 	// handler.services.CreatePostComment(res,req)
 }
 
+
 // func (handler *Handlers) GetComments(res http.ResponseWriter, req *http.Request) {
 // 	// //fmt.Println("The user want  to create comment")
 // 	if !requests.IsRequestValid(res, req, "/AllPostComment", http.MethodGet) {

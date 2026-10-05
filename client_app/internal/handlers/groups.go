@@ -422,3 +422,104 @@ func (handler *Handlers) CreateGPComment(res http.ResponseWriter, req *http.Requ
 
 func (handler *Handlers) GroupInvite(res http.ResponseWriter, req *http.Request) {
 }
+func (handler *Handlers) RequesttoJoinGroup(res http.ResponseWriter, req *http.Request) {
+	if !requests.IsRequestValid(res, req, "/RequesttoJoinGroup", http.MethodPost) {
+		return
+	}
+	cookie, err := req.Cookie("solo_social")
+	if err != nil {
+		utils.ErrorResponse(res, "sesssion not valiiid ", http.StatusUnauthorized)
+		return
+	}
+	_, err = handler.services.Reepo.Checksession(cookie.Value)
+	if err != nil {
+		utils.ErrorResponse(res, "Your Session Not valid", http.StatusUnauthorized)
+		// log.Printf("Your Session Not valid", err.Error())
+		return
+	}
+	user, err := handler.services.Reepo.GetUserByToken(cookie.Value)
+	if err != nil {
+		utils.ErrorResponse(res, "Your Session Not validd", http.StatusUnauthorized)
+		return
+	}
+	grouupid, err := requests.ExtraactGroupId(req)
+	if err != nil {
+		utils.ErrorResponse(res, "Grouuup not Found", http.StatusUnauthorized)
+		return
+	}
+	Groupexist, err := handler.services.Reepo.GoupExist(grouupid)
+	if !Groupexist {
+		utils.ErrorResponse(res, "Grouup Not Fouund", http.StatusNotFound)
+		return
+	}
+	ismember, errr := handler.services.Reepo.CheckifUsserMember(user.ID, grouupid)
+	// fmt.Println("The user is Member ?????", ismember)
+	if errr != nil {
+		// fmt.Println("THE MEEEEMER CHECB err", errr)
+		utils.ErrorResponse(res, "Problem on checking membership try again", http.StatusInternalServerError)
+		return
+	}
+	if !ismember {
+		utils.ErrorResponse(res, "You aree memeber on this group", http.StatusForbidden)
+		return
+	}
+	err=handler.services.Reepo.GroupJoinRequests(grouupid,user.ID)
+	if err!=nil{
+				utils.ErrorResponse(res, "Problem on requesting to join the group", http.StatusInternalServerError)
+		return
+	}
+	utils.ResponnseSender(res, http.StatusOK, map[string]string{
+		"message": "You requet to join the group successfully",
+		"status":  "success",
+	})
+}
+func (handler *Handlers) JoiningGroupRequests(res http.ResponseWriter, req *http.Request) {
+	if !requests.IsRequestValid(res, req, "/JoiningGroupRequests", http.MethodPost) {
+		return
+	}
+	cookie, err := req.Cookie("solo_social")
+	if err != nil {
+		utils.ErrorResponse(res, "sesssion not valiiid ", http.StatusUnauthorized)
+		return
+	}
+	_, err = handler.services.Reepo.Checksession(cookie.Value)
+	if err != nil {
+		utils.ErrorResponse(res, "Your Session Not valid", http.StatusUnauthorized)
+		// log.Printf("Your Session Not valid", err.Error())
+		return
+	}
+	user, err := handler.services.Reepo.GetUserByToken(cookie.Value)
+	if err != nil {
+		utils.ErrorResponse(res, "Your Session Not validd", http.StatusUnauthorized)
+		return
+	}
+	grouupid, err := requests.ExtraactGroupId(req)
+	if err != nil {
+		utils.ErrorResponse(res, "Grouuup not Found", http.StatusUnauthorized)
+		return
+	}
+	Groupexist, err := handler.services.Reepo.GoupExist(grouupid)
+	if !Groupexist {
+		utils.ErrorResponse(res, "Grouup Not Fouund", http.StatusNotFound)
+		return
+	}
+	groupadmin,err:=handler.services.Reepo.GetGroupAdmin(grouupid)
+	if err!=nil{
+		utils.ErrorResponse(res, "Grouup not found  " , http.StatusNotFound)
+		return
+	}
+	if groupadmin!=user.ID{
+		utils.ErrorResponse(res, "You are not the admin of the grouup " , http.StatusUnauthorized)
+		return
+	}
+	///
+	pendingList, err := handler.services.Reepo.GetJoinRequesters(grouupid)
+	if err != nil {
+		utils.ErrorResponse(res, "Faailed to bring the requesters list " , http.StatusUnauthorized)
+   		return
+	}
+	utils.ResponnseSender(res, http.StatusOK, map[string]any{
+    "status": "success",
+    "JoinGrouplist":   pendingList,
+	})
+}

@@ -120,6 +120,7 @@ func (grourepo *Repository) EventEXIST(evenid  string) (bool, error) {
 }
 
 func (r *Repository) Eventparticipate(eventid, userid, status string) error {
+	fmt.Println("$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$the status of participation :",status)
 	// remove the participation
 	if status == "remove" || status == "" {
 		query := `DELETE FROM group_participation WHERE event_id = ? AND member_id = ?`

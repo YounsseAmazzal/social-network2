@@ -39,6 +39,18 @@ func Vaalidevent(event *models.Eventplyload) error {
 	}
 	return nil
 }
+func ExtractEventVote(r *http.Request) string {
+	vote := r.URL.Query().Get("vote")
+
+	vote = strings.ToLower(strings.TrimSpace(vote))
+
+	if vote != "going" && vote != "not going" && vote != "remove" {
+		return ""
+	}
+
+	return vote
+}
+
 func EventPagination(request *http.Request) models.EventPagination {
 	liimit := request.URL.Query().Get("limit")
 	offsetstr := request.URL.Query().Get("offset")

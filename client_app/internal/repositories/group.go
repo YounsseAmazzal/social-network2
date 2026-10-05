@@ -59,7 +59,7 @@ func (grouprepo *Repository) BringDiscovers(useriid string) ([]*models.GroupItem
 			(SELECT COUNT(*) FROM group_members WHERE group_id = g.id) as members_count,
 			COALESCE(gr.status, 'none') as request_status
 		FROM groups g
-		LEFT JOIN group_requests gr ON gr.group_id = g.id AND gr.sender_id = ?
+		LEFT JOIN group_Join_requests gr ON gr.group_id = g.id AND gr.sender_id = ?
 		WHERE NOT EXISTS (
 			SELECT 1 FROM group_members gm 
 			WHERE gm.group_id = g.id AND gm.member_id = ?
@@ -519,4 +519,67 @@ func (grouprepo *Repository) GroupPostLike(rate int, useerid string, postid stri
 	}
 
 	return nil
+}
+
+
+func (grouprepo *Repository) GroupJoinRequests(groupid,senderid string) error {
+	querry:=`
+	INSERT OR IGNORE INTO group_Join_requests (group_id, sender_id) VALUES (?, ?)
+	`
+	_, err := grouprepo.DB.Database.Exec(querry,groupid, senderid)
+	return err
+}
+func (grouprepo *Repository) GetGroupAdmin(grouupid string) (string, error) {
+	var admiinId string
+	// logicly the admin of the group is the creater =>the first user of the group table
+	query := `SELECT user_id FROM groups WHERE id = ? LIMIT 1`
+
+	err := grouprepo.DB.Database.QueryRow(query, grouupid).Scan(&admiinId)
+	
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return "", fmt.Errorf("group not found")
+		}
+		return "", fmt.Errorf("repository: failed to fetch group admin: %w", err)
+	}
+	return admiinId, nil
+}
+func (grouprepo *Repository) GetJoinRequesters(groupID string) ([]*models.User, error) {
+	query := `
+		SELECT 
+			u.id, u.firstname, u.lastname, 
+			COALESCE(u.nickname, ''), 
+			COALESCE(u.avatarURL, '')
+		FROM group_Join_requests gr
+		JOIN users u ON u.id = gr.sender_id
+		WHERE gr.group_id = ? AND gr.status = 'pending'`
+
+	rows, err := grouprepo.DB.Database.Query(query, groupID)
+	if err != nil {
+		return nil, fmt.Errorf("repository: failed to fetch pending members: %w", err)
+	}
+	defer rows.Close()
+
+	var pendingUsers []*models.User
+
+	for rows.Next() {
+		u := &models.User{}
+		err := rows.Scan(
+			&u.ID, 
+			&u.Firstname, 
+			&u.Lastname, 
+			&u.Nickname, 
+			&u.AvatarURL,
+		)
+		if err != nil {
+			return nil, fmt.Errorf("repository: failed to scan pending user: %w", err)
+		}
+		if u.AvatarURL != "" {
+			u.AvatarURL = u.AvatarURL
+		}
+
+		pendingUsers = append(pendingUsers, u)
+	}
+
+	return pendingUsers, nil
 }
