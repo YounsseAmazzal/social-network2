@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"social/internal/models"
 	"social/internal/utils"
+	"strconv"
 	"strings"
 )
 
@@ -114,4 +115,19 @@ func ValidCommentpy(commentpayload *models.Comment) error {
 	// 	return errors.New("Select an Image and it should be valid!!!")
 	// }
 	return nil
+}
+func PostPagination(request *http.Request) models.PostPagination {
+	liimit := request.URL.Query().Get("limit")
+	offsetstr := request.URL.Query().Get("offset")
+	limit, err := strconv.Atoi(liimit)
+	if err != nil {
+		limit = 10
+	}
+	offset, err := strconv.Atoi(offsetstr)
+	if err != nil {
+		offset = 0
+	}
+	PostPagination := models.PostPagination{Limit: limit, Offset: offset}
+	PostPagination.SetPostDefaults()
+	return PostPagination
 }

@@ -60,7 +60,7 @@ func (postr *Repository) CreaatePost(postPyyload *models.PostCreation) error {
 
 	return nil
 }
-func (postr *Repository) GetAllVisiblePosts(viewerID string) ([]*models.Post, error) {
+func (postr *Repository) GetAllVisiblePosts(viewerID string, limit, offset int) ([]*models.Post, error) {
 	var posts []*models.Post
 	// i make this query with 4 special rules
 	//1 public posts
@@ -82,20 +82,21 @@ func (postr *Repository) GetAllVisiblePosts(viewerID string) ([]*models.Post, er
 		LEFT JOIN post_rating v ON p.id = v.post_id
 		LEFT JOIN post_rating my_vote ON p.id = my_vote.post_id AND my_vote.user_id = ?
 		WHERE 
-			p.Privecytype = 'publicpost'                             
-			OR p.authorID = ?                                   
-			OR (p.Privecytype = 'only_followers' AND EXISTS (   
-				SELECT 1 FROM followers f 
-				WHERE f.following_id = p.authorID AND f.follower_id = ? AND f.status = 'folowAccepted'
+		p.Privecytype = 'publicpost'                             
+		OR p.authorID = ?                                   
+		OR (p.Privecytype = 'only_followers' AND EXISTS (   
+			SELECT 1 FROM followers f 
+			WHERE f.following_id = p.authorID AND f.follower_id = ? AND f.status = 'folowAccepted'
 			))
 			OR (p.Privecytype = 'followers_chosen' AND EXISTS (          
 				SELECT 1 FROM post_shared_users psu 
 				WHERE psu.post_id = p.id AND psu.user_id = ?
-			))
-		GROUP BY p.id
-		ORDER BY p.createDate DESC`
+				))
+				GROUP BY p.id
+				ORDER BY p.createDate DESC
+				LIMIT ? OFFSET ?`
 
-	rows, err := postr.DB.Database.Query(query, viewerID, viewerID, viewerID, viewerID)
+	rows, err := postr.DB.Database.Query(query, viewerID, viewerID, viewerID, viewerID, limit, offset)
 	if err != nil {
 		return nil, fmt.Errorf("repository: failed to fetch posts: %w", err)
 	}

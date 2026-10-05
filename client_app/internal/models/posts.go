@@ -31,3 +31,19 @@ type PostDetails struct{
 	Raaating *string `json:"userrating"`
 	PostComments []*CommentResponse
 }
+type PostPagination struct {
+	Offset int `json:"offset"` // 0000
+	Limit  int `json:"limit"`       
+}
+
+func (p *PostPagination) SetPostDefaults() {
+	if p.Limit <= 0 {
+		p.Limit = 10 //  
+	}
+	if p.Limit > 100 {
+		p.Limit = 100 // plaafou
+	}
+	if p.Offset < 0 {
+		p.Offset = 0
+	}
+}

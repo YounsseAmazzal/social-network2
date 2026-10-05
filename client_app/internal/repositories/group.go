@@ -289,7 +289,7 @@ func (grouprepo *Repository) CreateGroupComment(Commentgp *models.Comment) error
 	if err != nil {
 		return fmt.Errorf("repository: failed to start transaction: %w", err)
 	}
-	Commentgp.ID=newID.String()
+	Commentgp.ID = newID.String()
 	defer tx.Rollback()
 	query := `
 		INSERT INTO group_comments (id, group_post_id, member_id, content, image, created_at)
@@ -430,9 +430,9 @@ func (grouprepo *Repository) PostGrouupDetailed(usserid, poostid string) (*model
 	// fmt.Println("THe post detaileed", GroupPost)
 	return &GroupPost, nil
 }
-func (grouprepo *Repository) PostGroupComments(usserid, poostid string) ([]*models.GroupCommentResponse, error) {
+func (grouprepo *Repository) PostGroupComments(usserid, poostid string , limit,offset int) ([]*models.GroupCommentResponse, error) {
 	var groupcomments []*models.GroupCommentResponse
-		query := `
+	query := `
 		SELECT
 			c.id, c.content, c.member_id, c.created_at, COALESCE(c.image, ''),
 			u.nickname, COALESCE(u.avatarURL, '')
@@ -444,9 +444,10 @@ func (grouprepo *Repository) PostGroupComments(usserid, poostid string) ([]*mode
 			SELECT 1 FROM group_members gm 
 			WHERE gm.group_id = gp.group_id AND gm.member_id = ?
 		)
-		ORDER BY c.created_at ASC`
+		ORDER BY c.created_at DESC
+		LIMIT ? OFFSET ?`
 	// the vieweer should be member of the grouuuup
-	rows, err := grouprepo.DB.Database.Query(query, poostid, usserid)
+	rows, err := grouprepo.DB.Database.Query(query, poostid, usserid ,limit,offset)
 	if err != nil {
 		return nil, fmt.Errorf("repository: failed to fetch group comments: %w", err)
 	}
@@ -455,12 +456,12 @@ func (grouprepo *Repository) PostGroupComments(usserid, poostid string) ([]*mode
 		commentgp := &models.GroupCommentResponse{}
 
 		err := rows.Scan(
-			&commentgp.ID, 
-			&commentgp.Content, 
-			&commentgp.CreaterID, 
-			&commentgp.CreatedAt, 
+			&commentgp.ID,
+			&commentgp.Content,
+			&commentgp.CreaterID,
+			&commentgp.CreatedAt,
 			&commentgp.Image,
-			&commentgp.CreaterName, 
+			&commentgp.CreaterName,
 			&commentgp.Createravatar,
 		)
 		if err != nil {
@@ -468,10 +469,10 @@ func (grouprepo *Repository) PostGroupComments(usserid, poostid string) ([]*mode
 		}
 		commentgp.CreatedAt = utils.RegleThedate(commentgp.CreatedAt)
 		if commentgp.Image != "" {
-			commentgp.Image =  commentgp.Image
+			commentgp.Image = commentgp.Image
 		}
 		if commentgp.Createravatar != "" {
-			commentgp.Createravatar =  commentgp.Createravatar
+			commentgp.Createravatar = commentgp.Createravatar
 		}
 		groupcomments = append(groupcomments, commentgp)
 	}
@@ -481,14 +482,14 @@ func (grouprepo *Repository) PostGroupComments(usserid, poostid string) ([]*mode
 	return groupcomments, nil
 }
 
-func (grouprepo *Repository) GroupPostLike(rate int ,useerid string, postid string ) error {
+func (grouprepo *Repository) GroupPostLike(rate int, useerid string, postid string) error {
 	var rateexxist int
 	/// check if there is a rprevious rate
 	querySelect := `SELECT rate FROM post_group_rating WHERE post_id = ? AND user_id = ?`
 	err := grouprepo.DB.Database.QueryRow(querySelect, postid, useerid).Scan(&rateexxist)
 
 	if err != nil {
-		/// if there is not rate add onnnne 
+		/// if there is not rate add onnnne
 		if errors.Is(err, sql.ErrNoRows) {
 			queryInsert := `INSERT INTO post_group_rating (post_id, user_id, rate) VALUES (?, ?, ?)`
 			_, err = grouprepo.DB.Database.Exec(queryInsert, postid, useerid, rate)

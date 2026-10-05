@@ -48,7 +48,7 @@ func (postr *Repository) CreaatComment(commentpyyload *models.Comment) error {
 	return nil
 }
 
-func (comment *Repository) GetPostCommensts(userId string, posstId string) ([]*models.CommentResponse, error) {
+func (comment *Repository) GetPostCommensts(userId string, posstId string, limit,offfeset int) ([]*models.CommentResponse, error) {
 	var comments []*models.CommentResponse
 	query := `
 		SELECT 
@@ -57,9 +57,10 @@ func (comment *Repository) GetPostCommensts(userId string, posstId string) ([]*m
 		FROM comments c
 		JOIN users u ON c.createrID = u.id
 		WHERE c.postID = ?
-		ORDER BY c.createDate ASC`
+		ORDER BY c.createDate DESC
+		LIMIT ? OFFSET ?`
 
-	rows, err := comment.DB.Database.Query(query, posstId)
+	rows, err := comment.DB.Database.Query(query, posstId, limit,offfeset)
 	if err != nil {
 		return nil, fmt.Errorf("repository: failed to fetch comments: %w", err)
 	}

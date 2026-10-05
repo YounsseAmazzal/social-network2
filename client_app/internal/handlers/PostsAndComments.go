@@ -77,13 +77,17 @@ func (handler *Handlers) GETpost(res http.ResponseWriter, req *http.Request) {
 	kaynonGroup, err := handler.services.Reepo.CheckPostOnGroupposts(Post_id)
 	if kaynonGroup {
 		// fmt.Println("Post EXISTS on grouuuuup post ,")
+
 		postgroup, err := handler.services.Reepo.PostGrouupDetailed(user.ID, Post_id)
 		if err != nil {
 			fmt.Println("EDDDDDDDDDD")
 			utils.ErrorResponse(res, "Probem to serve post or you are not member", http.StatusUnauthorized)
 			return
 		}
-		GrouppostComments, err := handler.services.Reepo.PostGroupComments(user.ID, Post_id)
+			Grouppagiantion := requests.GetTheLimitandOffset(req)
+			fmt.Println("THe limit and the offset$$$$$$$$$$", Grouppagiantion.Limit)
+			fmt.Println("THe limit and the offset$$$$$$$$$$", Grouppagiantion.Offset)
+		GrouppostComments, err := handler.services.Reepo.PostGroupComments(user.ID, Post_id,Grouppagiantion.Limit,Grouppagiantion.Offset)
 		if err != nil {
 			fmt.Println("HHEHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH")
 			utils.ErrorResponse(res, "Probem to serve post or you are not member", http.StatusUnauthorized)
@@ -108,7 +112,10 @@ func (handler *Handlers) GETpost(res http.ResponseWriter, req *http.Request) {
 		utils.ErrorResponse(res, errr.Error(), http.StatusInternalServerError)
 		return
 	}
-	postcomments, err := handler.services.Reepo.GetPostCommensts(user.ID, Post_id)
+	Postcommmentp := requests.PostPagination(req)
+			fmt.Println("THe limit and the offset$$$$$$$$$$", Postcommmentp.Limit)
+			fmt.Println("THe limit and the offset$$$$$$$$$$", Postcommmentp.Offset)
+	postcomments, err := handler.services.Reepo.GetPostCommensts(user.ID, Post_id,Postcommmentp.Limit,Postcommmentp.Offset)
 	if err != nil {
 		utils.ErrorResponse(res, "WE HAVE A trouble try again", http.StatusInternalServerError)
 		return
@@ -277,7 +284,10 @@ func (handler *Handlers) AllPosts(res http.ResponseWriter, req *http.Request) {
 		utils.ErrorResponse(res, "Your Session Not validd", http.StatusUnauthorized)
 		return
 	}
-	alllposts, err := handler.services.Reepo.GetAllVisiblePosts(user.ID)
+	PostPagination := requests.PostPagination(req)
+	fmt.Println("THe limit and the offset", PostPagination.Limit)
+	fmt.Println("THe limit and the offset", PostPagination.Offset)
+	alllposts, err := handler.services.Reepo.GetAllVisiblePosts(user.ID,PostPagination.Limit,PostPagination.Offset)
 	if err != nil {
 		utils.ErrorResponse(res, err.Error(), http.StatusInternalServerError)
 		return
