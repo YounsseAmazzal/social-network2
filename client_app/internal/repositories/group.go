@@ -430,7 +430,7 @@ func (grouprepo *Repository) PostGrouupDetailed(usserid, poostid string) (*model
 	// fmt.Println("THe post detaileed", GroupPost)
 	return &GroupPost, nil
 }
-func (grouprepo *Repository) PostGroupComments(usserid, poostid string , limit,offset int) ([]*models.GroupCommentResponse, error) {
+func (grouprepo *Repository) PostGroupComments(usserid, poostid string, limit, offset int) ([]*models.GroupCommentResponse, error) {
 	var groupcomments []*models.GroupCommentResponse
 	query := `
 		SELECT
@@ -447,7 +447,7 @@ func (grouprepo *Repository) PostGroupComments(usserid, poostid string , limit,o
 		ORDER BY c.created_at DESC
 		LIMIT ? OFFSET ?`
 	// the vieweer should be member of the grouuuup
-	rows, err := grouprepo.DB.Database.Query(query, poostid, usserid ,limit,offset)
+	rows, err := grouprepo.DB.Database.Query(query, poostid, usserid, limit, offset)
 	if err != nil {
 		return nil, fmt.Errorf("repository: failed to fetch group comments: %w", err)
 	}
@@ -521,12 +521,11 @@ func (grouprepo *Repository) GroupPostLike(rate int, useerid string, postid stri
 	return nil
 }
 
-
-func (grouprepo *Repository) GroupJoinRequests(groupid,senderid string) error {
-	querry:=`
+func (grouprepo *Repository) GroupJoinRequests(groupid, senderid string) error {
+	querry := `
 	INSERT OR IGNORE INTO group_Join_requests (group_id, sender_id) VALUES (?, ?)
 	`
-	_, err := grouprepo.DB.Database.Exec(querry,groupid, senderid)
+	_, err := grouprepo.DB.Database.Exec(querry, groupid, senderid)
 	return err
 }
 func (grouprepo *Repository) GetGroupAdmin(grouupid string) (string, error) {
@@ -535,7 +534,7 @@ func (grouprepo *Repository) GetGroupAdmin(grouupid string) (string, error) {
 	query := `SELECT user_id FROM groups WHERE id = ? LIMIT 1`
 
 	err := grouprepo.DB.Database.QueryRow(query, grouupid).Scan(&admiinId)
-	
+
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return "", fmt.Errorf("group not found")
@@ -565,10 +564,10 @@ func (grouprepo *Repository) GetJoinRequesters(groupID string) ([]*models.User, 
 	for rows.Next() {
 		u := &models.User{}
 		err := rows.Scan(
-			&u.ID, 
-			&u.Firstname, 
-			&u.Lastname, 
-			&u.Nickname, 
+			&u.ID,
+			&u.Firstname,
+			&u.Lastname,
+			&u.Nickname,
 			&u.AvatarURL,
 		)
 		if err != nil {
@@ -591,7 +590,7 @@ func (grouprepo *Repository) IsJoinRequestPending(gouupid, userid string) (bool,
 			WHERE group_id = ? AND sender_id = ? AND status = 'pending'
 		)`
 	err := grouprepo.DB.Database.QueryRow(query, gouupid, userid).Scan(&exists)
-	
+
 	if err != nil {
 		return false, fmt.Errorf("repository: failed to check pending request: %w", err)
 	}
@@ -603,19 +602,69 @@ func (grouprepo *Repository) JoinRequestProcces(grouupid, userrid, decision stri
 	if err != nil {
 		return err
 	}
-	defer tx.Rollback() 
-	if decision == "Joinaccept" {
-		// add hiim to the table od grouup members 
+	defer tx.Rollback()
+	if decision == "joinaccept" {
+		// add hiim to the table od grouup members
 		insertMember := `INSERT INTO group_members (group_id, member_id) VALUES (?, ?)`
 		if _, err := tx.Exec(insertMember, grouupid, userrid); err != nil {
 			return fmt.Errorf("failed to add member: %w", err)
 		}
 	}
-	// remove the request from the database in thee to state acccept and reject 
+	// remove the request from the database in thee to state acccept and reject
 	deleteRequest := `DELETE FROM group_Join_requests WHERE group_id = ? AND sender_id = ?`
 	if _, err := tx.Exec(deleteRequest, grouupid, userrid); err != nil {
 		return fmt.Errorf("failed to clear request: %w", err)
 	}
 
 	return tx.Commit()
+}
+func (grouprepo *Repository) GetFollowersToinvite(groupID, userID string) ([]*models.User, error) {
+	query := `
+		SELECT u.id, u.firstname, u.lastname, COALESCE(u.nickname, ''), COALESCE(u.avatarURL, '')
+		FROM users u
+		WHERE u.id IN (
+			SELECT following_id FROM followers WHERE follower_id = ? AND status = 'folowAccepted'
+			UNION
+			SELECT follower_id FROM followers WHERE following_id = ? AND status = 'folowAccepted'
+		)
+		AND NOT EXISTS (
+			SELECT 1 FROM group_members gm 
+			WHERE gm.member_id = u.id AND gm.group_id = ?
+		)
+		AND NOT EXISTS (
+			SELECT 1 FROM group_Send_invetations gi 
+			WHERE gi.invitee_id = u.id AND gi.group_id = ? AND gi.status = 'pending'
+		)`
+
+	rows, err := grouprepo.DB.Database.Query(query, userID, userID, groupID, groupID)
+	if err != nil {
+		return nil, fmt.Errorf("repository: failed to fetch invitable followers: %w", err)
+	}
+	defer rows.Close()
+
+	var users []*models.User
+	for rows.Next() {
+		u := &models.User{}
+		err := rows.Scan(
+			&u.ID,
+			&u.Firstname,
+			&u.Lastname,
+			&u.Nickname,
+			&u.AvatarURL,
+		)
+		if err != nil {
+			return nil, fmt.Errorf("repository: failed to scan invitable user: %w", err)
+		}
+		if u.AvatarURL != "" {
+			u.AvatarURL = u.AvatarURL
+		}
+
+		users = append(users, u)
+	}
+
+	if err = rows.Err(); err != nil {
+		return nil, err
+	}
+
+	return users, nil
 }
