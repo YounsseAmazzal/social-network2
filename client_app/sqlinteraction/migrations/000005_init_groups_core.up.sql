@@ -10,29 +10,30 @@ CREATE TABLE IF NOT EXISTS groups (
 CREATE TABLE IF NOT EXISTS group_members (
     group_id TEXT,
     member_id TEXT,
-    PRIMARY KEY (group_id, member_id),
     FOREIGN KEY (group_id) REFERENCES groups(id) ON DELETE CASCADE,
-    FOREIGN KEY (member_id) REFERENCES users(id) ON DELETE CASCADE
+    FOREIGN KEY (member_id) REFERENCES users(id) ON DELETE CASCADE,
+    PRIMARY KEY (group_id, member_id)
 );
 
-
 CREATE TABLE IF NOT EXISTS group_Join_requests (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
     group_id TEXT NOT NULL,
     sender_id TEXT NOT NULL,
     status TEXT NOT NULL DEFAULT 'pending',
     created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    PRIMARY KEY (group_id, sender_id), 
+    UNIQUE(group_id, sender_id),
     FOREIGN KEY (group_id) REFERENCES groups(id) ON DELETE CASCADE,
     FOREIGN KEY (sender_id) REFERENCES users(id) ON DELETE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS group_Send_invetations (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
     group_id TEXT NOT NULL,
     inviter_id TEXT NOT NULL,
     invitee_id TEXT NOT NULL,
     status TEXT NOT NULL DEFAULT 'pending',
     created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    PRIMARY KEY(group_id, invitee_id), 
+    UNIQUE(group_id, invitee_id),
     FOREIGN KEY (group_id) REFERENCES groups(id) ON DELETE CASCADE,
     FOREIGN KEY (inviter_id) REFERENCES users(id) ON DELETE CASCADE,
     FOREIGN KEY (invitee_id) REFERENCES users(id) ON DELETE CASCADE

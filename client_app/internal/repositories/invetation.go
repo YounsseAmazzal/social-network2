@@ -31,3 +31,4 @@ func (groupinvetasion *Repository) SendInvetation(grouupid, inviterID, inviteeID
 
 	return nil
 }
+// aceeptation

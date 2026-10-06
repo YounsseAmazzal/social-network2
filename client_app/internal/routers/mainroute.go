@@ -11,13 +11,14 @@ import (
 	"time"
 )
 
-func Colleectrouters(handler *handlers.Handlers, middleware *middleware.Miiiddeware) http.Handler {
+func Colleectrouters(handler *handlers.Handlers, middleware *middleware.Miiiddeware,wsm *handlers.WSManager) http.Handler {
 	servermux := http.DefaultServeMux
 	serverstactic(servermux)
 	Auhentication(servermux, handler, middleware)
 	ProfileAndFollowers(servermux,handler,middleware)
 	PooostsandComments(servermux,handler,middleware)
 	Groupsandevents(servermux,handler,middleware)
+	WsChatAndNothification(servermux,wsm)
 	newratelimeter := utils.NewRateLimiter(time.Minute)
 	return newratelimeter.ApplyMiddleware("normalapi",servermux)
 }

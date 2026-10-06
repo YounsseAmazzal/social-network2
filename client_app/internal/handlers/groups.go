@@ -731,7 +731,7 @@ func (handler *Handlers) InviteGroup(res http.ResponseWriter, req *http.Request)
 	}
 	err=handler.services.Reepo.SendInvetation(grouupid,user.ID,inveteeduser)
 		if err!=nil {
-		utils.ErrorResponse(res, err.Error(), http.StatusForbidden)
+		utils.ErrorResponse(res, "Error Send the Invetion of group", http.StatusForbidden)
 		return
 		}
 	utils.ResponnseSender(res, http.StatusOK, map[string]any{
