@@ -7,6 +7,7 @@ import (
 	"social/internal/models"
 	"social/internal/requests"
 	"social/internal/utils"
+	"strings"
 )
 
 func (handler *Handlers) CreateGroup(res http.ResponseWriter, req *http.Request) {
@@ -332,7 +333,7 @@ func (handler *Handlers) GroupPosts(res http.ResponseWriter, req *http.Request) 
 		utils.ErrorResponse(res, "Grouup Not Fouund", http.StatusNotFound)
 		return
 	}
-	
+
 	GroupPosts, err := handler.services.Reepo.GetAllGroupPosts(grouupid, Grouppagiantion.Limit, Grouppagiantion.Offset)
 	if err != nil {
 		utils.ErrorResponse(res, "Problem on Gettitng Group post try again ", http.StatusInternalServerError)
@@ -404,17 +405,17 @@ func (handler *Handlers) CreateGPComment(res http.ResponseWriter, req *http.Requ
 	kaynonGroup, err := handler.services.Reepo.CheckPostOnGroupposts(Post_id)
 	if kaynonGroup {
 		// fmt.Println("COmmmment on group")
-		Commentpy.CreaterID=user.ID
-		Commentpy.PostID=Post_id
-		err =handler.services.Reepo.CreateGroupComment(&Commentpy)
-		if err!=nil{
+		Commentpy.CreaterID = user.ID
+		Commentpy.PostID = Post_id
+		err = handler.services.Reepo.CreateGroupComment(&Commentpy)
+		if err != nil {
 			utils.ErrorResponse(res, "Problem on creation Group Post Comment try again  ", http.StatusInternalServerError)
-			return 
+			return
 		}
-			utils.ResponnseSender(res, http.StatusOK, map[string]string{
-		"message": "The Group Comment Post Created success",
-		"status":  "success",
-	})
+		utils.ResponnseSender(res, http.StatusOK, map[string]string{
+			"message": "The Group Comment Post Created success",
+			"status":  "success",
+		})
 		return
 	}
 	utils.ErrorResponse(res, "somthing went wrong ....", http.StatusInternalServerError)
@@ -463,9 +464,9 @@ func (handler *Handlers) RequesttoJoinGroup(res http.ResponseWriter, req *http.R
 		utils.ErrorResponse(res, "You aree memeber on this group", http.StatusForbidden)
 		return
 	}
-	err=handler.services.Reepo.GroupJoinRequests(grouupid,user.ID)
-	if err!=nil{
-				utils.ErrorResponse(res, "Problem on requesting to join the group", http.StatusInternalServerError)
+	err = handler.services.Reepo.GroupJoinRequests(grouupid, user.ID)
+	if err != nil {
+		utils.ErrorResponse(res, "Problem on requesting to join the group", http.StatusInternalServerError)
 		return
 	}
 	utils.ResponnseSender(res, http.StatusOK, map[string]string{
@@ -474,7 +475,7 @@ func (handler *Handlers) RequesttoJoinGroup(res http.ResponseWriter, req *http.R
 	})
 }
 func (handler *Handlers) JoiningGroupRequests(res http.ResponseWriter, req *http.Request) {
-	if !requests.IsRequestValid(res, req, "/JoiningGroupRequests", http.MethodPost) {
+	if !requests.IsRequestValid(res, req, "/JoiningGroupRequests", http.MethodGet) {
 		return
 	}
 	cookie, err := req.Cookie("solo_social")
@@ -503,23 +504,106 @@ func (handler *Handlers) JoiningGroupRequests(res http.ResponseWriter, req *http
 		utils.ErrorResponse(res, "Grouup Not Fouund", http.StatusNotFound)
 		return
 	}
-	groupadmin,err:=handler.services.Reepo.GetGroupAdmin(grouupid)
-	if err!=nil{
-		utils.ErrorResponse(res, "Grouup not found  " , http.StatusNotFound)
+	groupadmin, err := handler.services.Reepo.GetGroupAdmin(grouupid)
+	if err != nil {
+		utils.ErrorResponse(res, "Grouup not found  ", http.StatusNotFound)
 		return
 	}
-	if groupadmin!=user.ID{
-		utils.ErrorResponse(res, "You are not the admin of the grouup " , http.StatusUnauthorized)
+	if groupadmin != user.ID {
+		utils.ErrorResponse(res, "You are not the admin of the grouup ", http.StatusUnauthorized)
 		return
 	}
 	///
 	pendingList, err := handler.services.Reepo.GetJoinRequesters(grouupid)
 	if err != nil {
-		utils.ErrorResponse(res, "Faailed to bring the requesters list " , http.StatusUnauthorized)
-   		return
+		utils.ErrorResponse(res, "Faailed to bring the requesters list ", http.StatusUnauthorized)
+		return
 	}
 	utils.ResponnseSender(res, http.StatusOK, map[string]any{
-    "status": "success",
-    "JoinGrouplist":   pendingList,
+		"status":        "success",
+		"JoinGrouplist": pendingList,
+	})
+}
+func (handler *Handlers) RespondtoJoinRequest(res http.ResponseWriter, req *http.Request) {
+	if !requests.IsRequestValid(res, req, "/RespondtoJoinRequest", http.MethodPost) {
+		return
+	}
+	cookie, err := req.Cookie("solo_social")
+	if err != nil {
+		utils.ErrorResponse(res, "sesssion not valiiid ", http.StatusUnauthorized)
+		return
+	}
+	_, err = handler.services.Reepo.Checksession(cookie.Value)
+	if err != nil {
+		utils.ErrorResponse(res, "Your Session Not valid", http.StatusUnauthorized)
+		// log.Printf("Your Session Not valid", err.Error())
+		return
+	}
+	user, err := handler.services.Reepo.GetUserByToken(cookie.Value)
+	if err != nil {
+		utils.ErrorResponse(res, "Your Session Not validd", http.StatusUnauthorized)
+		return
+	}
+	
+	grouupid, err := requests.ExtraactGroupId(req)
+	if err != nil {
+		utils.ErrorResponse(res, "Grouuup not Found", http.StatusUnauthorized)
+		return
+	}
+	Groupexist, err := handler.services.Reepo.GoupExist(grouupid)
+	if !Groupexist {
+		utils.ErrorResponse(res, "Grouup Not Fouund", http.StatusNotFound)
+		return
+	}
+	decision := strings.ToLower(req.URL.Query().Get("type"))
+	fmt.Println("the decision",decision)
+	if decision != "joinaccept" && decision != "joinreject" {
+		utils.ErrorResponse(res,  "Invalid type. Must be 'Joinaccept' or 'Joinreject'", http.StatusBadRequest)
+		return
+	}
+	applicationId:=strings.ToLower(req.URL.Query().Get("useeer_id"))
+	if applicationId =="" {
+		utils.ErrorResponse(res,  "Invalid User application id. ", http.StatusBadRequest)
+		return
+	}
+	userexxist,err:=handler.services.Reepo.UserExistsByID(applicationId)
+	if err!=nil{
+				utils.ErrorResponse(res,  "Database Errror", http.StatusInternalServerError)
+			return
+	}
+	if!userexxist{
+			utils.ErrorResponse(res,  "User that requested no exist", http.StatusNotFound)
+			return
+	}
+
+	groupadmin, err := handler.services.Reepo.GetGroupAdmin(grouupid)
+	if err != nil {
+		utils.ErrorResponse(res, "Grouup not found  ", http.StatusNotFound)
+		return
+	}
+	if groupadmin != user.ID {
+		utils.ErrorResponse(res, "only the admin can take the discion of acceptation ", http.StatusUnauthorized)
+		return
+	}
+	fmt.Println("The group id ",grouupid)
+	fmt.Println("THe user request id ",applicationId)
+	isPending,err:=handler.services.Reepo.IsJoinRequestPending(grouupid,applicationId)
+	if err!=nil{
+			utils.ErrorResponse(res,  "Database pending Errror", http.StatusInternalServerError)
+			return
+	}
+	if !isPending{
+				utils.ErrorResponse(res,  "No pending requests avaailiable from this user", http.StatusNotFound)
+		return
+	}
+	err=handler.services.Reepo.JoinRequestProcces(grouupid,applicationId,decision)
+	if err!=nil{
+					utils.ErrorResponse(res,  "Database accept and reject Errror", http.StatusInternalServerError)	
+			return
+	}
+	// i need nothification now here to optimaze the work
+	utils.ResponnseSender(res, http.StatusOK, map[string]any{
+		"status":"success",
+		"message":"You take the join decions succefully  " ,
 	})
 }

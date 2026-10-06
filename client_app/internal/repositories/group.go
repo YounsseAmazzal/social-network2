@@ -583,3 +583,39 @@ func (grouprepo *Repository) GetJoinRequesters(groupID string) ([]*models.User, 
 
 	return pendingUsers, nil
 }
+func (grouprepo *Repository) IsJoinRequestPending(gouupid, userid string) (bool, error) {
+	var exists int
+	query := `
+		SELECT EXISTS(
+			SELECT 1 FROM group_Join_requests 
+			WHERE group_id = ? AND sender_id = ? AND status = 'pending'
+		)`
+	err := grouprepo.DB.Database.QueryRow(query, gouupid, userid).Scan(&exists)
+	
+	if err != nil {
+		return false, fmt.Errorf("repository: failed to check pending request: %w", err)
+	}
+	return exists == 1, nil
+}
+
+func (grouprepo *Repository) JoinRequestProcces(grouupid, userrid, decision string) error {
+	tx, err := grouprepo.DB.Database.Begin()
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback() 
+	if decision == "Joinaccept" {
+		// add hiim to the table od grouup members 
+		insertMember := `INSERT INTO group_members (group_id, member_id) VALUES (?, ?)`
+		if _, err := tx.Exec(insertMember, grouupid, userrid); err != nil {
+			return fmt.Errorf("failed to add member: %w", err)
+		}
+	}
+	// remove the request from the database in thee to state acccept and reject 
+	deleteRequest := `DELETE FROM group_Join_requests WHERE group_id = ? AND sender_id = ?`
+	if _, err := tx.Exec(deleteRequest, grouupid, userrid); err != nil {
+		return fmt.Errorf("failed to clear request: %w", err)
+	}
+
+	return tx.Commit()
+}

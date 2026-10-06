@@ -255,3 +255,14 @@ func (ur *Repository) fetchBasicUserInfo(ProoofileId string) (*models.User, erro
 	}
 	return &usserr, err
 }
+func (ur *Repository) UserExistsByID(userID string) (bool, error) {
+	var exists int
+		query := `SELECT EXISTS(SELECT 1 FROM users WHERE id = ?)`
+
+	err := ur.DB.Database.QueryRow(query, userID).Scan(&exists)
+	
+	if err != nil {
+		return false, fmt.Errorf("repository: error checking user existence: %w", err)
+	}
+	return exists == 1, nil
+}
