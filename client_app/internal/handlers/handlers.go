@@ -7,8 +7,9 @@ type Handlers struct {
 	wsmaanager *WSManager
 }
 
-func NeewHandler(seerivcces *services.Service) *Handlers {
+func NeewHandler(seerivcces *services.Service,wsm *WSManager) *Handlers {
 	return &Handlers{
 		services:   seerivcces,
+		wsmaanager:wsm ,
 	}
 }

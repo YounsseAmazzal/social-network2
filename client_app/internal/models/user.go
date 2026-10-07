@@ -31,6 +31,7 @@ type User struct {
 	AboutMe    string `json:"aboutMe,omitempty"`
 	Rolation string   `json:"Rolation"`
 	IsPrivate  bool   `json:"isPrivate"`
+	LastmsDate string  
 }
 type UserLoign struct {
 	IdentifierEN string

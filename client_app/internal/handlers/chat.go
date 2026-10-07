@@ -29,8 +29,8 @@ func (handler *Handlers) Grouupmessages(res http.ResponseWriter, req *http.Reque
 		return
 	}
 	messagepg := requests.Messagepagination(req)
-	fmt.Println("The lastmessage_time",messagepg.Last_time)
-	fmt.Println("The liiiimit",messagepg.Limit)
+	fmt.Println("The lastmessage_time", messagepg.Last_time)
+	fmt.Println("The liiiimit", messagepg.Limit)
 	grouupid, err := requests.ExtraactGroupId(req)
 	if err != nil {
 		utils.ErrorResponse(res, "Grouuup not Found", http.StatusUnauthorized)
@@ -63,6 +63,50 @@ func (handler *Handlers) Grouupmessages(res http.ResponseWriter, req *http.Reque
 		"message":       "Taaake All posts",
 		"status":        "success",
 		"Groupmessages": Groupmessages,
+	})
+
+}
+func (handler *Handlers) UsersForChat(res http.ResponseWriter, req *http.Request) {
+	fmt.Println("The user want  All grouup users for chat ")
+	if !requests.IsRequestValid(res, req, "/UsersForChat", http.MethodGet) {
+		return
+	}
+	cookie, err := req.Cookie("solo_social")
+	if err != nil {
+		utils.ErrorResponse(res, "sesssion not valiiid ", http.StatusUnauthorized)
+		return
+	}
+	_, err = handler.services.Reepo.Checksession(cookie.Value)
+	if err != nil {
+		utils.ErrorResponse(res, "Your Session Not valid", http.StatusUnauthorized)
+		// log.Printf("Your Session Not valid", err.Error())
+		return
+	}
+	user, err := handler.services.Reepo.GetUserByToken(cookie.Value)
+	if err != nil {
+		utils.ErrorResponse(res, "Your Session Not validd", http.StatusUnauthorized)
+		return
+	}
+
+	Userstochat, err := handler.services.Reepo.GetChatUsers(user.ID)
+	if err != nil {
+		utils.ErrorResponse(res, "Problem on getting Users to chat with them ", http.StatusInternalServerError)
+		return
+	}
+	for _, u := range Userstochat {
+		u.IsOnline = handler.wsmaanager.IsUserOnline(u.ID)
+
+		if u.Avatar_URL == "" {
+			u.Avatar_URL = "/socialup/default-avatar.png"
+		}
+	}
+	// log.Fatal("heeeeeeeeeeere")
+
+	// fmt.Println("u recieve the messages succesfully ",Groupmessages)
+	utils.ResponnseSender(res, http.StatusOK, map[string]any{
+		"message":     "Taaake All USers for chat",
+		"status":      "success",
+		"Userstochat": Userstochat,
 	})
 
 }

@@ -13,5 +13,6 @@ func WsChatAndNothification(servermux *http.ServeMux, wsm *handlers.WSManager, m
 	// groouup messages
 	neewratelimiter := utils.NewRateLimiter(time.Minute)
 	servermux.Handle("/Grouupmessages", neewratelimiter.ApplyMiddleware("normalapi", (http.HandlerFunc(handler.Grouupmessages))))
+	servermux.Handle("/UsersForChat", neewratelimiter.ApplyMiddleware("normalapi", (http.HandlerFunc(handler.UsersForChat))))
 
 }

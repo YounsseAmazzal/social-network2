@@ -219,6 +219,11 @@ func (wsrepo *WSManager) SendToUser(userID string, payload any) {
 		}
 	}
 }
+func (wsm *WSManager) IsUserOnline(userID string) bool {
+	// log.Fatal("yaaaaaaaaaaak")
+	_, online := wsm.Clients.Load(userID)
+	return online
+}
 // func (){
 	
 // }

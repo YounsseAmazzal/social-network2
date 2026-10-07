@@ -2,7 +2,9 @@ package repositories
 
 import (
 	"fmt"
+	"log"
 	"social/internal/models"
+	"social/internal/utils"
 	"time"
 )
 
@@ -62,4 +64,75 @@ func (messagesreepo *Repository) GetGroupMessagesCursor(groupID string, limit in
 	}
 
 	return messages, nil
+}
+func (r *Repository) GetChatUsers(userID string) ([]*models.Userchat, error) {
+	var users []*models.Userchat
+
+	// the users and the last chat between them 
+	// subquery to bring the last message with the users 
+	// rollle :there a converstion with the user or following
+	// actice chat appearss first
+	query := `
+	SELECT DISTINCT
+		u.id, u.nickname, COALESCE(u.avatarURL, ''),
+		COALESCE(m.content, '') AS last_message,
+		COALESCE(m.createDate, '') AS last_message_time
+	FROM users u
+	LEFT JOIN (
+		SELECT 
+			CASE WHEN senderID = ? THEN receiverID ELSE senderID END AS otherUserID,
+			MAX(createDate) AS maxDate
+		FROM messages
+		WHERE senderID = ? OR receiverID = ?
+		GROUP BY otherUserID
+	) latest ON u.id = latest.otherUserID
+	LEFT JOIN messages m ON (
+		(m.senderID = latest.otherUserID OR m.receiverID = latest.otherUserID) 
+		AND m.createDate = latest.maxDate
+	)
+	WHERE u.id != ?
+	AND (
+		latest.otherUserID IS NOT NULL
+		OR EXISTS (
+			SELECT 1 FROM followers f
+			WHERE f.status = 'folowAccepted'
+			AND ((f.following_id = u.id AND f.follower_id = ?) OR (f.follower_id = u.id AND f.following_id = ?))
+		)
+	)
+	ORDER BY 
+		(last_message_time = '') ASC,
+		last_message_time DESC, 
+		u.nickname ASC`
+
+	rows, err := r.DB.Database.Query(query, userID, userID, userID, userID, userID, userID)
+	if err != nil {
+		log.Fatal("there is an errrrrrrr",err)
+		return nil, fmt.Errorf("repository: failed to fetch chat users: %w", err)
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		u := &models.Userchat{}
+		err := rows.Scan(
+			&u.ID, 
+			&u.Nickname, 
+			&u.Avatar_URL, 
+			&u.LastChatMessage, 
+			&u.LastChatDate,
+		)
+		if err != nil {
+			return nil, fmt.Errorf("repository: failed to scan chat user: %w", err)
+		}
+		if u.LastChatDate != "" {
+			u.LastChatDate = utils.RegleThedate(u.LastChatDate)
+		}
+		if u.Avatar_URL != "" {
+			u.Avatar_URL = u.Avatar_URL
+		}
+		
+		users = append(users, u)
+	}
+	
+	// log.Fatal("there is an errrrrrrr",err, users)
+	return users, nil
 }

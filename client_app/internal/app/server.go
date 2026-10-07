@@ -27,7 +27,7 @@ func Server() {
 	//fmt.Println("that is the services", newservice)
 	wsmaanager := handlers.Neeewsmanger(newservice)
 	//fmt.Println("that is the wssocket", wsmaanager)
-	handler := handlers.NeewHandler(newservice)
+	handler := handlers.NeewHandler(newservice,wsmaanager)
 	//fmt.Println("that is the handler", handler)
 	miidl := middleware.Neewmidd(newservice)
 	//fmt.Println("that is the midleware", miidl)
