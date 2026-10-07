@@ -1,9 +1,11 @@
 package handlers
 
 import (
+	"encoding/json"
 	"fmt"
 	"log"
 	"net/http"
+	"social/internal/models"
 	"social/internal/requests"
 	"social/internal/services"
 	"social/internal/utils"
@@ -72,15 +74,15 @@ func (wsrepo *WSManager) WebSocket(res http.ResponseWriter, req *http.Request) {
 		if err != nil {
 			break // Connection closed
 		}
-		fmt.Printf("the Payload %s",payload)
-		// wsm.routeMessage(userID, payload)
+		fmt.Printf("the Payload %s", payload)
+		wsrepo.routeMessage(user.ID, payload)
 	}
 }
 
 // add new conectioon to the user
-func (wsm *WSManager) registerClient(userID string, conn *websocket.Conn) {
+func (wsrepo *WSManager) registerClient(userID string, conn *websocket.Conn) {
 	// try to bring all the connection of the user
-	actual, _ := wsm.Clients.LoadOrStore(userID, make(map[*websocket.Conn]bool))
+	actual, _ := wsrepo.Clients.LoadOrStore(userID, make(map[*websocket.Conn]bool))
 
 	connections := actual.(map[*websocket.Conn]bool)
 
@@ -88,8 +90,8 @@ func (wsm *WSManager) registerClient(userID string, conn *websocket.Conn) {
 
 	if len(connections) == 1 {
 		//user online
-		// wsm.broadcastStatus(userID, true)
-		fmt.Println("the user os noow Online 1 tab ")
+		wsrepo.broadcastStatus(userID, true)
+		fmt.Println("the user is noow Online 1 tab ")
 	}
 }
 
@@ -116,3 +118,51 @@ func (wsm *WSManager) unregisterClient(userID string, conn *websocket.Conn) {
 		fmt.Println("user cloooesed one tabe and has other opeened tabs ")
 	}
 }
+
+func (wsm *WSManager) broadcastStatus(userID string, isOnline bool) {
+	payload := map[string]any{
+		"Datatype": "user_status",
+		"WsData": map[string]any{
+			"user_id": userID,
+			"online":  isOnline,
+		},
+	}
+	// maintaain the resources
+	message, _ := json.Marshal(payload)
+
+	// loop on all the user on the hub
+	wsm.Clients.Range(func(key, value any) bool {
+		targetUserID := key.(string)
+
+		if targetUserID == userID {
+			return true
+		}
+		// all tabs
+		connections := value.(map[*websocket.Conn]bool)
+		// sent to all tabs
+		for conn := range connections {
+			err := conn.WriteMessage(websocket.TextMessage, message)
+			if err != nil {
+				log.Printf("Error broadcasting to %s: %v", targetUserID, err)
+			}
+		}
+
+			return true //      
+		})
+	}
+func (wsrepo *WSManager) routeMessage(senderID string, payload []byte) {
+	var wsInput models.WebSocketInput
+	if err := json.Unmarshal(payload, &wsInput); err != nil {
+		log.Println("Invalid JSON:", err)
+		return
+	}
+	switch wsInput.Datatype {
+	case "group_message":
+		// wsrepo.handleGroupMessage(senderID, wsInput.WsData)
+	case "user_typing":
+		// wsrepo.handleTyping(senderID, wsInput.WsData)
+	}
+	// i will add "private_message",
+	//  "notification_read"
+}
+
