@@ -12,6 +12,7 @@ type GroupItem struct {
 	CreatedAt    time.Time `json:"created_at"`
 	MembersCount int       `json:"members_count"`
 	IsMember     bool      `json:"is_member,omitempty"`
+	GroupMember []string   `json:"group_members,omitempty"`
 }
 type GroupDetail struct {
 	ID           string    `json:"id"`

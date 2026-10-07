@@ -126,7 +126,9 @@ func (postr *Repository) GetAllVisiblePosts(viewerID string, limit, offset int) 
 		}
 
 		posts = append(posts, p)
+		
 	}
+	
 
 	return posts, nil
 }

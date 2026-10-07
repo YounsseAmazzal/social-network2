@@ -18,7 +18,7 @@ func Colleectrouters(handler *handlers.Handlers, middleware *middleware.Miiiddew
 	ProfileAndFollowers(servermux,handler,middleware)
 	PooostsandComments(servermux,handler,middleware)
 	Groupsandevents(servermux,handler,middleware)
-	WsChatAndNothification(servermux,wsm)
+	WsChatAndNothification(servermux,wsm,middleware ,handler)
 	newratelimeter := utils.NewRateLimiter(time.Minute)
 	return newratelimeter.ApplyMiddleware("normalapi",servermux)
 }

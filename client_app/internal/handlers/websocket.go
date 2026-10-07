@@ -10,6 +10,7 @@ import (
 	"social/internal/services"
 	"social/internal/utils"
 	"sync"
+	"time"
 
 	"github.com/gorilla/websocket"
 )
@@ -147,18 +148,20 @@ func (wsm *WSManager) broadcastStatus(userID string, isOnline bool) {
 			}
 		}
 
-			return true //      
-		})
-	}
+		return true //
+	})
+}
 func (wsrepo *WSManager) routeMessage(senderID string, payload []byte) {
+	fmt.Println("useerr to rouuuter the message")
 	var wsInput models.WebSocketInput
 	if err := json.Unmarshal(payload, &wsInput); err != nil {
 		log.Println("Invalid JSON:", err)
 		return
 	}
+	// fmt.Println("ssssssssssssssssssssssssssssssss",wsInput.Datatype)
 	switch wsInput.Datatype {
-	case "group_message":
-		// wsrepo.handleGroupMessage(senderID, wsInput.WsData)
+	case "send_message_group":
+		wsrepo.handleGroupMessage(senderID, wsInput.WsData)
 	case "user_typing":
 		// wsrepo.handleTyping(senderID, wsInput.WsData)
 	}
@@ -166,3 +169,56 @@ func (wsrepo *WSManager) routeMessage(senderID string, payload []byte) {
 	//  "notification_read"
 }
 
+func (wsrepo *WSManager) handleGroupMessage(senderID string, data map[string]any) {
+	fmt.Println("User sent a group message")
+	groupID, _ := data["group_id"].(string)
+	content, _ := data["message"].(string)
+
+	if groupID == "" || content == "" || len(content) > 1000 {
+		return
+	}
+	// fmt.Println("the grouupid",groupID)
+	// fmt.Println("the senderID",senderID)
+	// fmt.Println("the content",content)
+	_, err := wsrepo.WsDb.Reepo.CreateGroupMessage(groupID, senderID, content)
+	if err != nil {
+		log.Println("DB Error:", err)
+		return
+	}
+	broadcastPayload := map[string]any{
+		"Datatype": "send_message_group",
+		"WsData": map[string]any{
+			"grouupid":  groupID,
+			"sender_id": senderID,
+			"group_message":   content,
+			"send_date":   time.Now().Format(time.RFC3339),
+		},
+	}
+	group, _ := wsrepo.WsDb.Reepo.GetGroupMetadata(groupID)
+	for _, memberID := range group.GroupMember {
+		fmt.Println("brodcast the message to the group",broadcastPayload)
+		wsrepo.SendToUser(memberID, broadcastPayload)
+
+		// khaasni nziddd Send Notification 
+	}
+}
+func (wsrepo *WSManager) SendToUser(userID string, payload any) {
+	val, ok := wsrepo.Clients.Load(userID)
+	if !ok {
+		//means  User is offline
+		return 
+	}
+
+	conns := val.(map[*websocket.Conn]bool)
+	data, _ := json.Marshal(payload)
+
+	for conn := range conns {
+		err := conn.WriteMessage(websocket.TextMessage, data)
+		if err != nil {
+			log.Println("Write error:", err)
+		}
+	}
+}
+// func (){
+	
+// }

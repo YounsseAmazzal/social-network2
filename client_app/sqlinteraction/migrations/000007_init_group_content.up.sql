@@ -18,7 +18,7 @@ CREATE TABLE IF NOT EXISTS post_group_rating (
     UNIQUE(user_id, post_id)
 );
 CREATE TABLE IF NOT EXISTS group_messages (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    id TEXT PRIMARY KEY,
     sender_id TEXT NOT NULL,
     group_id TEXT NOT NULL,
     content TEXT NOT NULL,
