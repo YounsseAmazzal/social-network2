@@ -136,3 +136,70 @@ func (r *Repository) GetChatUsers(userID string) ([]*models.Userchat, error) {
 	// log.Fatal("there is an errrrrrrr",err, users)
 	return users, nil
 }
+
+func (r *Repository) CoulldChat(usserrrid, taalkerid string) (bool, error) {
+	var exists int
+	/// ensure that there a rolation between the users following or followers
+	query := `
+		SELECT EXISTS (
+			SELECT 1 FROM followers 
+			WHERE status = 'folowAccepted' 
+			AND (
+				(follower_id = ? AND following_id = ?) 
+				OR 
+				(follower_id = ? AND following_id = ?)
+			)
+		)`
+	err := r.DB.Database.QueryRow(query, usserrrid, taalkerid, taalkerid, usserrrid).Scan(&exists)
+
+	if err != nil {
+		return false, fmt.Errorf("repository: failed to check chat permission: %w", err)
+	}
+	return exists == 1, nil
+}
+
+
+func (r *Repository) GetPrivateMessages(userID, takerwithid string, limit int, lastTime string) ([]*models.Message, error) {
+	var query string
+	var args []any
+	/// query for the messages from the siddes 
+	baseQuery := `
+		SELECT id, senderID, receiverID, content, createDate 
+		FROM messages 
+		WHERE ((senderID = ? AND receiverID = ?) OR (senderID = ? AND receiverID = ?))`
+
+	if lastTime == "" || lastTime == "0" {
+		query = baseQuery + ` ORDER BY createDate DESC LIMIT ?`
+		args = []any{userID, takerwithid, takerwithid, userID, limit}
+	} else {
+			// bring the new ones
+		query = baseQuery + ` AND createDate < ? ORDER BY createDate DESC LIMIT ?`
+		args = []any{userID, takerwithid, takerwithid, userID, lastTime, limit}
+	}
+
+	rows, err := r.DB.Database.Query(query, args...)
+	if err != nil {
+		return nil, fmt.Errorf("repository: failed to fetch private messages: %w", err)
+	}
+	defer rows.Close()
+
+	var messages []*models.Message
+
+	for rows.Next() {
+		var sentAt time.Time
+		m := &models.Message{}
+		err := rows.Scan(&m.ID, &m.Seender_id, &m.Receiver_ID, &m.Message, &m.Send_at)
+		if err != nil {
+			return nil, fmt.Errorf("repository: failed to scan message: %w", err)
+		}
+		// i forgot to format date
+		m.Send_at = sentAt.Format("2006-01-02 15:04:05")
+		messages = append(messages, m)
+	}
+	/// reverce from the old the new cause i bring by DESC 
+	for i, j := 0, len(messages)-1; i < j; i, j = i+1, j-1 {
+		messages[i], messages[j] = messages[j], messages[i]
+	}
+
+	return messages, nil
+}

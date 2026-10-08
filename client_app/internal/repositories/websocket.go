@@ -67,3 +67,27 @@ func (r *Repository) GetGroupMetadata(groupID string) (*models.GroupItem, error)
 
 	return &group, nil
 }
+func (r *Repository) CreatePrivateMessage(sender_id string, receiver_id, message string) (string, error) {
+	msgID := uuid.New().String()
+	// if err != nil {
+	// 	return "", fmt.Errorf("repository: failed to generate message uuid: %w", err)
+	// }
+	query := `
+		INSERT INTO messages (id, senderID, receiverID, content, createDate) 
+		VALUES (?, ?, ?, ?, ?)`
+	// query2:=`
+	// 	SELECT * FROM messages WHERE sender_id=?
+	// `
+	_, err := r.DB.Database.Exec(query,
+		msgID,
+		sender_id,
+		receiver_id,
+		message,
+		time.Now(),
+	)
+
+	if err != nil {
+		return "", fmt.Errorf("repository: failed to insert private message: %w", err)
+	}
+	return msgID, nil
+}

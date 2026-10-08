@@ -110,3 +110,59 @@ func (handler *Handlers) UsersForChat(res http.ResponseWriter, req *http.Request
 	})
 
 }
+func (handler *Handlers) Usersmessages(res http.ResponseWriter, req *http.Request) {
+	fmt.Println("The user want  all the messages of users ")
+	if !requests.IsRequestValid(res, req, "/Usersmessages", http.MethodGet) {
+		return
+	}
+	cookie, err := req.Cookie("solo_social")
+	if err != nil {
+		utils.ErrorResponse(res, "sesssion not valiiid ", http.StatusUnauthorized)
+		return
+	}
+	_, err = handler.services.Reepo.Checksession(cookie.Value)
+	if err != nil {
+		utils.ErrorResponse(res, "Your Session Not valid", http.StatusUnauthorized)
+		// log.Printf("Your Session Not valid", err.Error())
+		return
+	}
+	user, err := handler.services.Reepo.GetUserByToken(cookie.Value)
+	if err != nil {
+		utils.ErrorResponse(res, "Your Session Not validd", http.StatusUnauthorized)
+		return
+	}
+	messagepg:=requests.Messagepagination(req)
+	talker,err:=requests.ExtractUsertoMessage(req)
+	if err != nil {
+		utils.ErrorResponse(res, "User not foound to talk with him", http.StatusNotFound)
+		return
+	}
+	taalker,err:=handler.services.Reepo.BringUserByid(talker)
+	if err!=nil{
+		utils.ErrorResponse(res, "User not foound to talk with him", http.StatusNotFound)
+		return
+	}
+	canyouchat,err:=handler.services.Reepo.CoulldChat(user.ID,taalker.ID)
+	if err!=nil{
+			utils.ErrorResponse(res, "Error checking the permissons of chaat", http.StatusInternalServerError)
+		return
+	}
+	MessagesBetweenthem,err:=handler.services.Reepo.GetPrivateMessages(user.ID,taalker.ID,messagepg.Limit,messagepg.Last_time)
+	if err!=nil{
+			utils.ErrorResponse(res, "Problem on bring messages", http.StatusInternalServerError)
+		return
+	}
+	// log.Fatal("heeeeeeeeeeere")
+	if !canyouchat && len(MessagesBetweenthem)==0{
+		utils.ErrorResponse(res, "Follow the user to chat with him", http.StatusForbidden)
+		return
+	}
+	// fmt.Println("u recieve the messages succesfully ",MessagesBetweenthem)
+	utils.ResponnseSender(res, http.StatusOK, map[string]any{
+		"message":     "All messages",
+		"status":      "success",
+		"messages": MessagesBetweenthem,
+		"conversationalist":taalker,
+	})
+
+}

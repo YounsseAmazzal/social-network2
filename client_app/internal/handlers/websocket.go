@@ -164,6 +164,9 @@ func (wsrepo *WSManager) routeMessage(senderID string, payload []byte) {
 		wsrepo.handleGroupMessage(senderID, wsInput.WsData)
 	case "user_typing":
 		// wsrepo.handleTyping(senderID, wsInput.WsData)
+	case "private_message":
+		wsrepo.handelprivitechat(senderID, wsInput.WsData)
+
 	}
 	// i will add "private_message",
 	//  "notification_read"
@@ -188,25 +191,59 @@ func (wsrepo *WSManager) handleGroupMessage(senderID string, data map[string]any
 	broadcastPayload := map[string]any{
 		"Datatype": "send_message_group",
 		"WsData": map[string]any{
-			"grouupid":  groupID,
-			"sender_id": senderID,
-			"group_message":   content,
-			"send_date":   time.Now().Format(time.RFC3339),
+			"grouupid":      groupID,
+			"sender_id":     senderID,
+			"group_message": content,
+			"send_date":     time.Now().Format(time.RFC3339),
 		},
 	}
 	group, _ := wsrepo.WsDb.Reepo.GetGroupMetadata(groupID)
 	for _, memberID := range group.GroupMember {
-		fmt.Println("brodcast the message to the group",broadcastPayload)
+		fmt.Println("brodcast the message to the group", broadcastPayload)
 		wsrepo.SendToUser(memberID, broadcastPayload)
 
-		// khaasni nziddd Send Notification 
+		// khaasni nziddd Send Notification
 	}
+}
+func (wsrepo *WSManager) handelprivitechat(senderID string, data map[string]any) {
+	fmt.Println("User sent a privite messages message")
+	userchatwith_id, _ := data["userchatwith_id"].(string)
+	message, _ := data["message"].(string)
+	// fmt.Println("hhhhhhhhhhhhh userchatwith_id ",userchatwith_id)
+	if userchatwith_id == "" || message == "" || len(message) > 1000 {
+		return
+	}
+	if userchatwith_id==senderID{
+		return
+	}
+	caanchat, err := wsrepo.WsDb.Reepo.CoulldChat(senderID, userchatwith_id)
+	if !caanchat {
+		// fmt.Println("$$$$$$$$$$$$$$$$$$$$$$heee can chat$$$$$$$$$$$$$$$$$$$$$$$$$",)
+		return
+	}
+	msgid, err := wsrepo.WsDb.Reepo.CreatePrivateMessage(userchatwith_id, senderID, message)
+	if err != nil {
+		log.Println("DB Error:", err)
+		return
+	}
+	broadcastPayload := map[string]any{
+		"Datatype": "send_message_group",
+		"WsData": map[string]any{
+			"id":              msgid,
+			"userchatwith_id": userchatwith_id,
+			"sender_id":       senderID,
+			"group_message":   message,
+			"send_date":       time.Now().Format(time.RFC3339),
+		},
+	}
+	wsrepo.SendToUser(userchatwith_id, broadcastPayload)
+	wsrepo.SendToUser(senderID, broadcastPayload)
 }
 func (wsrepo *WSManager) SendToUser(userID string, payload any) {
 	val, ok := wsrepo.Clients.Load(userID)
 	if !ok {
 		//means  User is offline
-		return 
+		return
 	}
 
 	conns := val.(map[*websocket.Conn]bool)
@@ -224,6 +261,7 @@ func (wsm *WSManager) IsUserOnline(userID string) bool {
 	_, online := wsm.Clients.Load(userID)
 	return online
 }
+
 // func (){
-	
+
 // }

@@ -25,3 +25,10 @@ type Groupmessages struct{
 	Send_date   string `json:"send_date,omitempty"`
 }
 
+type Message struct {
+	ID         string `json:"id"`
+	Seender_id   string `json:"sender_id"`
+	Receiver_ID string `json:"receiver_id"`
+	Message       string `json:"message"`
+	Send_at string `json:"sent_time"`
+}
