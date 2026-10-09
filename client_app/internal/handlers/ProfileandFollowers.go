@@ -477,7 +477,7 @@ func (handler *Handlers) FetchNetwork(res http.ResponseWriter, req *http.Request
 
 }
 func extractprofileID(req *http.Request, profileeeid string) string {
-	tackenid := strings.TrimSpace(req.URL.Query().Get("id"))
+	tackenid := strings.TrimSpace(req.URL.Query().Get("user_id"))
 	if tackenid != "" {
 		return tackenid
 	}

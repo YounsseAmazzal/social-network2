@@ -211,3 +211,37 @@ func (r *Repository) ReadNgroupnothif(recipientID, groupID string) error {
 
 	return nil
 }
+
+func (r *Repository) MarkNotificationAsRead(recipientID, notificationID string) error {
+	query := `
+		UPDATE notifications 
+		SET read_status = 1 
+		WHERE recipient_id = ? AND id = ? AND read_status = 0`
+
+	result, err := r.DB.Database.Exec(query, recipientID, notificationID)
+	if err != nil {
+		return fmt.Errorf("repository: failed to mark notification as read: %w", err)
+	}
+
+	// check if the nothif is exiist 
+	rows, _ := result.RowsAffected()
+	if rows == 0 {
+		return nil 
+	}
+
+	return nil
+}
+// all nothif
+func (r *Repository) MarkAllNotificationsAsRead(recipientID string) error {
+	query := `
+		UPDATE notifications 
+		SET read_status = 1 
+		WHERE recipient_id = ? AND read_status = 0`
+
+	_, err := r.DB.Database.Exec(query, recipientID)
+	if err != nil {
+		return fmt.Errorf("repository: failed to mark all notifications as read: %w", err)
+	}
+
+	return nil
+}

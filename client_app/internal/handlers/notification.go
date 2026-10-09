@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"fmt"
+	"log"
 	"net/http"
 	"social/internal/requests"
 	"social/internal/utils"
@@ -30,19 +31,19 @@ func (handler *Handlers) Golbalenothification(res http.ResponseWriter, req *http
 		return
 	}
 	Nothiflimit := requests.Nothiflimit(req)
-	defaultlimit:=10
+	defaultlimit := 10
 	notlimit, err := strconv.Atoi(Nothiflimit)
-	if err!=nil{
-		notlimit=defaultlimit
+	if err != nil {
+		notlimit = defaultlimit
 	}
-	userNothification,err:=handler.services.Reepo.UserNothification(notlimit,user.ID)
-	if err!=nil{
+	userNothification, err := handler.services.Reepo.UserNothification(notlimit, user.ID)
+	if err != nil {
 		utils.ErrorResponse(res, "Problem on getting nothifications", http.StatusInternalServerError)
 		return
 	}
 	utils.ResponnseSender(res, http.StatusOK, map[string]any{
-		"message":              "Taaake All posts",
-		"status":               "success",
+		"message":           "Taaake All posts",
+		"status":            "success",
 		"userNothification": userNothification,
 	})
 
@@ -67,25 +68,25 @@ func (handler *Handlers) ChatNothification(res http.ResponseWriter, req *http.Re
 		utils.ErrorResponse(res, "Your Session Not validd", http.StatusUnauthorized)
 		return
 	}
-	counters,err:=handler.services.Reepo.CountermesaageNotRead(user.ID)
+	counters, err := handler.services.Reepo.CountermesaageNotRead(user.ID)
 	if err != nil {
-        utils.ErrorResponse(res,"Database error",500)
-        return
-    }
+		utils.ErrorResponse(res, "Database error", 500)
+		return
+	}
 	unreadMap := make(map[string]int)
-    totalUnread := 0
+	totalUnread := 0
 
-    for _, c := range counters {
+	for _, c := range counters {
 		// for everrry userid [useeif : 44]
 		unreadMap[c.SenderID] = c.Count
-        totalUnread += c.Count
-    }
+		totalUnread += c.Count
+	}
 
 	utils.ResponnseSender(res, http.StatusOK, map[string]any{
-		"message":              "Taaake All Nothiiif",
-		"status":               "success",
-		"senders":counters,
-		"NotRead_Total":totalUnread,
+		"message":       "Taaake All Nothiiif",
+		"status":        "success",
+		"senders":       counters,
+		"NotRead_Total": totalUnread,
 	})
 
 }
@@ -109,7 +110,7 @@ func (handler *Handlers) GroupChatNothification(res http.ResponseWriter, req *ht
 		utils.ErrorResponse(res, "Your Session Not validd", http.StatusUnauthorized)
 		return
 	}
-	// i think i don't need to check the membersheeeep 
+	// i think i don't need to check the membersheeeep
 
 	// GrouupId, err := requests.ExtraactGroupId(req)
 	// if err != nil {
@@ -138,25 +139,24 @@ func (handler *Handlers) GroupChatNothification(res http.ResponseWriter, req *ht
 	// 	return
 	// }
 
-	counters,err:=handler.services.Reepo.CounterGroupmesaageNotRead(user.ID)
+	counters, err := handler.services.Reepo.CounterGroupmesaageNotRead(user.ID)
 	if err != nil {
-        utils.ErrorResponse(res,"Database error",500)
-        return
-    }
-    groupCounts := make(map[string]int)
-    totalGroupUnread := 0
+		utils.ErrorResponse(res, "Database error", 500)
+		return
+	}
+	groupCounts := make(map[string]int)
+	totalGroupUnread := 0
 
-    for _, c := range counters {
-        groupCounts[c.GroupID] = c.Count
-        totalGroupUnread += c.Count
-    }
-
+	for _, c := range counters {
+		groupCounts[c.GroupID] = c.Count
+		totalGroupUnread += c.Count
+	}
 
 	utils.ResponnseSender(res, http.StatusOK, map[string]any{
-		"message":              "Taaake All Nothiiif",
-		"status":               "success",
-		"senders":counters,
-		"NotRead_Total":groupCounts,
+		"message":       "Taaake All Nothiiif",
+		"status":        "success",
+		"senders":       counters,
+		"NotRead_Total": groupCounts,
 	})
 
 }
@@ -180,20 +180,20 @@ func (handler *Handlers) ReadGroupNothification(res http.ResponseWriter, req *ht
 		utils.ErrorResponse(res, "Your Session Not validd", http.StatusUnauthorized)
 		return
 	}
-	grouupid,err:=requests.ExtraactGroupId(req)
-	if err!=nil ||grouupid==""{
+	grouupid, err := requests.ExtraactGroupId(req)
+	if err != nil || grouupid == "" {
 		utils.ErrorResponse(res, "Grouup Not Found", http.StatusUnauthorized)
 		return
 	}
-	handler.services.Reepo.ReadNgroupnothif(user.ID,grouupid)
+	handler.services.Reepo.ReadNgroupnothif(user.ID, grouupid)
 	utils.ResponnseSender(res, http.StatusOK, map[string]any{
-		"message":              "Taaake All Nothiiif",
-		"status":               "success",
+		"message": "Taaake All Nothiiif",
+		"status":  "success",
 	})
 
 }
 func (handler *Handlers) ReadNothification(res http.ResponseWriter, req *http.Request) {
-	if !requests.IsRequestValid(res, req, "/ReadNothification", http.MethodPost) {
+	if !requests.IsRequestValid(res, req, "/ReadchatNothification", http.MethodPost) {
 		return
 	}
 	cookie, err := req.Cookie("solo_social")
@@ -212,52 +212,112 @@ func (handler *Handlers) ReadNothification(res http.ResponseWriter, req *http.Re
 		utils.ErrorResponse(res, "Your Session Not validd", http.StatusUnauthorized)
 		return
 	}
-	talker,err:=requests.ExtractUsertoMessage(req)
+	talker, err := requests.ExtractUsertoMessage(req)
 	if err != nil {
 		utils.ErrorResponse(res, "Missing talkeer ", http.StatusNotFound)
 		return
 	}
-	err=handler.services.Reepo.Readchatnothif(user.ID,talker)
-	if err!=nil{
-			utils.ErrorResponse(res, "ERror on marking chat messages nothification as read", http.StatusNotFound)
+	err = handler.services.Reepo.Readchatnothif(user.ID, talker)
+	if err != nil {
+		utils.ErrorResponse(res, "ERror on marking chat messages nothification as read", http.StatusNotFound)
 		return
 	}
 	// counters,err:=handler.services.Reepo.CounterGroupmesaageNotRead(user.ID)
 	// if err != nil {
-    //     utils.ErrorResponse(res,"Database error",500)
-    //     return
-    // }
-    // groupCounts := make(map[string]int)
-    // totalGroupUnread := 0
+	//     utils.ErrorResponse(res,"Database error",500)
+	//     return
+	// }
+	// groupCounts := make(map[string]int)
+	// totalGroupUnread := 0
 
-    // for _, c := range counters {
-    //     groupCounts[c.GroupID] = c.Count
-    //     totalGroupUnread += c.Count
-    // }
-
+	// for _, c := range counters {
+	//     groupCounts[c.GroupID] = c.Count
+	//     totalGroupUnread += c.Count
+	// }
 
 	utils.ResponnseSender(res, http.StatusOK, map[string]any{
-		"message":              " chat nothification messages marked as read",
-		"status":               "success",
+		"message": " chat nothification messages marked as read",
+		"status":  "success",
+	})
+
+}
+func (handler *Handlers) ReadNormaalNothification(res http.ResponseWriter, req *http.Request) {
+	if !requests.IsRequestValid(res, req, "/ReadNormaalNothification", http.MethodPost) {
+		return
+	}
+	cookie, err := req.Cookie("solo_social")
+	if err != nil {
+		utils.ErrorResponse(res, "sesssion not valiiid ", http.StatusUnauthorized)
+		return
+	}
+	_, err = handler.services.Reepo.Checksession(cookie.Value)
+	if err != nil {
+		utils.ErrorResponse(res, "Your Session Not valid", http.StatusUnauthorized)
+		// log.Printf("Your Session Not valid", err.Error())
+		return
+	}
+	user, err := handler.services.Reepo.GetUserByToken(cookie.Value)
+	if err != nil {
+		utils.ErrorResponse(res, "Your Session Not validd", http.StatusUnauthorized)
+		return
+	}
+	nothifid, markalll := requests.ExtractReadParams(req)
+	if markalll {
+		// fmt.Println("yaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")
+		err = handler.services.Reepo.MarkAllNotificationsAsRead(user.ID)
+		if err != nil {
+			utils.ErrorResponse(res, "failed to mark all nothifications", http.StatusInternalServerError)
+			return
+		}
+		// log.Fatal("boooom",err)
+		utils.ResponnseSender(res, http.StatusOK, "All notifications marked as read")
+		return
+	}
+	// fmt.Println("the id of the notifiactsadfnsdfw",nothifid)
+	if nothifid != "" {
+		err := handler.services.Reepo.MarkNotificationAsRead(user.ID, nothifid)
+		if err != nil {
+			utils.ErrorResponse(res, "failed to mark the nothification ", http.StatusInternalServerError)
+			return
+		}
+		log.Fatal("boooob")
+		utils.ResponnseSender(res, http.StatusOK, "the notification marked as read")
+		return
+	}
+
+	// counters,err:=handler.services.Reepo.CounterGroupmesaageNotRead(user.ID)
+	// if err != nil {
+	//     utils.ErrorResponse(res,"Database error",500)
+	//     return
+	// }
+	// groupCounts := make(map[string]int)
+	// totalGroupUnread := 0
+
+	// for _, c := range counters {
+	//     groupCounts[c.GroupID] = c.Count
+	//     totalGroupUnread += c.Count
+	// }
+
+	utils.ResponnseSender(res, http.StatusOK, map[string]any{
+		"message": " the notification marked as read",
+		"status":  "success",
 	})
 
 }
 func (handler *Handlers) C(res http.ResponseWriter, req *http.Request) {
 	fmt.Println("Noooooooooooooooooooooooooooooooooooooooooooooooooooooooof")
 	utils.ResponnseSender(res, http.StatusOK, map[string]any{
-		"message":              "Taaake All posts",
-		"status":               "success",
-	
+		"message": "Taaake All posts",
+		"status":  "success",
 	})
 
 }
 func (handler *Handlers) D(res http.ResponseWriter, req *http.Request) {
 	fmt.Println("Noooooooooooooooooooooooooooooooooooooooooooooooooooooooof")
-	
+
 	utils.ResponnseSender(res, http.StatusOK, map[string]any{
-		"message":              "Taaake All posts",
-		"status":               "success",
-	
+		"message": "Taaake All posts",
+		"status":  "success",
 	})
 
 }
