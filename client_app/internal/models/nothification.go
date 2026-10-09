@@ -13,3 +13,11 @@ type Notification struct {
 	IsRead      bool      `json:"is_read"`
 	CreatedAt   time.Time `json:"created_at"`
 }
+type CountermessageNotread struct {
+    SenderID string `json:"sender_id"`
+    Count    int    `json:"unread_total"`
+}
+type CountermessageGroupNotread struct {
+    GroupID string `json:"group_id"`
+    Count   int    `json:"unread_total"`
+}

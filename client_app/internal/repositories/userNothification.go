@@ -104,3 +104,76 @@ func (nothificationrepo *Repository) CreateNotification(n *models.Notification) 
 
 	return nil
 }
+
+func (nothificationrepo *Repository) CountermesaageNotRead(recipientID string) ([]models.CountermessageNotread, error) {
+	query := `
+		SELECT 
+			sender_id, 
+			COUNT(*) AS unread_total
+		FROM notifications
+		WHERE recipient_id = ?
+		  AND notification_category = 'direct_message'
+		  AND read_status = 0
+		  AND sender_id IS NOT NULL AND sender_id != ''
+		GROUP BY sender_id
+		ORDER BY MAX(created_at) DESC`
+
+	rows, err := nothificationrepo.DB.Database.Query(query, recipientID)
+	if err != nil {
+		return nil, fmt.Errorf("repository: failed to fetch unread chat counts: %w", err)
+	}
+	defer rows.Close()
+
+	var counters []models.CountermessageNotread
+
+	for rows.Next() {
+		var item models.CountermessageNotread
+		if err := rows.Scan(&item.SenderID, &item.Count); err != nil {
+			return nil, fmt.Errorf("repository: failed to scan unread counter: %w", err)
+		}
+		counters = append(counters, item)
+	}
+
+	if err = rows.Err(); err != nil {
+		return nil, err
+	}
+
+	return counters, nil
+}
+
+func (r *Repository) CounterGroupmesaageNotRead(recipientID string) ([]models.CountermessageGroupNotread, error) {
+
+	query := `
+		SELECT 
+			target_reference_id, 
+			COUNT(*) AS unread_total
+		FROM notifications
+		WHERE recipient_id = ?
+		  AND notification_category = 'group_chat_message'
+		  AND read_status = 0
+		  AND target_reference_id IS NOT NULL AND target_reference_id != ''
+		GROUP BY target_reference_id
+		ORDER BY MAX(created_at) DESC`
+
+	rows, err := r.DB.Database.Query(query, recipientID)
+	if err != nil {
+		return nil, fmt.Errorf("repository: failed to fetch unread group counts: %w", err)
+	}
+	defer rows.Close()
+
+	var counters []models.CountermessageGroupNotread
+
+	for rows.Next() {
+		var item models.CountermessageGroupNotread
+		if err := rows.Scan(&item.GroupID, &item.Count); err != nil {
+			return nil, fmt.Errorf("repository: failed to scan group counter: %w", err)
+		}
+		counters = append(counters, item)
+	}
+
+	if err = rows.Err(); err != nil {
+		return nil, err
+	}
+
+	return counters, nil
+}
