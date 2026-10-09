@@ -177,3 +177,37 @@ func (r *Repository) CounterGroupmesaageNotRead(recipientID string) ([]models.Co
 
 	return counters, nil
 }
+
+func (r *Repository) Readchatnothif(recipientID, senderID string) error {
+	query := `
+		UPDATE notifications 
+		SET read_status = 1 
+		WHERE recipient_id = ? 
+		  AND sender_id = ? 
+		  AND notification_category = 'direct_message'
+		  AND read_status = 0`
+
+	_, err := r.DB.Database.Exec(query, recipientID, senderID)
+	if err != nil {
+		return fmt.Errorf("repository: failed to mark messages as read: %w", err)
+	}
+
+	return nil
+}
+
+func (r *Repository) ReadNgroupnothif(recipientID, groupID string) error {
+	query := `
+		UPDATE notifications 
+		SET read_status = 1 
+		WHERE recipient_id = ? 
+		  AND target_reference_id = ? 
+		  AND notification_category = 'group_chat_message'
+		  AND read_status = 0`
+
+	_, err := r.DB.Database.Exec(query, recipientID, groupID)
+	if err != nil {
+		return fmt.Errorf("repository: failed to mark group messages as read: %w", err)
+	}
+
+	return nil
+}
