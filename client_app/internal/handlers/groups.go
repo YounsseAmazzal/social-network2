@@ -387,7 +387,7 @@ func (handler *Handlers) CreateGPComment(res http.ResponseWriter, req *http.Requ
 		return
 	}
 	ismember, errr := handler.services.Reepo.CheckifUsserMember(user.ID, grouupid)
-	fmt.Println("The user is Member ?????", ismember)
+	// fmt.Println("The user is Member ?????", ismember)
 	if errr != nil {
 		fmt.Println("THE MEEEEMER CHECB err", errr)
 		utils.ErrorResponse(res, "Problem on checking membership", http.StatusNotFound)
@@ -470,6 +470,24 @@ func (handler *Handlers) RequesttoJoinGroup(res http.ResponseWriter, req *http.R
 		utils.ErrorResponse(res, "Problem on requesting to join the group", http.StatusInternalServerError)
 		return
 	}
+	actorName := user.Nickname
+	if actorName == "" {
+		actorName = user.Firstname
+	}
+		groupinfo,_:=handler.services.Reepo.GouupInfoo(user.ID,grouupid)
+
+	notification := models.Notification{
+		RecipientID: groupinfo.CreatorID,
+		SenderID:    user.ID,            
+		Category:    "group_join_request",
+		TargetID:    grouupid,
+		TargetType:  "group",
+		Message:    actorName + "requested to join your group" +groupinfo.Title,
+	}
+
+	_ = handler.services.Reepo.CreateNotification(&notification)
+	// viaaaa websocekt not let the admin know 
+	handler.wsmaanager.SendNotificationToUser(groupinfo.CreatorID, notification)
 	utils.ResponnseSender(res, http.StatusOK, map[string]string{
 		"message": "You requet to join the group successfully",
 		"status":  "success",
@@ -586,8 +604,8 @@ func (handler *Handlers) RespondtoJoinRequest(res http.ResponseWriter, req *http
 		utils.ErrorResponse(res, "only the admin can take the discion of acceptation ", http.StatusUnauthorized)
 		return
 	}
-	fmt.Println("The group id ", grouupid)
-	fmt.Println("THe user request id ", applicationId)
+	// fmt.Println("The group id ", grouupid)
+	// fmt.Println("THe user request id ", applicationId)
 	isPending, err := handler.services.Reepo.IsJoinRequestPending(grouupid, applicationId)
 	if err != nil {
 		utils.ErrorResponse(res, "Database pending Errror", http.StatusInternalServerError)
@@ -602,7 +620,32 @@ func (handler *Handlers) RespondtoJoinRequest(res http.ResponseWriter, req *http
 		utils.ErrorResponse(res, "Database accept and reject Errror", http.StatusInternalServerError)
 		return
 	}
+	groupinfo,_:=handler.services.Reepo.GouupInfoo(user.ID,grouupid)
+	adminname := user.Nickname
+	if adminname == "" {
+		adminname = user.Firstname
+	}
+
+	notification := models.Notification{
+		RecipientID: applicationId,
+		SenderID:    user.ID,
+		TargetID:    grouupid,
+		TargetType:  "group",
+	}
+	if groupinfo.Title!=""{
+		groupinfo.Title="Group !"
+	}
+	if decision == "joinaccept" {
+		notification.Category = "group_request_accepted"
+		notification.Message = adminname + "accepted your request to join the group" + groupinfo.Title
+	} else {
+		notification.Category = "group_request_rejected"
+		notification.Message = adminname+"rejected your request to join the group"+ groupinfo.Title
+	}
+	
 	// i need nothification now here to optimaze the work
+	_ = handler.services.Reepo.CreateNotification(&notification)
+	handler.wsmaanager.SendNotificationToUser(applicationId, notification)
 	utils.ResponnseSender(res, http.StatusOK, map[string]any{
 		"status":  "success",
 		"message": "You take the join decions succefully  ",
@@ -734,6 +777,24 @@ func (handler *Handlers) InviteGroup(res http.ResponseWriter, req *http.Request)
 		utils.ErrorResponse(res, "Error Send the Invetion of group", http.StatusForbidden)
 		return
 		}
+	
+	actorName := user.Nickname
+	if actorName == "" {
+		actorName = user.Firstname
+	}
+		groupinfo,_:=handler.services.Reepo.GouupInfoo(user.ID,grouupid)
+		notification := models.Notification{
+		RecipientID: inveteeduser,      
+		SenderID:    user.ID,          
+		Category:    "group_invitation",
+		TargetID:    grouupid,
+		TargetType:  "group",
+		Message:    actorName +"invited you to join the group"+ groupinfo.Title,
+	}
+
+	_ = handler.services.Reepo.CreateNotification(&notification)
+
+	handler.wsmaanager.SendNotificationToUser(inveteeduser, notification)
 	utils.ResponnseSender(res, http.StatusOK, map[string]any{
 		"status":  "success",
 		"message": "You got the user invite list successfuly",

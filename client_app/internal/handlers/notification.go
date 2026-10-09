@@ -41,9 +41,37 @@ func (handler *Handlers) Golbalenothification(res http.ResponseWriter, req *http
 		return
 	}
 	utils.ResponnseSender(res, http.StatusOK, map[string]any{
-		"message":              "Taaake All Nothification",
+		"message":              "Taaake All posts",
 		"status":               "success",
 		"userNothification": userNothification,
+	})
+
+}
+func (handler *Handlers) B(res http.ResponseWriter, req *http.Request) {
+	
+	utils.ResponnseSender(res, http.StatusOK, map[string]any{
+		"message":              "Taaake All posts",
+		"status":               "success",
+	
+	})
+
+}
+func (handler *Handlers) C(res http.ResponseWriter, req *http.Request) {
+	fmt.Println("Noooooooooooooooooooooooooooooooooooooooooooooooooooooooof")
+	utils.ResponnseSender(res, http.StatusOK, map[string]any{
+		"message":              "Taaake All posts",
+		"status":               "success",
+	
+	})
+
+}
+func (handler *Handlers) D(res http.ResponseWriter, req *http.Request) {
+	fmt.Println("Noooooooooooooooooooooooooooooooooooooooooooooooooooooooof")
+	
+	utils.ResponnseSender(res, http.StatusOK, map[string]any{
+		"message":              "Taaake All posts",
+		"status":               "success",
+	
 	})
 
 }

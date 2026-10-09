@@ -8,7 +8,6 @@ import (
 )
 
 func (followrepo *Repository) Follwing(followerID, targetID string) (string, error) {
-
 	var isPrivate bool
 	err := followrepo.DB.Database.QueryRow("SELECT is_private FROM users WHERE id = ?", targetID).Scan(&isPrivate)
 	if err != nil {

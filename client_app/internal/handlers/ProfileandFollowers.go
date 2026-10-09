@@ -77,6 +77,7 @@ func (handler *Handlers) ProfileUppdate(res http.ResponseWriter, req *http.Reque
 		utils.ErrorResponse(res, "Invalid JSON format", http.StatusBadRequest)
 		return
 	}
+	fmt.Println("theeeeee privicy froooom front",user.IsPrivate)
 	newNickname := user.Nickname
 	newAboutMe := user.AboutMe
 	newIsPrivate := user.IsPrivate
@@ -164,7 +165,18 @@ func (handler *Handlers) FollowersAccept(res http.ResponseWriter, req *http.Requ
 		nicknamenothif = user.Nickname
 	}
 	fmt.Println("the name of sender", nicknamenothif)
+		notification := models.Notification{
+		RecipientID: followedID,        
+		SenderID:    user.ID,          
+		Category:    "follow_accepted", 
+		TargetID:    user.ID,           
+		TargetType:  "user_profile",
+		Message:   nicknamenothif + "accepted your follow request",
+	}
 
+	_ = handler.services.Reepo.CreateNotification(&notification)
+	// viaa websocket
+	handler.wsmaanager.SendNotificationToUser(followedID, notification)
 	///i will add the notifications here
 	utils.ResponnseSender(res, http.StatusOK, "Follow request accepted")
 }
@@ -341,7 +353,12 @@ func (handler *Handlers) Userfollowinng(res http.ResponseWriter, req *http.Reque
 	// 	//fmt.Println("!!!!!!!!!!!!!!!Profile is Privite!!!!!!!!!!!!!")
 
 	// }
+		fmt.Println("is the user privittte for following",user.IsPrivate)
 	Followstatuss, err := handler.services.Reepo.Follwing(user.ID, followedID)
+	if err!=nil{
+				utils.ErrorResponse(res, "Failed to process follow", http.StatusInternalServerError)
+				return
+	}
 	if Followstatuss == "followpending" {
 		//fmt.Println("The follow is Penddding")
 		//// push the nothification
@@ -354,6 +371,26 @@ func (handler *Handlers) Userfollowinng(res http.ResponseWriter, req *http.Reque
 		message = "Follow request sent and pending approval"
 	}
 	//nothification
+	notification := models.Notification{
+		RecipientID: followedID, 
+		SenderID:    user.ID,   
+		TargetID:    user.ID,   
+		TargetType:  "user_profile",
+	}
+	if Followstatuss == "followpending" {
+		notification.Category = "follow_sent_request"
+		notification.Message = user.Nickname + " wants to follow you."
+	} else {
+		notification.Category = "new_follower"
+		notification.Message = user.Nickname + " started following you."
+	}
+	err = handler.services.Reepo.CreateNotification(&notification)
+	if err != nil {
+		fmt.Println("Error saving notification  tooo database", err)
+	}
+	/// send followingg via websocket
+	handler.wsmaanager.SendNotificationToUser(followedID,notification)
+	// fmt.Println("the nothification sent succefully")
 	utils.ResponnseSender(res, http.StatusOK, map[string]any{
 		"status":  "success",
 		"message": message,

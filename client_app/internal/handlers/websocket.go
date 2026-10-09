@@ -166,7 +166,8 @@ func (wsrepo *WSManager) routeMessage(senderID string, payload []byte) {
 		// wsrepo.handleTyping(senderID, wsInput.WsData)
 	case "private_message":
 		wsrepo.handelprivitechat(senderID, wsInput.WsData)
-
+	case "notification_read":
+		// wsrepo.SendNotificationToUser(senderID,)
 	}
 	// i will add "private_message",
 	//  "notification_read"
@@ -201,10 +202,23 @@ func (wsrepo *WSManager) handleGroupMessage(senderID string, data map[string]any
 	for _, memberID := range group.GroupMember {
 		fmt.Println("brodcast the message to the group", broadcastPayload)
 		wsrepo.SendToUser(memberID, broadcastPayload)
-
 		// khaasni nziddd Send Notification
+		///nothiiif
+		if memberID != senderID {
+			notification := models.Notification{
+				RecipientID: memberID,
+				SenderID:    senderID,
+				Category:    "group_chat_message",
+				TargetID:    groupID,
+				TargetType:  "group_chat",
+				Message:     "New message in " + group.Title,
+			}
+			_ = wsrepo.WsDb.Reepo.CreateNotification(&notification)
+			wsrepo.SendNotificationToUser(memberID, notification)
+		}
 	}
 }
+
 func (wsrepo *WSManager) handelprivitechat(senderID string, data map[string]any) {
 	fmt.Println("User sent a privite messages message")
 	userchatwith_id, _ := data["userchatwith_id"].(string)
@@ -213,7 +227,7 @@ func (wsrepo *WSManager) handelprivitechat(senderID string, data map[string]any)
 	if userchatwith_id == "" || message == "" || len(message) > 1000 {
 		return
 	}
-	if userchatwith_id==senderID{
+	if userchatwith_id == senderID {
 		return
 	}
 	caanchat, err := wsrepo.WsDb.Reepo.CoulldChat(senderID, userchatwith_id)
@@ -238,6 +252,18 @@ func (wsrepo *WSManager) handelprivitechat(senderID string, data map[string]any)
 	}
 	wsrepo.SendToUser(userchatwith_id, broadcastPayload)
 	wsrepo.SendToUser(senderID, broadcastPayload)
+
+	// nothiiiiiif viaa websocket
+	notification := models.Notification{
+		RecipientID: userchatwith_id,
+		SenderID:    senderID,
+		Category:    "direct_message",
+		TargetID:    senderID,
+		TargetType:  "chat",
+		Message:     "You received a new message from a friend",
+	}
+	_ = wsrepo.WsDb.Reepo.CreateNotification(&notification)
+	wsrepo.SendNotificationToUser(userchatwith_id, notification)
 }
 func (wsrepo *WSManager) SendToUser(userID string, payload any) {
 	val, ok := wsrepo.Clients.Load(userID)
@@ -260,6 +286,14 @@ func (wsm *WSManager) IsUserOnline(userID string) bool {
 	// log.Fatal("yaaaaaaaaaaak")
 	_, online := wsm.Clients.Load(userID)
 	return online
+}
+
+func (wsm *WSManager) SendNotificationToUser(userID string, notification models.Notification) {
+	payload := map[string]any{
+		"wsdatatype": "notification_read",
+		"wsdata":     notification,
+	}
+	wsm.SendToUser(userID, payload)
 }
 
 // func (){

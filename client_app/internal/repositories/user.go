@@ -215,6 +215,7 @@ func (ur *Repository) TakeUserProfile(useeerid string, Profileid string) (*model
 	// return
 }
 func (ur *Repository) UpdateProfileSettings(userID, nickname, aboutMe string, isPrivate bool) error {
+	fmt.Println("the privecy",isPrivate)
 	query := `
 		UPDATE users 
 		SET nickname = ?, about_me = ?, is_private = ? 

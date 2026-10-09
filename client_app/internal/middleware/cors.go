@@ -11,7 +11,7 @@ func (m *Miiiddeware) Corsmiddwaare(frontorigin string) func(http.Handler) http.
 			// //fmt.Println("--######-",frontorigin)
 
 			resspo.Header().Set("Access-Control-Allow-Origin", "http://localhost:3000")
-			resspo.Header().Set("Access-Control-Allow-Methods", "GET, PUT, POST, DELETE, OPTIONS")
+			resspo.Header().Set("Access-Control-Allow-Methods", "GET, PUT, POST, DELETE, OPTIONS, PATCH",)
 			resspo.Header().Set("Access-Control-Allow-Credentials", "true")
 			resspo.Header().Set("Access-Control-Allow-Headers", "Content-Type")
 			if req.Method == http.MethodOptions {

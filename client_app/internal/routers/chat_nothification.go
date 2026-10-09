@@ -16,5 +16,7 @@ func WsChatAndNothification(servermux *http.ServeMux, wsm *handlers.WSManager, m
 	servermux.Handle("/UsersForChat", neewratelimiter.ApplyMiddleware("normalapi", (http.HandlerFunc(handler.UsersForChat))))
 	servermux.Handle("/Usersmessages", neewratelimiter.ApplyMiddleware("normalapi", (http.HandlerFunc(handler.Usersmessages))))
 	servermux.Handle("/golbalenothification", neewratelimiter.ApplyMiddleware("normalapi", (http.HandlerFunc(handler.Golbalenothification))))
+	servermux.Handle("/notifications/chat", neewratelimiter.ApplyMiddleware("normalapi", (http.HandlerFunc(handler.C))))
+	servermux.Handle("/notifications/groups", neewratelimiter.ApplyMiddleware("normalapi", (http.HandlerFunc(handler.B))))
 
 }

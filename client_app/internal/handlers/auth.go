@@ -121,6 +121,13 @@ func (handler *Handlers) Login(res http.ResponseWriter, req *http.Request) {
 		AboutMe:    useeer.AboutMe,
 		IsPrivate:  useeer.IsPrivate,
 	}
+	nothif:=models.Notification{
+        Category: "Authontication",
+		RecipientID: Userreturned.ID,
+        Message: Userreturned.Nickname + " You logged successfully",
+    }
+	handler.services.Reepo.CreateNotification(&nothif)
+	handler.wsmaanager.SendNotificationToUser(Userreturned.ID,nothif)
 	utils.ResponnseSender(res, http.StatusCreated, map[string]any{
 		"status":  "success",
 		"message": "Welcome to the social network",
