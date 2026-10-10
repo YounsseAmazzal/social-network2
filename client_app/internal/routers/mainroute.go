@@ -23,24 +23,30 @@ func Colleectrouters(handler *handlers.Handlers, middleware *middleware.Miiiddew
 	return newratelimeter.ApplyMiddleware("normalapi",servermux)
 }
 func serverstactic(muxserve *http.ServeMux) {
-	uploadDir := utils.Soccialuplodfile
-	prefix := "/socialup/"
+	serveStaticDir(muxserve, "/socialup/", utils.Soccialuplodfile)
 
-	muxserve.HandleFunc(prefix, func(ress http.ResponseWriter, reeq *http.Request) {
-		//avoid p t
-		cleeanPth := filepath.Clean(strings.TrimPrefix(reeq.URL.Path, prefix))
-		if cleeanPth == "." || cleeanPth == "/" || strings.HasSuffix(reeq.URL.Path, "/") {
-			http.NotFound(ress, reeq)
+	serveStaticDir(muxserve, "/public/", "../client_web/public/") 
+    
+    // serveStaticDir(muxserve, "/icons/", "./public/icons/")
+}
+func serveStaticDir(mux *http.ServeMux, prefix string, dirPath string) {
+	mux.HandleFunc(prefix, func(w http.ResponseWriter, r *http.Request) {
+		// avoid p t
+		cleanPath := filepath.Clean(strings.TrimPrefix(r.URL.Path, prefix))
+		
+		if cleanPath == "." || cleanPath == "/" || strings.HasSuffix(r.URL.Path, "/") {
+			http.NotFound(w, r)
 			return
 		}
 
-		fullPath := filepath.Join(uploadDir, cleeanPth)
+		fullPath := filepath.Join(dirPath, cleanPath)
 
 		info, err := os.Stat(fullPath)
 		if err != nil || info.IsDir() {
-			http.NotFound(ress, reeq)
+			http.NotFound(w, r)
 			return
 		}
-		http.ServeFile(ress, reeq, fullPath)
+
+		http.ServeFile(w, r, fullPath)
 	})
 }
