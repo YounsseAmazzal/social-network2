@@ -7,8 +7,9 @@ type ProfileResponse struct {
 	FollowersCount int            `json:"followersCount"`
 	FollowingCount int            `json:"followingCount"`
 	PostsCount     int            `json:"postsCount"`
-	Posts          []PostPreview  `json:"posts,omitempty"`
+	Posts          []PostsOfProfiles  `json:"posts,omitempty"`
 	CanSeeTheprofile bool    	`json:"canSee"`
+	FollowStatus string `json:"followStatus"`
 }
 
 type PostPreview struct {
@@ -24,4 +25,14 @@ type UpdateProfileRequest struct {
 	Nickname  *string `json:"nickname"`
 	AboutMe   *string `json:"about_me"`
 	IsPrivate *bool   `json:"is_private"`
+}
+type PostsOfProfiles struct {
+	ID            string `json:"id"`
+	Title         string `json:"title"`
+	Description   string `json:"description"` 
+	LikesCount    int    `json:"likes_count"`
+	CommentsCount int    `json:"comments_count"`
+	CreatedAt     string `json:"created_at"`  
+	ImageURL      string `json:"image_url,omitempty"` 
+	Privacy       string `json:"privacy,omitempty"`   
 }

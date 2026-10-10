@@ -203,13 +203,18 @@ func (ur *Repository) TakeUserProfile(useeerid string, Profileid string) (*model
 		return nil, fmt.Errorf("Proofie not found %w", &err)
 	}
 	isOwner := useeerid == Profileid
-	isFollowing := ur.checkFollowStatus(useeerid, Profileid)
+	rolaation := ur.checkFollowStatus(useeerid, Profileid)
 	profile := &models.ProfileResponse{
 		User:        *userinfoo,
 		IsPrivate:   userinfoo.IsPrivate,
 		IsOwner:     isOwner,
-		IsFollowing: isFollowing,
+		IsFollowing: rolaation=="folowAccepted",
+		FollowStatus: rolaation,
+		FollowersCount: userinfoo.FollowersCount,
+		FollowingCount: userinfoo.FollowingCount,
+		PostsCount: userinfoo.PostsCount,
 	}
+	profile.User.Rolation=rolaation
 	//return profile info for now without checking following and bringing the posts
 	return profile, nil
 	// return
@@ -228,27 +233,42 @@ func (ur *Repository) UpdateProfileSettings(userID, nickname, aboutMe string, is
 	_, err := ur.DB.Database.Exec(query, nickname, aboutMe, privateInt, userID)
 	return err
 }
-func (ur *Repository) checkFollowStatus(followerID, followingID string) bool {
+// GetFollowStatus   (accepted, pending, none)
+func (ur *Repository) checkFollowStatus(followerID, followingID string) string {
 	var status string
-	err := ur.DB.Database.QueryRow("SELECT status FROM followers WHERE follower_id = ? AND following_id = ?",
-		followerID, followingID).Scan(&status)
-	return err == nil && status == "accepted"
+	query := `SELECT status FROM followers WHERE follower_id = ? AND following_id = ?`
+	
+	err := ur.DB.Database.QueryRow(query, followerID, followingID).Scan(&status)
+	
+	if err != nil {
+		///no rolaation
+		return "none"
+	}
+	
+	//  retuuurn 'folowAccepted' or 'followpending'
+	return status
 }
 func (ur *Repository) fetchBasicUserInfo(ProoofileId string) (*models.User, error) {
 	//fmt.Println("The profile id",ProoofileId)
 	var usserr models.User
 	quuery := `
-		SELECT id, nickname, firstname,
-		 lastname,
-		  age, gender, email,
-		  avatarURL,
-			   COALESCE(about_me, ''), 
-			   COALESCE(is_private, 0)
-		FROM users WHERE id = ?`
+		SELECT 
+			u.id, u.nickname, u.firstname, u.lastname, u.age, u.gender, u.email, u.avatarURL,
+			COALESCE(u.about_me, ''), 
+			COALESCE(u.is_private, 0),
+			(SELECT COUNT(*) FROM followers WHERE following_id = u.id AND status = 'folowAccepted') AS followers_count,
+			(SELECT COUNT(*) FROM followers WHERE follower_id = u.id AND status = 'folowAccepted') AS following_count,
+			(SELECT COUNT(*) FROM posts WHERE authorID = u.id AND Privecytype = 'publicpost') AS public_posts_count
+		FROM users u 
+		WHERE u.id = ? 
+		LIMIT 1`
 	err := ur.DB.Database.QueryRow(quuery, ProoofileId).Scan(
 		&usserr.ID, &usserr.Nickname, &usserr.Firstname, &usserr.Lastname,
 		&usserr.Age, &usserr.Gender, &usserr.Email, &usserr.AvatarURL,
 		&usserr.AboutMe, &usserr.IsPrivate,
+		&usserr.FollowersCount,
+				&usserr.FollowingCount,
+						&usserr.PostsCount,
 	)
 	// //fmt.Println("!!!!!!!!!!!!!!I find it!!!!!!!!!!!",err)
 	if err == sql.ErrNoRows {

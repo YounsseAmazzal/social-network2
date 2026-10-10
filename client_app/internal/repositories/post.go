@@ -132,6 +132,67 @@ func (postr *Repository) GetAllVisiblePosts(viewerID string, limit, offset int) 
 
 	return posts, nil
 }
+func (postr *Repository) ProfilePosts(viewerID, authorID string) ([]models.PostsOfProfiles, error) {
+	/// i had queired about profile post by using 4 subqueries 
+	query := `
+		SELECT p.id, p.title, p.description, p.createDate, COALESCE(p.Image, ''),
+			(SELECT COUNT(*) FROM post_rating WHERE post_id = p.id AND rate = 1) AS likes_count,
+			(SELECT COUNT(*) FROM comments WHERE postID = p.id) AS comments_count
+		FROM posts p
+		WHERE p.authorID = ?
+		AND (
+			p.Privecytype = 'publicpost'                                
+			OR p.authorID = ?                                          
+			OR (p.Privecytype = 'only_followers' AND EXISTS (         
+				SELECT 1 FROM followers f 
+				WHERE f.following_id = p.authorID AND f.follower_id = ? AND f.status = 'folowAccepted'
+			))
+			OR (p.Privecytype = 'followers_chosen' AND EXISTS (        
+				SELECT 1 FROM post_shared_users psu 
+				WHERE psu.post_id = p.id AND psu.user_id = ?
+			))
+		)
+		ORDER BY p.createDate DESC`
+
+	rows, err := postr.DB.Database.Query(query, authorID, viewerID, viewerID, viewerID)
+	if err != nil {
+		return nil, fmt.Errorf("repository: failed to query profile posts: %w", err)
+	}
+	defer rows.Close()
+
+	var posts []models.PostsOfProfiles
+
+	for rows.Next() {
+		var p models.PostsOfProfiles
+		var imagePath string
+
+		err := rows.Scan(
+			&p.ID,
+			&p.Title,
+			&p.Description,
+			&p.CreatedAt,
+			&imagePath,
+			&p.LikesCount,
+			&p.CommentsCount,
+		)
+		if err != nil {
+			return nil, fmt.Errorf("repository: failed to scan profile post: %w", err)
+		}
+
+		p.CreatedAt = utils.RegleThedate(p.CreatedAt)
+		if imagePath != "" {
+			p.ImageURL = "/socialup/" + imagePath
+		}
+
+		posts = append(posts, p)
+	}
+
+	if err = rows.Err(); err != nil {
+		return nil, err
+	}
+
+	return posts, nil
+}
 func (postr *Repository) CheckPostOnGroupposts(postid string) (bool, error) {
 	query := ` SELECT EXISTS( SELECT 1 FROM posts_of_group WHERE id = ? );`
 	var kaayn bool
@@ -141,6 +202,7 @@ func (postr *Repository) CheckPostOnGroupposts(postid string) (bool, error) {
 	}
 	return kaayn, nil
 }
+
 func (postrepo *Repository) CheeeckPostidvalid(postid string) (bool, error) {
 	//fmt.Println("POSSSSSSSSSSSSST  ID ",postid)
 	var kayn int

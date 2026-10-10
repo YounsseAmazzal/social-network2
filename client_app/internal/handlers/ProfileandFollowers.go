@@ -36,6 +36,8 @@ func (handler *Handlers) UserProfile(res http.ResponseWriter, req *http.Request)
 	}
 	// //fmt.Println("********the profilee id**** ",user.ID)
 	ProfileeID := extractprofileID(req, user.ID)
+	// log.Fatal("the profile id ",ProfileeID)
+	// fmt.Println("the profile id ",ProfileeID)
 	useerProfile, err := handler.services.Reepo.TakeUserProfile(user.ID, ProfileeID)
 	if err != nil {
 		if err == sql.ErrNoRows {
@@ -44,8 +46,14 @@ func (handler *Handlers) UserProfile(res http.ResponseWriter, req *http.Request)
 		}
 		utils.ErrorResponse(res, "We Couldn't provide the profile", http.StatusInternalServerError)
 	}
+	userposts,err:=handler.services.Reepo.ProfilePosts(user.ID,ProfileeID)
+	if err!=nil{
+				utils.ErrorResponse(res, "problem on getting posts", http.StatusInternalServerError)
+		return
+	}
+	useerProfile.Posts=userposts
 	// for now always true
-	useerProfile.CanSeeTheprofile=true
+	// useerProfile.CanSeeTheprofile = true
 	utils.ResponnseSender(res, http.StatusOK, map[string]any{
 		"Seeprofile": useerProfile,
 	})
@@ -77,7 +85,7 @@ func (handler *Handlers) ProfileUppdate(res http.ResponseWriter, req *http.Reque
 		utils.ErrorResponse(res, "Invalid JSON format", http.StatusBadRequest)
 		return
 	}
-	fmt.Println("theeeeee privicy froooom front",user.IsPrivate)
+	fmt.Println("theeeeee privicy froooom front", user.IsPrivate)
 	newNickname := user.Nickname
 	newAboutMe := user.AboutMe
 	newIsPrivate := user.IsPrivate
@@ -165,13 +173,13 @@ func (handler *Handlers) FollowersAccept(res http.ResponseWriter, req *http.Requ
 		nicknamenothif = user.Nickname
 	}
 	fmt.Println("the name of sender", nicknamenothif)
-		notification := models.Notification{
-		RecipientID: followedID,        
-		SenderID:    user.ID,          
-		Category:    "follow_accepted", 
-		TargetID:    user.ID,           
+	notification := models.Notification{
+		RecipientID: followedID,
+		SenderID:    user.ID,
+		Category:    "follow_accepted",
+		TargetID:    user.ID,
 		TargetType:  "user_profile",
-		Message:   nicknamenothif + "accepted your follow request",
+		Message:     nicknamenothif + "accepted your follow request",
 	}
 
 	_ = handler.services.Reepo.CreateNotification(&notification)
@@ -260,7 +268,7 @@ func (handler *Handlers) FollowersDeclineinng(res http.ResponseWriter, req *http
 }
 func (handler *Handlers) UserUnfollow(res http.ResponseWriter, req *http.Request) {
 	//fmt.Println("The user want UserUnfollow")
-	if !requests.IsRequestValid(res, req, "/UserUnfollow", http.MethodPost) {
+	if !requests.IsRequestValid(res, req, "/UserUnfollow", http.MethodDelete) {
 		return
 	}
 	cookie, err := req.Cookie("solo_social")
@@ -353,11 +361,11 @@ func (handler *Handlers) Userfollowinng(res http.ResponseWriter, req *http.Reque
 	// 	//fmt.Println("!!!!!!!!!!!!!!!Profile is Privite!!!!!!!!!!!!!")
 
 	// }
-		fmt.Println("is the user privittte for following",user.IsPrivate)
+	fmt.Println("is the user privittte for following", user.IsPrivate)
 	Followstatuss, err := handler.services.Reepo.Follwing(user.ID, followedID)
-	if err!=nil{
-				utils.ErrorResponse(res, "Failed to process follow", http.StatusInternalServerError)
-				return
+	if err != nil {
+		utils.ErrorResponse(res, "Failed to process follow", http.StatusInternalServerError)
+		return
 	}
 	if Followstatuss == "followpending" {
 		//fmt.Println("The follow is Penddding")
@@ -372,9 +380,9 @@ func (handler *Handlers) Userfollowinng(res http.ResponseWriter, req *http.Reque
 	}
 	//nothification
 	notification := models.Notification{
-		RecipientID: followedID, 
-		SenderID:    user.ID,   
-		TargetID:    user.ID,   
+		RecipientID: followedID,
+		SenderID:    user.ID,
+		TargetID:    user.ID,
 		TargetType:  "user_profile",
 	}
 	if Followstatuss == "followpending" {
@@ -389,7 +397,7 @@ func (handler *Handlers) Userfollowinng(res http.ResponseWriter, req *http.Reque
 		fmt.Println("Error saving notification  tooo database", err)
 	}
 	/// send followingg via websocket
-	handler.wsmaanager.SendNotificationToUser(followedID,notification)
+	handler.wsmaanager.SendNotificationToUser(followedID, notification)
 	// fmt.Println("the nothification sent succefully")
 	utils.ResponnseSender(res, http.StatusOK, map[string]any{
 		"status":  "success",
@@ -452,6 +460,9 @@ func (handler *Handlers) Userfollowers(res http.ResponseWriter, req *http.Reques
 }
 func (handler *Handlers) FetchNetwork(res http.ResponseWriter, req *http.Request) {
 	connect := req.URL.Query().Get("connect")
+	if connect == "" {
+		connect = "All"
+	}
 	cookie, err := req.Cookie("solo_social")
 	if err != nil {
 		utils.ErrorResponse(res, "sesssion not valiiid ", http.StatusUnauthorized)
@@ -467,7 +478,7 @@ func (handler *Handlers) FetchNetwork(res http.ResponseWriter, req *http.Request
 	//fmt.Println("bring all those",ContactData)
 	if err != nil {
 		//fmt.Println("the erro from dataabase",err.Error())
-		utils.ErrorResponse(res, "Faild to bring data of the followers user", http.StatusInternalServerError)
+		utils.ErrorResponse(res, err.Error(), http.StatusInternalServerError)
 		return
 	}
 	utils.ResponnseSender(res, http.StatusOK, map[string]any{

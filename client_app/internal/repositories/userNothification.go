@@ -14,17 +14,12 @@ func (nothificationrepo *Repository) UserNothification(liimit int, userid string
 	}
 	query := `
 		SELECT 
-			id, 
-			recipient_id, 
-			COALESCE(sender_id, '') AS sender_id, 
-			notification_category, 
-			COALESCE(target_reference_id, '') AS target_id, 
-			COALESCE(target_reference_type, '') AS target_type, 
-			display_message, 
-			read_status, 
-			created_at
+			id, recipient_id, COALESCE(sender_id, ''), notification_category, 
+			COALESCE(target_reference_id, ''), COALESCE(target_reference_type, ''), 
+			display_message, read_status, created_at
 		FROM notifications
-		WHERE recipient_id = ?
+		WHERE recipient_id = ? 
+		  AND notification_category NOT IN ('direct_message', 'group_chat_message')
 		ORDER BY created_at DESC
 		LIMIT ?`
 

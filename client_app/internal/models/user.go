@@ -32,6 +32,9 @@ type User struct {
 	Rolation string   `json:"Rolation"`
 	IsPrivate  bool   `json:"isPrivate"`
 	LastmsDate string  
+	FollowersCount int            `json:"followersCount"`
+	FollowingCount int            `json:"followingCount"`
+	PostsCount     int            `json:"postsCount"`
 }
 type UserLoign struct {
 	IdentifierEN string
