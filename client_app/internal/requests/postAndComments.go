@@ -35,7 +35,7 @@ func PostPyloadParse(req *http.Request) (models.PostCreation, error) {
 		if file_image, header, err := req.FormFile("shared_image"); err == nil {
 			defer file_image.Close()
 			if header != nil || header.Size > 0 {
-				Imagename, err := utils.ProcessImageUpload(file_image, header)
+				Imagename, err := utils.ProcessImageUpload(file_image, header,"post")
 				if err != nil {
 					return postPyyload, fmt.Errorf("failed to save post image file: %w", err)
 				}
@@ -92,7 +92,7 @@ func Parsecommmenpyload(req *http.Request) (models.Comment, error) {
 		if file_image, header, err := req.FormFile("comment_immmage"); err == nil {
 			defer file_image.Close()
 			if header != nil || header.Size > 0 {
-				Imagename, err := utils.ProcessImageUpload(file_image, header)
+				Imagename, err := utils.ProcessImageUpload(file_image, header,"comment")
 				if err != nil {
 					return commentpyload, fmt.Errorf("failed to save post image file: %w", err)
 				}

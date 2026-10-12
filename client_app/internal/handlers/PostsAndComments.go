@@ -30,6 +30,7 @@ func (handler *Handlers) CreatePosst(res http.ResponseWriter, req *http.Request)
 		return
 	}
 	postPyyload, err := requests.PostPyloadParse(req)
+	// log.Fatal("the pic",postPyyload.Image)
 	err = requests.ValidPostPyload(&postPyyload)
 	if err != nil {
 		//fmt.Println("YAAAAAAAAAAAK", err)

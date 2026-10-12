@@ -11,29 +11,32 @@ import (
 	"time"
 )
 
-func Colleectrouters(handler *handlers.Handlers, middleware *middleware.Miiiddeware,wsm *handlers.WSManager) http.Handler {
+func Colleectrouters(handler *handlers.Handlers, middleware *middleware.Miiiddeware, wsm *handlers.WSManager) http.Handler {
 	servermux := http.DefaultServeMux
 	serverstactic(servermux)
 	Auhentication(servermux, handler, middleware)
-	ProfileAndFollowers(servermux,handler,middleware)
-	PooostsandComments(servermux,handler,middleware)
-	Groupsandevents(servermux,handler,middleware)
-	WsChatAndNothification(servermux,wsm,middleware ,handler)
+	ProfileAndFollowers(servermux, handler, middleware)
+	PooostsandComments(servermux, handler, middleware)
+	Groupsandevents(servermux, handler, middleware)
+	WsChatAndNothification(servermux, wsm, middleware, handler)
 	newratelimeter := utils.NewRateLimiter(time.Minute)
-	return newratelimeter.ApplyMiddleware("normalapi",servermux)
+	return newratelimeter.ApplyMiddleware("normalapi", servermux)
 }
 func serverstactic(muxserve *http.ServeMux) {
-	serveStaticDir(muxserve, "/socialup/", utils.Soccialuplodfile)
+	// auth
+	serveStaticDir(muxserve, "/socialup/auth/", utils.Soccialuplodfile)
+	// posts
+	serveStaticDir(muxserve, "/socialup/posts/", utils.SoccialPosts)
 
-	serveStaticDir(muxserve, "/public/", "../client_web/public/") 
-    
-    // serveStaticDir(muxserve, "/icons/", "./public/icons/")
+	// serveStaticDir(muxserve, "/public/", "../client_web/public/")
+
+	// serveStaticDir(muxserve, "/icons/", "./public/icons/")
 }
 func serveStaticDir(mux *http.ServeMux, prefix string, dirPath string) {
 	mux.HandleFunc(prefix, func(w http.ResponseWriter, r *http.Request) {
 		// avoid p t
 		cleanPath := filepath.Clean(strings.TrimPrefix(r.URL.Path, prefix))
-		
+
 		if cleanPath == "." || cleanPath == "/" || strings.HasSuffix(r.URL.Path, "/") {
 			http.NotFound(w, r)
 			return

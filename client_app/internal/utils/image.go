@@ -17,9 +17,12 @@ import (
 )
 
 const (
-	MaxUploadSize   = 20 << 20
-	MaxPixelSize    = 8000
-	UploadDirectory = "socialuk"
+	MaxUploadSize          = 20 << 20
+	MaxPixelSize           = 8000
+	UploadDirectorypost    = "static/socialup/posts"
+	UploadDirectorycomment = "static/socialup/comment"
+	UploadDirectoryauth    = "static/socialup/auth"
+
 	FilePermissions = 0644
 	DirPermissions  = 0755
 )
@@ -60,7 +63,7 @@ func ValidateImageContent(imgData []byte) (string, error) {
 }
 
 // save image with hash ,uploead and save the immage
-func ProcessImageUpload(file multipart.File, header *multipart.FileHeader) (string, error) {
+func ProcessImageUpload(file multipart.File, header *multipart.FileHeader, authorpostsorcomment string) (string, error) {
 	if file == nil || header == nil {
 		return "", errors.New("no file was uploaded")
 	}
@@ -85,15 +88,43 @@ func ProcessImageUpload(file multipart.File, header *multipart.FileHeader) (stri
 
 	checksum := sha256.Sum256(fileBuffer)
 	uniqueName := hex.EncodeToString(checksum[:]) + fileExtension
-
-	if err := os.MkdirAll(UploadDirectory, DirPermissions); err != nil {
-		return "", fmt.Errorf("failed to create directory: %w", err)
+	// log.Fatal("authorposts", authorpostsorcomment)
+	if authorpostsorcomment == "post" {
+		if err := os.MkdirAll(UploadDirectorypost, DirPermissions); err != nil {
+			return "", fmt.Errorf("failed to create posst directory: %w", err)
+		}
+		destinationPath := filepath.Join(UploadDirectorypost, uniqueName)
+			if err := os.WriteFile(destinationPath, fileBuffer, FilePermissions); err != nil {
+		return "", fmt.Errorf("failed to write file to disk: %w", err)
+		}
 	}
-
-	destinationPath := filepath.Join(UploadDirectory, uniqueName)
+	if authorpostsorcomment == "auth" {
+		if err := os.MkdirAll(UploadDirectoryauth, DirPermissions); err != nil {
+			return "", fmt.Errorf("failed to create directory: %w", err)
+		}
+		destinationPath := filepath.Join(UploadDirectoryauth, uniqueName)
+			if err := os.WriteFile(destinationPath, fileBuffer, FilePermissions); err != nil {
+		return "", fmt.Errorf("failed to write file to disk: %w", err)
+			}
+	}
+	if authorpostsorcomment == "comment" {
+		if err := os.MkdirAll(UploadDirectorycomment, DirPermissions); err != nil {
+			return "", fmt.Errorf("failed to create comment directory: %w", err)
+		}
+		destinationPath := filepath.Join(UploadDirectorycomment, uniqueName)
 	if err := os.WriteFile(destinationPath, fileBuffer, FilePermissions); err != nil {
 		return "", fmt.Errorf("failed to write file to disk: %w", err)
 	}
+	}
+
+	// if err := os.MkdirAll(UploadDirectorypost, DirPermissions); err != nil {
+	// 	return "", fmt.Errorf("failed to create directory: %w", err)
+	// }
+
+	// destinationPath := filepath.Join(UploadDirectorypost, uniqueName)
+	// if err := os.WriteFile(destinationPath, fileBuffer, FilePermissions); err != nil {
+	// 	return "", fmt.Errorf("failed to write file to disk: %w", err)
+	// }
 
 	return uniqueName, nil
 }

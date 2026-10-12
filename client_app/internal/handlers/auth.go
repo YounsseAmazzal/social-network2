@@ -29,6 +29,7 @@ func (handler *Handlers) SignUp(res http.ResponseWriter, req *http.Request) {
 		utils.ErrorResponse(res, err.Error(), http.StatusUnprocessableEntity)
 		return
 	}
+	// log.Fatal("the avaaataar imaaage", userpayload.Avatar)
 
 	usersingup, err := handler.services.SignUpUser(userpayload)
 	if err != nil {
@@ -56,10 +57,12 @@ func (handler *Handlers) SignUp(res http.ResponseWriter, req *http.Request) {
 		Gender:    userpayload.Gender,
 		Email:     userpayload.Email,
 		AvatarURL: userpayload.AvatarURL,
-		Avatar:    userpayload.AvatarURL,
+		Avatar:    userpayload.Avatar,
 		AboutMe:   userpayload.AboutMe,
 		IsPrivate: userpayload.IsPrivate == 1,
 	}
+	// log.Fatal("the user avaaataaar", Userreturned.Avatar)
+	// log.Fatal("the user avaaataaar", Userreturned.AvatarURL)
 	//fmt.Println("that is the user payload", usersingup)
 	utils.ResponnseSender(res, http.StatusCreated, map[string]any{
 		"status":  "success",
@@ -121,13 +124,13 @@ func (handler *Handlers) Login(res http.ResponseWriter, req *http.Request) {
 		AboutMe:    useeer.AboutMe,
 		IsPrivate:  useeer.IsPrivate,
 	}
-	nothif:=models.Notification{
-        Category: "Authontication",
+	nothif := models.Notification{
+		Category:    "Authontication",
 		RecipientID: Userreturned.ID,
-        Message: Userreturned.Nickname + " You logged successfully",
-    }
+		Message:     Userreturned.Nickname + " You logged successfully",
+	}
 	handler.services.Reepo.CreateNotification(&nothif)
-	handler.wsmaanager.SendNotificationToUser(Userreturned.ID,nothif)
+	handler.wsmaanager.SendNotificationToUser(Userreturned.ID, nothif)
 	utils.ResponnseSender(res, http.StatusCreated, map[string]any{
 		"status":  "success",
 		"message": "Welcome to the social network",
@@ -206,12 +209,12 @@ func (handler *Handlers) ME(res http.ResponseWriter, req *http.Request) {
 		IsLoggedIn: true,
 		Gender:     usserInfo.Gender,
 		Email:      usserInfo.Email,
-		AvatarURL:  usserInfo.AvatarURL,
+		AvatarURL:  usserInfo.Avatar,
 		Avatar:     usserInfo.AvatarURL,
 		AboutMe:    usserInfo.AboutMe,
 		IsPrivate:  usserInfo.IsPrivate,
 	}
-
+	// fmt.Println("THe useeer avataar ", takeuser.AvatarURL)
 	utils.ResponnseSender(res, http.StatusOK, map[string]any{
 		"message":  "GOT THe user Succefully",
 		"Userinfo": takeuser,

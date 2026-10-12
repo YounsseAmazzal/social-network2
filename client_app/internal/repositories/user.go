@@ -40,7 +40,9 @@ func (ur *Repository) CreateUser(payload *models.UserInfo) (*models.User, error)
 		user.Nickname = strings.ToLower(nickname)
 	}
 
-	user.AvatarURL = payload.AvatarURL
+	user.AvatarURL = payload.Avatar
+	// log.Fatal("the usseer avaaataaar", payload)
+	// log.Fatal("the usseer avaaataaar", payload.Avatar)
 	if user.AvatarURL == "" {
 		user.AvatarURL = utils.Defauteavaaatar
 	}
@@ -186,6 +188,9 @@ func (ur *Repository) BringUserByid(usseridd string) (*models.User, error) {
 		&useeer.AboutMe,
 		&useeer.IsPrivate,
 	)
+	if useeer.AvatarURL!=""{
+		useeer.AvatarURL="/socialup/auth/"+useeer.AvatarURL
+	}
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return nil, fmt.Errorf("user not found: %w", err)

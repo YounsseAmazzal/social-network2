@@ -27,7 +27,7 @@ type User struct {
 	Password   string `json:"-"`
 	Email      string `json:"email"`
 	AvatarURL  string `json:"avatar_url"`
-	Avatar     any    `json:"avatar,omitempty"`
+	Avatar     string    `json:"avatar,omitempty"`
 	AboutMe    string `json:"aboutMe,omitempty"`
 	Rolation string   `json:"Rolation"`
 	IsPrivate  bool   `json:"isPrivate"`

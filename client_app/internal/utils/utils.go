@@ -1,3 +1,6 @@
 package utils
-const Soccialuplodfile = "socialup"
-const Defauteavaaatar ="/socialup/user_default_avatar.avif"
+const Soccialuplodfile = "./static/socialup/auth" 
+const Defauteavaaatar = "user_default_avatar.avif"
+const SoccialPosts = "./static/socialup/posts"
+
+const DefautPostimage ="/socialup/posts/Public_pic.jpg"

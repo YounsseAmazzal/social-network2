@@ -24,7 +24,7 @@ func ParseGroupPOst(req *http.Request) (models.GroupPostCreation, error) {
 		if file_image, header, err := req.FormFile("Group_post_image"); err == nil {
 			defer file_image.Close()
 			if header != nil || header.Size > 0 {
-				Imagename, err := utils.ProcessImageUpload(file_image, header)
+				Imagename, err := utils.ProcessImageUpload(file_image, header,"post")
 				if err != nil {
 					return groupPostPyload, fmt.Errorf("failed to save group post image file: %w", err)
 				}
@@ -101,7 +101,7 @@ func ParseCommentpy(req *http.Request) (models.GroupPostCreation, error) {
 		if file_image, header, err := req.FormFile("Group_Comment_image"); err == nil {
 			defer file_image.Close()
 			if header != nil || header.Size > 0 {
-				Imagename, err := utils.ProcessImageUpload(file_image, header)
+				Imagename, err := utils.ProcessImageUpload(file_image, header,"post")
 				if err != nil {
 					return groupPostPyload, fmt.Errorf("failed to save group post image file: %w", err)
 				}

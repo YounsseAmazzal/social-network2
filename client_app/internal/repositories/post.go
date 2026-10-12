@@ -181,7 +181,10 @@ func (postr *Repository) ProfilePosts(viewerID, authorID string) ([]models.Posts
 
 		p.CreatedAt = utils.RegleThedate(p.CreatedAt)
 		if imagePath != "" {
-			p.ImageURL = "/socialup/" + imagePath
+			p.ImageURL = "/socialup/posts/" + imagePath
+		}
+			if imagePath == "" {
+			p.ImageURL = "/socialup/posts/Public_pic.jpg"
 		}
 
 		posts = append(posts, p)
@@ -258,11 +261,17 @@ func (r *Repository) GetCompletePostByID(postID, viewerID string) (*models.PostD
 	}
 
 	//  Image formattiiinng
-	if post.Image_URL != "" {
-		post.Image_URL = "/socialup" + post.Image_URL
+	if post.Image_URL==""{
+		post.Image_URL = "/socialup/posts/Public_pic.jpg"
 	}
-	if post.AuthorAvatar != "" {
-		post.AuthorAvatar = "/socialup/" + post.AuthorAvatar
+	if post.Image_URL != "" {
+		post.Image_URL = "/socialup/posts/"+post.Image_URL
+	}
+	if post.AuthorAvatar == "" {
+		post.AuthorAvatar = "/socialup/auth/user_default_avatar.avif"
+	}
+	if post.AuthorAvatar!=""{
+				post.AuthorAvatar = "/socialup/auth/"+post.AuthorAvatar
 	}
 
 	// Post-processing: User vote pointer logic

@@ -255,7 +255,7 @@ func (handler *Handlers) FollowersDeclineinng(res http.ResponseWriter, req *http
 		utils.ErrorResponse(res, "THere is no pendding requests heere", http.StatusInternalServerError)
 		return
 	}
-	err = handler.services.Reepo.Unfollowing(user.ID, followedID)
+	err = handler.services.Reepo.Unfollowing(followedID,user.ID)
 	if err != nil {
 		utils.ErrorResponse(res, "The request of decline refoced no one to decline", http.StatusInternalServerError)
 		return
@@ -449,6 +449,42 @@ func (handler *Handlers) Userfollowers(res http.ResponseWriter, req *http.Reques
 		}
 	}
 	followersData, err := handler.services.Reepo.GetUserList("Userfollowers", Useeerid)
+	if err != nil {
+		utils.ErrorResponse(res, "Faild to bring data of the followers user", http.StatusInternalServerError)
+		return
+	}
+	utils.ResponnseSender(res, http.StatusOK, map[string]any{
+		"status": "success",
+		"data":   followersData,
+	})
+}
+func (handler *Handlers) UserfollowinngList(res http.ResponseWriter, req *http.Request) {
+	//fmt.Println("The user want the Userfollowers")
+	if !requests.IsRequestValid(res, req, "/UserfollowinngList", http.MethodGet) {
+		return
+	}
+	cookie, err := req.Cookie("solo_social")
+	if err != nil {
+		utils.ErrorResponse(res, "sesssion not valiiid ", http.StatusUnauthorized)
+		return
+	}
+	_, err = handler.services.Reepo.Checksession(cookie.Value)
+	if err != nil {
+		utils.ErrorResponse(res, "Your Session Not valid", http.StatusUnauthorized)
+		// log.Printf("Your Session Not valid", err.Error())
+		return
+	}
+	user, err := handler.services.Reepo.GetUserByToken(cookie.Value)
+	if err != nil {
+		utils.ErrorResponse(res, "Your Session Not validd", http.StatusUnauthorized)
+		return
+	}
+	Useeerid := req.URL.Query().Get("useeer_id")
+	if Useeerid == "" {
+		//fmt.Println("the useer id ", Useeerid)
+		Useeerid = user.ID
+	}
+	followersData, err := handler.services.Reepo.GetUserList("Userfollowing", Useeerid)
 	if err != nil {
 		utils.ErrorResponse(res, "Faild to bring data of the followers user", http.StatusInternalServerError)
 		return

@@ -33,10 +33,11 @@ func ValidSignUpPayload(req *http.Request) (models.UserInfo, error) {
 			user.AboutMe = abouuteme
 		}
 
-		if file, header, err := req.FormFile("avatar_url"); err == nil {
+		if file, header, err := req.FormFile("avatar"); err == nil {
 			defer file.Close()
 			if header != nil || header.Size > 0 {
-				avatarName, err := utils.ProcessImageUpload(file, header)
+				// log.Fatal("here come herererererer")
+				avatarName, err := utils.ProcessImageUpload(file, header,"auth")
 				if err != nil {
 					return user, fmt.Errorf("failed to save avatar file: %w", err)
 				}

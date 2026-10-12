@@ -19,6 +19,7 @@ func ProfileAndFollowers(servermux *http.ServeMux, handler *handlers.Handlers, m
 	servermux.Handle("/UserUnfollow", neewratelimiter.ApplyMiddleware("normalapi", (http.HandlerFunc(handler.UserUnfollow))))
 	servermux.Handle("/Userfollowinng", neewratelimiter.ApplyMiddleware("normalapi", (http.HandlerFunc(handler.Userfollowinng))))
 	servermux.Handle("/Userfollowers", neewratelimiter.ApplyMiddleware("normalapi", (http.HandlerFunc(handler.Userfollowers))))
+	servermux.Handle("/UserfollowinngList", neewratelimiter.ApplyMiddleware("normalapi", (http.HandlerFunc(handler.UserfollowinngList))))
 	servermux.Handle("/FetchNetwork", neewratelimiter.ApplyMiddleware("normalapi", (http.HandlerFunc(handler.FetchNetwork))))
 
 }
