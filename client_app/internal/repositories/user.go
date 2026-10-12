@@ -275,6 +275,9 @@ func (ur *Repository) fetchBasicUserInfo(ProoofileId string) (*models.User, erro
 				&usserr.FollowingCount,
 						&usserr.PostsCount,
 	)
+	if usserr.AvatarURL!=""{
+		usserr.AvatarURL="/socialup/auth/"+usserr.AvatarURL
+	}
 	// //fmt.Println("!!!!!!!!!!!!!!I find it!!!!!!!!!!!",err)
 	if err == sql.ErrNoRows {
 		return nil, fmt.Errorf("user not found")

@@ -233,7 +233,7 @@ func (grourepo *Repository) GrouupMembers(groupid string) ([]models.User, error)
 			return nil, fmt.Errorf("repository: failed to scan member: %w", err)
 		}
 		if u.AvatarURL != "" {
-			u.AvatarURL = u.AvatarURL
+			u.AvatarURL = "/socialup/auth/" + u.AvatarURL
 		}
 		members = append(members, u)
 	}
@@ -353,13 +353,15 @@ func (grouprepo *Repository) GetAllGroupPosts(GrouuupID string, liimit, offset i
 		}
 		//for date
 		grouppost.CreateDate = utils.RegleThedate(grouppost.CreateDate)
-
+		// log.Fatal("the image of group post",grouppost.Image_URL)
 		if grouppost.Image_URL != "" {
-			grouppost.Image_URL = "/socialup/" + grouppost.Image_URL
+			grouppost.Image_URL = "/socialup/posts/" + grouppost.Image_URL
 		}
-		if grouppost.AuthorAvatar != "" {
-			grouppost.AuthorAvatar = "/socialup/" + grouppost.AuthorAvatar
+		// log.Fatal("usssseeer avaaatar",grouppost.Author.AvatarURL)
+		if grouppost.Author.AvatarURL != "" {
+			grouppost.Author.AvatarURL = "/socialup/auth/" + grouppost.Author.AvatarURL
 		}
+		// log.Fatal("the image of group post", grouppost.Image_URL)
 		grouppost.CreaterID = grouppost.Author.ID
 		grouppost.CreaterID = grouppost.Author.Nickname
 		grouppost.CreaterID = grouppost.Author.AvatarURL
@@ -417,10 +419,10 @@ func (grouprepo *Repository) PostGrouupDetailed(usserid, poostid string) (*model
 	GroupPost.CreateDate = utils.RegleThedate(GroupPost.CreateDate)
 
 	if GroupPost.Image_URL != "" {
-		GroupPost.Image_URL = "/socialup/" + GroupPost.Image_URL
+		GroupPost.Image_URL = "/socialup/posts/" + GroupPost.Image_URL
 	}
 	if GroupPost.AuthorAvatar != "" {
-		GroupPost.AuthorAvatar = "/socialup/" + GroupPost.AuthorAvatar
+		GroupPost.AuthorAvatar = "/socialup/auth/" + GroupPost.AuthorAvatar
 	}
 	// (((pointer logic )))
 	if ratiing.Valid {

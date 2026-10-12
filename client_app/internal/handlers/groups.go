@@ -48,7 +48,9 @@ func (handler *Handlers) CreateGroup(res http.ResponseWriter, req *http.Request)
 		utils.ErrorResponse(res, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	utils.ResponnseSender(res, http.StatusOK, "THe group created succesfully")
+	utils.ResponnseSender(res, http.StatusOK, map[string]any{
+    "status": "success",
+    "id":     createGroup.ID})
 	//fmt.Println("that is the user payload", usersingup)
 
 }

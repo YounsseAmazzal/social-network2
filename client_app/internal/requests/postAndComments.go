@@ -66,10 +66,10 @@ func ValidPostPyload(paylod *models.PostCreation) error {
 	if paylod.Postprivecy == "followers_chosen" && len(paylod.SharedWith) == 0 {
 		return errors.New("You should choice people to share with them this possst hh")
 	}
-	if paylod.Image == "" {
-		//fmt.Println("PPPPPPPPPPPPPPPPPPOSST PIIC", paylod.Image)
-		return errors.New("Enter an image it's nooot option enter valid image !!! ")
-	}
+	// if paylod.Image == "" {
+	// 	//fmt.Println("PPPPPPPPPPPPPPPPPPOSST PIIC", paylod.Image)
+	// 	return errors.New("Enter an image it's nooot option enter valid image !!! ")
+	// }
 	return nil
 }
 func ExtractPosstid(request *http.Request) (string, error) {

@@ -84,6 +84,9 @@ func (followrepo *Repository) BringPendingFollowers(userId string) ([]*models.Us
 			&user.Nickname,
 			&user.AvatarURL,
 		)
+		if user.AvatarURL!=""{
+			user.AvatarURL="/socialup/auth/"+user.AvatarURL
+		}
 		if err != nil {
 			return nil, fmt.Errorf("repository: failed to scan pending request: %w", err)
 		}
@@ -237,6 +240,10 @@ func (followrepo *Repository) scanUsers(rows *sql.Rows) ([]*models.User, error) 
 			&u.ID, &u.Firstname, &u.Lastname, &u.Nickname,
 			&u.AvatarURL, &u.IsPrivate, &u.Rolation,
 		)
+		// log.Fatal("the user image",u.AvatarURL)
+		if u.AvatarURL != "" {
+			u.AvatarURL = "/socialup/auth/" + u.AvatarURL
+		}
 		if err != nil {
 			return nil, fmt.Errorf("repository: failed to scan user: %w", err)
 		}

@@ -93,7 +93,7 @@ func (eventrepo *Repository) GetGroupEvents(groupid, userid string, limit, offse
 		}
 
 		if event.Creator.AvatarURL != "" {
-			event.Creator.AvatarURL = event.Creator.AvatarURL
+			event.Creator.AvatarURL ="/socialup/auth/"+ event.Creator.AvatarURL
 		}
 
 		Allevents = append(Allevents, event)

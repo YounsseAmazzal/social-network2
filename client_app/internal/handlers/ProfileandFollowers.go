@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"html"
+	"log"
 	"net/http"
 	"social/internal/models"
 	"social/internal/requests"
@@ -214,6 +215,7 @@ func (handler *Handlers) FollowersPendiing(res http.ResponseWriter, req *http.Re
 		utils.ErrorResponse(res, err.Error(), http.StatusInternalServerError)
 		return
 	}
+	// _ = handler.services.Reepo.(user.ID, "follow_request")
 	utils.ResponnseSender(res, http.StatusOK, map[string]any{
 		"message": followingrequests,
 		"status":  "success"})
@@ -385,6 +387,7 @@ func (handler *Handlers) Userfollowinng(res http.ResponseWriter, req *http.Reque
 		TargetID:    user.ID,
 		TargetType:  "user_profile",
 	}
+	log.Fatal("yaaaak" , Followstatuss)
 	if Followstatuss == "followpending" {
 		notification.Category = "follow_sent_request"
 		notification.Message = user.Nickname + " wants to follow you."

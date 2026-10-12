@@ -126,8 +126,9 @@ func (r *Repository) GetChatUsers(userID string) ([]*models.Userchat, error) {
 		if u.LastChatDate != "" {
 			u.LastChatDate = utils.RegleThedate(u.LastChatDate)
 		}
+		// log.Fatal("the user avaatr",u.Avatar_URL)
 		if u.Avatar_URL != "" {
-			u.Avatar_URL = u.Avatar_URL
+			u.Avatar_URL = "/socialup/auth/"+ u.Avatar_URL
 		}
 		
 		users = append(users, u)

@@ -117,7 +117,7 @@ func (postr *Repository) GetAllVisiblePosts(viewerID string, limit, offset int) 
 		// Logic Processing
 		p.CreateDate = utils.RegleThedate(p.CreateDate)
 		if p.Image_URL != "" {
-			p.Image_URL = "/socialup/" + p.Image_URL
+			p.Image_URL = "/socialup/posts/" + p.Image_URL
 		}
 
 		// Map -1 (no vote) to nil, and 0/1 to the pointer
@@ -183,9 +183,13 @@ func (postr *Repository) ProfilePosts(viewerID, authorID string) ([]models.Posts
 		if imagePath != "" {
 			p.ImageURL = "/socialup/posts/" + imagePath
 		}
-			if imagePath == "" {
-			p.ImageURL = "/socialup/posts/Public_pic.jpg"
-		}
+		// log.Fatal("poooosssstss",p.ImageURL)
+		// if p.ImageURL!=""{
+		// 	p.ImageURL="/socialup/posts/"+p.ImageURL
+		// }
+		// if imagePath == "" {
+		// 	p.ImageURL = "/socialup/posts/Public_pic.jpg"
+		// }
 
 		posts = append(posts, p)
 	}
@@ -261,9 +265,9 @@ func (r *Repository) GetCompletePostByID(postID, viewerID string) (*models.PostD
 	}
 
 	//  Image formattiiinng
-	if post.Image_URL==""{
-		post.Image_URL = "/socialup/posts/Public_pic.jpg"
-	}
+	// if post.Image_URL==""{
+	// 	post.Image_URL = "/socialup/posts/Public_pic.jpg"
+	// }
 	if post.Image_URL != "" {
 		post.Image_URL = "/socialup/posts/"+post.Image_URL
 	}
