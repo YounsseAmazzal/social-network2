@@ -52,7 +52,7 @@ func (grouprepo *Repository) Creategroup(grouppyload *models.GroupItem) error {
 	return nil
 }
 func (grouprepo *Repository) BringDiscovers(useriid string) ([]*models.GroupItem, error) {
-	fmt.Println("HE enter to bring data")
+	// fmt.Println("HE enter to bring data")
 	query := `
 		SELECT 
 			g.id, g.user_id, g.title, g.description, g.created_at,
@@ -87,10 +87,10 @@ func (grouprepo *Repository) BringDiscovers(useriid string) ([]*models.GroupItem
 		}
 		Discoveerdgroups = append(Discoveerdgroups, g)
 	}
-	fmt.Println("The rowwsss", rows)
+	// fmt.Println("The rowwsss", rows)
 	// requeststats tooo check if "pending"... and change the ui deepends on it
 	if err = rows.Err(); err != nil {
-		fmt.Println("the scaned rows", err)
+		// fmt.Println("the scaned rows", err)
 		return nil, err
 	}
 

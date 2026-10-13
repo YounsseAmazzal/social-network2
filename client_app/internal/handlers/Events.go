@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"fmt"
 	"log"
 	"net/http"
 	"social/internal/requests"
@@ -46,9 +45,9 @@ func (handler *Handlers) GroupCreateEvent(res http.ResponseWriter, req *http.Req
 		return
 	}
 	ismember, errr := handler.services.Reepo.CheckifUsserMember(user.ID, grouupid)
-	fmt.Println("The user is Member ?????", ismember)
+	// fmt.Println("The user is Member ?????", ismember)
 	if errr != nil {
-		fmt.Println("THE MEEEEMER CHECB err", errr)
+		// fmt.Println("THE MEEEEMER CHECB err", errr)
 		utils.ErrorResponse(res, "Problem on checking membership", http.StatusNotFound)
 		return
 	}
@@ -102,9 +101,9 @@ func (handler *Handlers) GroupEvents(res http.ResponseWriter, req *http.Request)
 		return
 	}
 	ismember, errr := handler.services.Reepo.CheckifUsserMember(user.ID, grouupid)
-	fmt.Println("The user is Member ?????", ismember)
+	// fmt.Println("The user is Member ?????", ismember)
 	if errr != nil {
-		fmt.Println("THE MEEEEMER CHECB err", errr)
+		// fmt.Println("THE MEEEEMER CHECB err", errr)
 		utils.ErrorResponse(res, "Problem on checking membership", http.StatusNotFound)
 		return
 	}
@@ -129,7 +128,7 @@ func (handler *Handlers) GroupEvents(res http.ResponseWriter, req *http.Request)
 	})
 }
 func (handler *Handlers) GroupEventParrticipate(res http.ResponseWriter, req *http.Request) {
-	fmt.Println("The user want to participate into to event")
+	// fmt.Println("The user want to participate into to event")
 	if !requests.IsRequestValid(res, req, "/GroupEventParticipate", http.MethodPost) {
 		return
 	}
@@ -160,9 +159,9 @@ func (handler *Handlers) GroupEventParrticipate(res http.ResponseWriter, req *ht
 		return
 	}
 	ismember, errr := handler.services.Reepo.CheckifUsserMember(user.ID, grouupid)
-	fmt.Println("The user is Member ?????", ismember)
+	// fmt.Println("The user is Member ?????", ismember)
 	if errr != nil {
-		fmt.Println("THE MEEEEMER CHECB err", errr)
+		// fmt.Println("THE MEEEEMER CHECB err", errr)
 		utils.ErrorResponse(res, "Problem on checking membership", http.StatusNotFound)
 		return
 	}
@@ -180,15 +179,15 @@ func (handler *Handlers) GroupEventParrticipate(res http.ResponseWriter, req *ht
 		utils.ErrorResponse(res, "event Not Fouund", http.StatusNotFound)
 		return
 	}
-	voteStatus:=requests.ExtractEventVote(req)
+	voteStatus := requests.ExtractEventVote(req)
 	errr = handler.services.Reepo.Eventparticipate(eventid, user.ID, voteStatus)
 	if errr != nil {
 		utils.ErrorResponse(res, err.Error(), http.StatusNotFound)
 		return
 	}
-	utils.ResponnseSender(res, http.StatusOK,map[string]any{
-		"messge":"Particiapte on event successfully",
-			"status":"success",
+	utils.ResponnseSender(res, http.StatusOK, map[string]any{
+		"messge": "Particiapte on event successfully",
+		"status": "success",
 	})
 
 }

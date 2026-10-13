@@ -2,7 +2,6 @@ package handlers
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
 	"social/internal/models"
 	"social/internal/requests"
@@ -49,8 +48,8 @@ func (handler *Handlers) CreateGroup(res http.ResponseWriter, req *http.Request)
 		return
 	}
 	utils.ResponnseSender(res, http.StatusOK, map[string]any{
-    "status": "success",
-    "id":     createGroup.ID})
+		"status": "success",
+		"id":     createGroup.ID})
 	//fmt.Println("that is the user payload", usersingup)
 
 }
@@ -76,7 +75,7 @@ func (handler *Handlers) DiscooverGroups(res http.ResponseWriter, req *http.Requ
 		return
 	}
 	grouups, err := handler.services.Reepo.BringDiscovers(user.ID)
-	fmt.Println("errrrrrrrrrrrrr", err)
+	// fmt.Println("errrrrrrrrrrrrr", err)
 	if err != nil {
 		utils.ErrorResponse(res, "Problem on getting Groups", http.StatusInternalServerError)
 		return
@@ -150,7 +149,7 @@ func (handler *Handlers) SeeeTheGroup(res http.ResponseWriter, req *http.Request
 		return
 	}
 	ismember, errr := handler.services.Reepo.CheckifUsserMember(user.ID, GrouupId)
-	fmt.Println("The user is Member ?????", ismember)
+	// fmt.Println("The user is Member ?????", ismember)
 	if errr != nil {
 		utils.ErrorResponse(res, "Problem on checking membership", http.StatusNotFound)
 		return
@@ -202,7 +201,7 @@ func (handler *Handlers) GrouupMembers(res http.ResponseWriter, req *http.Reques
 		return
 	}
 	ismember, errr := handler.services.Reepo.CheckifUsserMember(user.ID, GrouupId)
-	fmt.Println("The user is Member ?????", ismember)
+	// fmt.Println("The user is Member ?????", ismember)
 	if errr != nil {
 		utils.ErrorResponse(res, "Problem on checking membership", http.StatusNotFound)
 		return
@@ -260,9 +259,9 @@ func (handler *Handlers) CreatePostGroup(res http.ResponseWriter, req *http.Requ
 		return
 	}
 	ismember, errr := handler.services.Reepo.CheckifUsserMember(user.ID, grouupid)
-	fmt.Println("The user is Member ?????", ismember)
+	// fmt.Println("The user is Member ?????", ismember)
 	if errr != nil {
-		fmt.Println("THE MEEEEMER CHECB err", errr)
+		// fmt.Println("THE MEEEEMER CHECB err", errr)
 		utils.ErrorResponse(res, "Problem on checking membership", http.StatusNotFound)
 		return
 	}
@@ -311,17 +310,17 @@ func (handler *Handlers) GroupPosts(res http.ResponseWriter, req *http.Request) 
 	// }
 
 	Grouppagiantion := requests.GetTheLimitandOffset(req)
-	fmt.Println("THe limit and the offset", Grouppagiantion.Limit)
-	fmt.Println("THe limit and the offset", Grouppagiantion.Offset)
+	// fmt.Println("THe limit and the offset", Grouppagiantion.Limit)
+	// fmt.Println("THe limit and the offset", Grouppagiantion.Offset)
 	grouupid, err := requests.ExtraactGroupId(req)
 	if err != nil {
 		utils.ErrorResponse(res, "Grouuup not Found", http.StatusUnauthorized)
 		return
 	}
 	ismember, errr := handler.services.Reepo.CheckifUsserMember(user.ID, grouupid)
-	fmt.Println("The user is Member ?????", ismember)
+	// fmt.Println("The user is Member ?????", ismember)
 	if errr != nil {
-		fmt.Println("THE MEEEEMER CHECB err", errr)
+		// fmt.Println("THE MEEEEMER CHECB err", errr)
 		utils.ErrorResponse(res, "Problem on checking membership", http.StatusNotFound)
 		return
 	}
@@ -342,14 +341,14 @@ func (handler *Handlers) GroupPosts(res http.ResponseWriter, req *http.Request) 
 		// utils.ErrorResponse(res, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	fmt.Println("Check the offset ", len(GroupPosts))
+	// fmt.Println("Check the offset ", len(GroupPosts))
 	utils.ResponnseSender(res, http.StatusOK, map[string]any{
 		"GroupPosts": GroupPosts,
 		"status":     "success",
 	})
 }
 func (handler *Handlers) GroupMembers(res http.ResponseWriter, req *http.Request) {
-	fmt.Println("the user want to get the groups members ")
+	// fmt.Println("the user want to get the groups members ")
 }
 func (handler *Handlers) CreateGPComment(res http.ResponseWriter, req *http.Request) {
 	if !requests.IsRequestValid(res, req, "/CreateGPComment", http.MethodPost) {
@@ -391,7 +390,7 @@ func (handler *Handlers) CreateGPComment(res http.ResponseWriter, req *http.Requ
 	ismember, errr := handler.services.Reepo.CheckifUsserMember(user.ID, grouupid)
 	// fmt.Println("The user is Member ?????", ismember)
 	if errr != nil {
-		fmt.Println("THE MEEEEMER CHECB err", errr)
+		// fmt.Println("THE MEEEEMER CHECB err", errr)
 		utils.ErrorResponse(res, "Problem on checking membership", http.StatusNotFound)
 		return
 	}
@@ -476,19 +475,19 @@ func (handler *Handlers) RequesttoJoinGroup(res http.ResponseWriter, req *http.R
 	if actorName == "" {
 		actorName = user.Firstname
 	}
-		groupinfo,_:=handler.services.Reepo.GouupInfoo(user.ID,grouupid)
+	groupinfo, _ := handler.services.Reepo.GouupInfoo(user.ID, grouupid)
 
 	notification := models.Notification{
 		RecipientID: groupinfo.CreatorID,
-		SenderID:    user.ID,            
+		SenderID:    user.ID,
 		Category:    "group_join_request",
 		TargetID:    grouupid,
 		TargetType:  "group",
-		Message:    actorName + "requested to join your group" +groupinfo.Title,
+		Message:     actorName + "requested to join your group" + groupinfo.Title,
 	}
 
 	_ = handler.services.Reepo.CreateNotification(&notification)
-	// viaaaa websocekt not let the admin know 
+	// viaaaa websocekt not let the admin know
 	handler.wsmaanager.SendNotificationToUser(groupinfo.CreatorID, notification)
 	utils.ResponnseSender(res, http.StatusOK, map[string]string{
 		"message": "You requet to join the group successfully",
@@ -577,7 +576,7 @@ func (handler *Handlers) RespondtoJoinRequest(res http.ResponseWriter, req *http
 		return
 	}
 	decision := strings.ToLower(req.URL.Query().Get("type"))
-	fmt.Println("the decision", decision)
+	// fmt.Println("the decision", decision)
 	if decision != "joinaccept" && decision != "joinreject" {
 		utils.ErrorResponse(res, "Invalid type. Must be 'Joinaccept' or 'Joinreject'", http.StatusBadRequest)
 		return
@@ -622,7 +621,7 @@ func (handler *Handlers) RespondtoJoinRequest(res http.ResponseWriter, req *http
 		utils.ErrorResponse(res, "Database accept and reject Errror", http.StatusInternalServerError)
 		return
 	}
-	groupinfo,_:=handler.services.Reepo.GouupInfoo(user.ID,grouupid)
+	groupinfo, _ := handler.services.Reepo.GouupInfoo(user.ID, grouupid)
 	adminname := user.Nickname
 	if adminname == "" {
 		adminname = user.Firstname
@@ -634,17 +633,17 @@ func (handler *Handlers) RespondtoJoinRequest(res http.ResponseWriter, req *http
 		TargetID:    grouupid,
 		TargetType:  "group",
 	}
-	if groupinfo.Title!=""{
-		groupinfo.Title="Group !"
+	if groupinfo.Title != "" {
+		groupinfo.Title = "Group !"
 	}
 	if decision == "joinaccept" {
 		notification.Category = "group_request_accepted"
 		notification.Message = adminname + "accepted your request to join the group" + groupinfo.Title
 	} else {
 		notification.Category = "group_request_rejected"
-		notification.Message = adminname+"rejected your request to join the group"+ groupinfo.Title
+		notification.Message = adminname + "rejected your request to join the group" + groupinfo.Title
 	}
-	
+
 	// i need nothification now here to optimaze the work
 	_ = handler.services.Reepo.CreateNotification(&notification)
 	handler.wsmaanager.SendNotificationToUser(applicationId, notification)
@@ -774,24 +773,24 @@ func (handler *Handlers) InviteGroup(res http.ResponseWriter, req *http.Request)
 		utils.ErrorResponse(res, "The user is already memeber", http.StatusForbidden)
 		return
 	}
-	err=handler.services.Reepo.SendInvetation(grouupid,user.ID,inveteeduser)
-		if err!=nil {
+	err = handler.services.Reepo.SendInvetation(grouupid, user.ID, inveteeduser)
+	if err != nil {
 		utils.ErrorResponse(res, "Error Send the Invetion of group", http.StatusForbidden)
 		return
-		}
-	
+	}
+
 	actorName := user.Nickname
 	if actorName == "" {
 		actorName = user.Firstname
 	}
-		groupinfo,_:=handler.services.Reepo.GouupInfoo(user.ID,grouupid)
-		notification := models.Notification{
-		RecipientID: inveteeduser,      
-		SenderID:    user.ID,          
+	groupinfo, _ := handler.services.Reepo.GouupInfoo(user.ID, grouupid)
+	notification := models.Notification{
+		RecipientID: inveteeduser,
+		SenderID:    user.ID,
 		Category:    "group_invitation",
 		TargetID:    grouupid,
 		TargetType:  "group",
-		Message:    actorName +"invited you to join the group"+ groupinfo.Title,
+		Message:     actorName + "invited you to join the group" + groupinfo.Title,
 	}
 
 	_ = handler.services.Reepo.CreateNotification(&notification)

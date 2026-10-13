@@ -21,7 +21,7 @@ func (eventrepo *Repository) CreateEvent(event *models.Eventplyload, userid stri
 		EventDate:   event.EventDate,
 		CreatedAt:   time.Now(),
 	}
-	fmt.Println("THe event before insertation", event)
+	// fmt.Println("THe event before insertation", event)
 	newID, err := uuid.NewV4()
 	if err != nil {
 		return nil, fmt.Errorf("repository: failed to generate uuid: %w", err)
@@ -120,7 +120,7 @@ func (grourepo *Repository) EventEXIST(evenid  string) (bool, error) {
 }
 
 func (r *Repository) Eventparticipate(eventid, userid, status string) error {
-	fmt.Println("$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$the status of participation :",status)
+	// fmt.Println("$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$the status of participation :",status)
 	// remove the participation
 	if status == "remove" || status == "" {
 		query := `DELETE FROM group_participation WHERE event_id = ? AND member_id = ?`
@@ -138,10 +138,10 @@ func (r *Repository) Eventparticipate(eventid, userid, status string) error {
 		VALUES (?, ?, ?)
 		ON CONFLICT(event_id, member_id) DO UPDATE SET status = excluded.status`
 
-		fmt.Println("the status",status)
-		fmt.Println("event id ",eventid)
+		// fmt.Println("the status",status)
+		// fmt.Println("event id ",eventid)
 
-		fmt.Println("userid",userid)
+		// fmt.Println("userid",userid)
 	_, err := r.DB.Database.Exec( query, eventid, userid, status)
 	if err != nil {
 	log.Fatal("he cames here " ,err)

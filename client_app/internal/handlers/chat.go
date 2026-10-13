@@ -1,14 +1,13 @@
 package handlers
 
 import (
-	"fmt"
 	"net/http"
 	"social/internal/requests"
 	"social/internal/utils"
 )
 
 func (handler *Handlers) Grouupmessages(res http.ResponseWriter, req *http.Request) {
-	fmt.Println("The user want  All grouup messgess ")
+	// fmt.Println("The user want  All grouup messgess ")
 	if !requests.IsRequestValid(res, req, "/Grouupmessages", http.MethodGet) {
 		return
 	}
@@ -29,8 +28,8 @@ func (handler *Handlers) Grouupmessages(res http.ResponseWriter, req *http.Reque
 		return
 	}
 	messagepg := requests.Messagepagination(req)
-	fmt.Println("The lastmessage_time", messagepg.Last_time)
-	fmt.Println("The liiiimit", messagepg.Limit)
+	// fmt.Println("The lastmessage_time", messagepg.Last_time)
+	// fmt.Println("The liiiimit", messagepg.Limit)
 	grouupid, err := requests.ExtraactGroupId(req)
 	if err != nil {
 		utils.ErrorResponse(res, "Grouuup not Found", http.StatusUnauthorized)
@@ -67,7 +66,7 @@ func (handler *Handlers) Grouupmessages(res http.ResponseWriter, req *http.Reque
 
 }
 func (handler *Handlers) UsersForChat(res http.ResponseWriter, req *http.Request) {
-	fmt.Println("The user want  All grouup users for chat ")
+	// fmt.Println("The user want  All grouup users for chat ")
 	if !requests.IsRequestValid(res, req, "/UsersForChat", http.MethodGet) {
 		return
 	}
@@ -87,7 +86,9 @@ func (handler *Handlers) UsersForChat(res http.ResponseWriter, req *http.Request
 		utils.ErrorResponse(res, "Your Session Not validd", http.StatusUnauthorized)
 		return
 	}
-
+	// messagepg := requests.Messagepagination(req)
+	// fmt.Println("The lastmessage_time", messagepg.Last_time)
+	// fmt.Println("The liiiimit", messagepg.Limit)
 	Userstochat, err := handler.services.Reepo.GetChatUsers(user.ID)
 	if err != nil {
 		utils.ErrorResponse(res, "Problem on getting Users to chat with them ", http.StatusInternalServerError)
@@ -111,7 +112,7 @@ func (handler *Handlers) UsersForChat(res http.ResponseWriter, req *http.Request
 
 }
 func (handler *Handlers) Usersmessages(res http.ResponseWriter, req *http.Request) {
-	fmt.Println("The user want  all the messages of users ")
+	// fmt.Println("The user want  all the messages of users ")
 	if !requests.IsRequestValid(res, req, "/Usersmessages", http.MethodGet) {
 		return
 	}
@@ -131,38 +132,38 @@ func (handler *Handlers) Usersmessages(res http.ResponseWriter, req *http.Reques
 		utils.ErrorResponse(res, "Your Session Not validd", http.StatusUnauthorized)
 		return
 	}
-	messagepg:=requests.Messagepagination(req)
-	talker,err:=requests.ExtractUsertoMessage(req)
+	messagepg := requests.Messagepagination(req)
+	talker, err := requests.ExtractUsertoMessage(req)
 	if err != nil {
 		utils.ErrorResponse(res, "User not foound to talk with him", http.StatusNotFound)
 		return
 	}
-	taalker,err:=handler.services.Reepo.BringUserByid(talker)
-	if err!=nil{
+	taalker, err := handler.services.Reepo.BringUserByid(talker)
+	if err != nil {
 		utils.ErrorResponse(res, "User not foound to talk with him", http.StatusNotFound)
 		return
 	}
-	canyouchat,err:=handler.services.Reepo.CoulldChat(user.ID,taalker.ID)
-	if err!=nil{
-			utils.ErrorResponse(res, "Error checking the permissons of chaat", http.StatusInternalServerError)
+	canyouchat, err := handler.services.Reepo.CoulldChat(user.ID, taalker.ID)
+	if err != nil {
+		utils.ErrorResponse(res, "Error checking the permissons of chaat", http.StatusInternalServerError)
 		return
 	}
-	MessagesBetweenthem,err:=handler.services.Reepo.GetPrivateMessages(user.ID,taalker.ID,messagepg.Limit,messagepg.Last_time)
-	if err!=nil{
-			utils.ErrorResponse(res, "Problem on bring messages", http.StatusInternalServerError)
+	MessagesBetweenthem, err := handler.services.Reepo.GetPrivateMessages(user.ID, taalker.ID, messagepg.Limit, messagepg.Last_time)
+	if err != nil {
+		utils.ErrorResponse(res, "Problem on bring messages", http.StatusInternalServerError)
 		return
 	}
 	// log.Fatal("heeeeeeeeeeere")
-	if !canyouchat && len(MessagesBetweenthem)==0{
+	if !canyouchat && len(MessagesBetweenthem) == 0 {
 		utils.ErrorResponse(res, "Follow the user to chat with him", http.StatusForbidden)
 		return
 	}
 	// fmt.Println("u recieve the messages succesfully ",MessagesBetweenthem)
 	utils.ResponnseSender(res, http.StatusOK, map[string]any{
-		"message":     "All messages",
-		"status":      "success",
-		"messages": MessagesBetweenthem,
-		"conversationalist":taalker,
+		"message":           "All messages",
+		"status":            "success",
+		"messages":          MessagesBetweenthem,
+		"conversationalist": taalker,
 	})
 
 }

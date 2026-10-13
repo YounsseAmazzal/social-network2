@@ -2,7 +2,6 @@ package handlers
 
 import (
 	"fmt"
-	"log"
 	"net/http"
 	"social/internal/requests"
 	"social/internal/utils"
@@ -280,7 +279,7 @@ func (handler *Handlers) ReadNormaalNothification(res http.ResponseWriter, req *
 			utils.ErrorResponse(res, "failed to mark the nothification ", http.StatusInternalServerError)
 			return
 		}
-		log.Fatal("boooob")
+		// log.Fatal("boooob")
 		utils.ResponnseSender(res, http.StatusOK, "the notification marked as read")
 		return
 	}
@@ -305,7 +304,7 @@ func (handler *Handlers) ReadNormaalNothification(res http.ResponseWriter, req *
 
 }
 func (handler *Handlers) C(res http.ResponseWriter, req *http.Request) {
-	fmt.Println("Noooooooooooooooooooooooooooooooooooooooooooooooooooooooof")
+	// fmt.Println("Noooooooooooooooooooooooooooooooooooooooooooooooooooooooof")
 	utils.ResponnseSender(res, http.StatusOK, map[string]any{
 		"message": "Taaake All posts",
 		"status":  "success",
@@ -313,7 +312,7 @@ func (handler *Handlers) C(res http.ResponseWriter, req *http.Request) {
 
 }
 func (handler *Handlers) D(res http.ResponseWriter, req *http.Request) {
-	fmt.Println("Noooooooooooooooooooooooooooooooooooooooooooooooooooooooof")
+	// fmt.Println("Noooooooooooooooooooooooooooooooooooooooooooooooooooooooof")
 
 	utils.ResponnseSender(res, http.StatusOK, map[string]any{
 		"message": "Taaake All posts",

@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"html"
-	"log"
 	"net/http"
 	"social/internal/models"
 	"social/internal/requests"
@@ -47,12 +46,12 @@ func (handler *Handlers) UserProfile(res http.ResponseWriter, req *http.Request)
 		}
 		utils.ErrorResponse(res, "We Couldn't provide the profile", http.StatusInternalServerError)
 	}
-	userposts,err:=handler.services.Reepo.ProfilePosts(user.ID,ProfileeID)
-	if err!=nil{
-				utils.ErrorResponse(res, "problem on getting posts", http.StatusInternalServerError)
+	userposts, err := handler.services.Reepo.ProfilePosts(user.ID, ProfileeID)
+	if err != nil {
+		utils.ErrorResponse(res, "problem on getting posts", http.StatusInternalServerError)
 		return
 	}
-	useerProfile.Posts=userposts
+	useerProfile.Posts = userposts
 	// for now always true
 	// useerProfile.CanSeeTheprofile = true
 	utils.ResponnseSender(res, http.StatusOK, map[string]any{
@@ -86,7 +85,7 @@ func (handler *Handlers) ProfileUppdate(res http.ResponseWriter, req *http.Reque
 		utils.ErrorResponse(res, "Invalid JSON format", http.StatusBadRequest)
 		return
 	}
-	fmt.Println("theeeeee privicy froooom front", user.IsPrivate)
+	// fmt.Println("theeeeee privicy froooom front", user.IsPrivate)
 	newNickname := user.Nickname
 	newAboutMe := user.AboutMe
 	newIsPrivate := user.IsPrivate
@@ -257,7 +256,7 @@ func (handler *Handlers) FollowersDeclineinng(res http.ResponseWriter, req *http
 		utils.ErrorResponse(res, "THere is no pendding requests heere", http.StatusInternalServerError)
 		return
 	}
-	err = handler.services.Reepo.Unfollowing(followedID,user.ID)
+	err = handler.services.Reepo.Unfollowing(followedID, user.ID)
 	if err != nil {
 		utils.ErrorResponse(res, "The request of decline refoced no one to decline", http.StatusInternalServerError)
 		return
@@ -333,7 +332,7 @@ func (handler *Handlers) Userfollowinng(res http.ResponseWriter, req *http.Reque
 		utils.ErrorResponse(res, "Your Session Not validd", http.StatusUnauthorized)
 		return
 	}
-
+	
 	// TheFollower:=user.ID
 	// TheFollowed:=req.URL.Query().Get("Userfollowinng_id")
 	// if TheFollowed==""{
@@ -369,38 +368,40 @@ func (handler *Handlers) Userfollowinng(res http.ResponseWriter, req *http.Reque
 		utils.ErrorResponse(res, "Failed to process follow", http.StatusInternalServerError)
 		return
 	}
-	if Followstatuss == "followpending" {
-		//fmt.Println("The follow is Penddding")
-		//// push the nothification
-		utils.ResponnseSender(res, http.StatusOK, map[string]any{
-			"message": "The follow penddding while unitil the user accept"})
-		return
-	}
-	message := "You are now following this user"
-	if Followstatuss == "followpending" {
-		message = "Follow request sent and pending approval"
-	}
-	//nothification
+	// log.Fatal("the followstate",Followstatuss)
+	// if Followstatuss == "followpending" {
+	// 	//// push the nothification
+	// 	utils.ResponnseSender(res, http.StatusOK, map[string]any{
+	// 		"message": "The follow penddding while unitil the user accept"})
+	// 	return
+	// }
 	notification := models.Notification{
 		RecipientID: followedID,
 		SenderID:    user.ID,
 		TargetID:    user.ID,
 		TargetType:  "user_profile",
 	}
-	log.Fatal("yaaaak" , Followstatuss)
+
+	message := ""
 	if Followstatuss == "followpending" {
-		notification.Category = "follow_sent_request"
+		notification.Category = "follow_request"
 		notification.Message = user.Nickname + " wants to follow you."
+		message = "Follow request sent and pending approval"
 	} else {
 		notification.Category = "new_follower"
 		notification.Message = user.Nickname + " started following you."
+		message = "You are now following this user"
 	}
+	// log.Fatal("notification.Category",notification.Category)
 	err = handler.services.Reepo.CreateNotification(&notification)
 	if err != nil {
-		fmt.Println("Error saving notification  tooo database", err)
+		fmt.Println("Error saving notification to DB:", err)
 	}
+
 	/// send followingg via websocket
+
 	handler.wsmaanager.SendNotificationToUser(followedID, notification)
+
 	// fmt.Println("the nothification sent succefully")
 	utils.ResponnseSender(res, http.StatusOK, map[string]any{
 		"status":  "success",

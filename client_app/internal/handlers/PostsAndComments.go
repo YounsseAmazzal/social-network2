@@ -86,18 +86,18 @@ func (handler *Handlers) GETpost(res http.ResponseWriter, req *http.Request) {
 			return
 		}
 			Grouppagiantion := requests.GetTheLimitandOffset(req)
-			fmt.Println("THe limit and the offset$$$$$$$$$$", Grouppagiantion.Limit)
-			fmt.Println("THe limit and the offset$$$$$$$$$$", Grouppagiantion.Offset)
+			// fmt.Println("THe limit and the offset$$$$$$$$$$", Grouppagiantion.Limit)
+			// fmt.Println("THe limit and the offset$$$$$$$$$$", Grouppagiantion.Offset)
 		GrouppostComments, err := handler.services.Reepo.PostGroupComments(user.ID, Post_id,Grouppagiantion.Limit,Grouppagiantion.Offset)
 		if err != nil {
-			fmt.Println("HHEHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH")
+			// fmt.Println("HHEHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH")
 			utils.ErrorResponse(res, "Probem to serve post or you are not member", http.StatusUnauthorized)
 			return
 		}
-		fmt.Println("@@@@@@@@@@@@@@@@@@@@@@POstttt Commments@@@@@@@@@@@@@@@")
-		fmt.Println("@@@", GrouppostComments)
-		fmt.Println("@@@@@@@@@@@@@@@@@@@@@@POstttt Commments@@@@@@@@@@@@@@@")
-		fmt.Println("@@@@@@@@@@@@@@@@@@@@@@POstttt Commments@@@@@@@@@@@@@@@")
+		// fmt.Println("@@@@@@@@@@@@@@@@@@@@@@POstttt Commments@@@@@@@@@@@@@@@")
+		// fmt.Println("@@@", GrouppostComments)
+		// fmt.Println("@@@@@@@@@@@@@@@@@@@@@@POstttt Commments@@@@@@@@@@@@@@@")
+		// fmt.Println("@@@@@@@@@@@@@@@@@@@@@@POstttt Commments@@@@@@@@@@@@@@@")
 
 		postgroup.PostComments = GrouppostComments
 		utils.ResponnseSender(res, http.StatusOK, map[string]any{
@@ -114,8 +114,8 @@ func (handler *Handlers) GETpost(res http.ResponseWriter, req *http.Request) {
 		return
 	}
 	Postcommmentp := requests.PostPagination(req)
-			fmt.Println("THe limit and the offset$$$$$$$$$$", Postcommmentp.Limit)
-			fmt.Println("THe limit and the offset$$$$$$$$$$", Postcommmentp.Offset)
+			// fmt.Println("THe limit and the offset$$$$$$$$$$", Postcommmentp.Limit)
+			// fmt.Println("THe limit and the offset$$$$$$$$$$", Postcommmentp.Offset)
 	postcomments, err := handler.services.Reepo.GetPostCommensts(user.ID, Post_id,Postcommmentp.Limit,Postcommmentp.Offset)
 	if err != nil {
 		utils.ErrorResponse(res, "WE HAVE A trouble try again", http.StatusInternalServerError)
@@ -168,7 +168,7 @@ func (handler *Handlers) LikePost(res http.ResponseWriter, req *http.Request) {
 		// }
 	kaynonGroup, err := handler.services.Reepo.CheckPostOnGroupposts(Post_id)
 	if kaynonGroup {
-			fmt.Println("The post exxist on group posts ")
+			// fmt.Println("The post exxist on group posts ")
 				err = handler.services.Reepo.GroupPostLike(1, user.ID, Post_id)
 				if err != nil {
 					utils.ErrorResponse(res, err.Error(), http.StatusInternalServerError)
@@ -227,7 +227,7 @@ func (handler *Handlers) DislikePost(res http.ResponseWriter, req *http.Request)
 	}
 	kaynonGroup, err := handler.services.Reepo.CheckPostOnGroupposts(Post_id)
 	if kaynonGroup {
-			fmt.Println("The post exxist on group posts ")
+			// fmt.Println("The post exxist on group posts ")
 				err = handler.services.Reepo.GroupPostLike(0, user.ID, Post_id)
 				if err != nil {
 					utils.ErrorResponse(res, err.Error(), http.StatusInternalServerError)
@@ -286,8 +286,8 @@ func (handler *Handlers) AllPosts(res http.ResponseWriter, req *http.Request) {
 		return
 	}
 	PostPagination := requests.PostPagination(req)
-	fmt.Println("THe limit and the offset", PostPagination.Limit)
-	fmt.Println("THe limit and the offset", PostPagination.Offset)
+	// fmt.Println("THe limit and the offset", PostPagination.Limit)
+	// fmt.Println("THe limit and the offset", PostPagination.Offset)
 	alllposts, err := handler.services.Reepo.GetAllVisiblePosts(user.ID,PostPagination.Limit,PostPagination.Offset)
 	if err != nil {
 		utils.ErrorResponse(res, err.Error(), http.StatusInternalServerError)

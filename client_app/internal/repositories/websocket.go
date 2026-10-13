@@ -12,7 +12,7 @@ import (
 
 func (groupmessage *Repository) CreateGroupMessage(groupID, senderID, content string) (string, error) {
 	msgID := uuid.New().String()
-	fmt.Println("msssssid", msgID)
+	// fmt.Println("msssssid", msgID)
 	query := `
 		INSERT INTO group_messages (id, sender_id, group_id, content, sent_at) 
 		VALUES (?, ?, ?, ?, ?)`

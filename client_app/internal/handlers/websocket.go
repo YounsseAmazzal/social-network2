@@ -92,7 +92,7 @@ func (wsrepo *WSManager) registerClient(userID string, conn *websocket.Conn) {
 	if len(connections) == 1 {
 		//user online
 		wsrepo.broadcastStatus(userID, true)
-		fmt.Println("the user is noow Online 1 tab ")
+		// fmt.Println("the user is noow Online 1 tab ")
 	}
 }
 
@@ -113,10 +113,10 @@ func (wsm *WSManager) unregisterClient(userID string, conn *websocket.Conn) {
 		wsm.Clients.Delete(userID)
 
 		// "Offliiiiiiiine"
-		// wsm.broadcastStatus(userID, false)
-		fmt.Println("all the tabs are closed use is offline")
+		wsm.broadcastStatus(userID, false)
+		// fmt.Println("all the tabs are closed use is offline")
 	} else {
-		fmt.Println("user cloooesed one tabe and has other opeened tabs ")
+		// fmt.Println("user cloooesed one tabe and has other opeened tabs ")
 	}
 }
 
@@ -152,7 +152,7 @@ func (wsm *WSManager) broadcastStatus(userID string, isOnline bool) {
 	})
 }
 func (wsrepo *WSManager) routeMessage(senderID string, payload []byte) {
-	fmt.Println("useerr to rouuuter the message")
+	// fmt.Println("useerr to rouuuter the message")
 	var wsInput models.WebSocketInput
 	if err := json.Unmarshal(payload, &wsInput); err != nil {
 		log.Println("Invalid JSON:", err)
@@ -174,7 +174,7 @@ func (wsrepo *WSManager) routeMessage(senderID string, payload []byte) {
 }
 
 func (wsrepo *WSManager) handleGroupMessage(senderID string, data map[string]any) {
-	fmt.Println("User sent a group message")
+	// fmt.Println("User sent a group message")
 	groupID, _ := data["group_id"].(string)
 	content, _ := data["message"].(string)
 
@@ -200,7 +200,7 @@ func (wsrepo *WSManager) handleGroupMessage(senderID string, data map[string]any
 	}
 	group, _ := wsrepo.WsDb.Reepo.GetGroupMetadata(groupID)
 	for _, memberID := range group.GroupMember {
-		fmt.Println("brodcast the message to the group", broadcastPayload)
+		// fmt.Println("brodcast the message to the group", broadcastPayload)
 		wsrepo.SendToUser(memberID, broadcastPayload)
 		// khaasni nziddd Send Notification
 		///nothiiif
@@ -220,7 +220,7 @@ func (wsrepo *WSManager) handleGroupMessage(senderID string, data map[string]any
 }
 
 func (wsrepo *WSManager) handelprivitechat(senderID string, data map[string]any) {
-	fmt.Println("User sent a privite messages message")
+	// fmt.Println("User sent a privite messages message")
 	userchatwith_id, _ := data["userchatwith_id"].(string)
 	message, _ := data["message"].(string)
 	// fmt.Println("hhhhhhhhhhhhh userchatwith_id ",userchatwith_id)
@@ -233,6 +233,10 @@ func (wsrepo *WSManager) handelprivitechat(senderID string, data map[string]any)
 	caanchat, err := wsrepo.WsDb.Reepo.CoulldChat(senderID, userchatwith_id)
 	if !caanchat {
 		// fmt.Println("$$$$$$$$$$$$$$$$$$$$$$heee can chat$$$$$$$$$$$$$$$$$$$$$$$$$",)
+		 wsrepo.SendToUser(senderID, map[string]any{
+            "Datatype": "error",
+            "WsData": "You must follow this usser or be followed by them to send messages.",
+        })
 		return
 	}
 	msgid, err := wsrepo.WsDb.Reepo.CreatePrivateMessage(userchatwith_id, senderID, message)
@@ -241,7 +245,7 @@ func (wsrepo *WSManager) handelprivitechat(senderID string, data map[string]any)
 		return
 	}
 	broadcastPayload := map[string]any{
-		"Datatype": "send_message_group",
+		"Datatype": "private_message",
 		"WsData": map[string]any{
 			"id":              msgid,
 			"userchatwith_id": userchatwith_id,
