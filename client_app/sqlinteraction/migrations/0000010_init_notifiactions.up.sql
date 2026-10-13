@@ -8,7 +8,7 @@ CREATE TABLE IF NOT EXISTS notifications (
     display_message TEXT NOT NULL,  
     read_status INTEGER NOT NULL DEFAULT 0,
     created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    
+    UNIQUE(recipient_id, sender_id, notification_category, target_reference_id)
     FOREIGN KEY (recipient_id) REFERENCES users(id) ON DELETE CASCADE,
     FOREIGN KEY (sender_id) REFERENCES users(id) ON DELETE SET NULL
 );

@@ -605,17 +605,27 @@ func (grouprepo *Repository) JoinRequestProcces(grouupid, userrid, decision stri
 		return err
 	}
 	defer tx.Rollback()
+	
 	if decision == "joinaccept" {
-		// add hiim to the table od grouup members
 		insertMember := `INSERT INTO group_members (group_id, member_id) VALUES (?, ?)`
 		if _, err := tx.Exec(insertMember, grouupid, userrid); err != nil {
 			return fmt.Errorf("failed to add member: %w", err)
 		}
 	}
-	// remove the request from the database in thee to state acccept and reject
+
 	deleteRequest := `DELETE FROM group_Join_requests WHERE group_id = ? AND sender_id = ?`
 	if _, err := tx.Exec(deleteRequest, grouupid, userrid); err != nil {
 		return fmt.Errorf("failed to clear request: %w", err)
+	}
+	//onees the admin take the decesions remove the nothification
+	queryCleanNotif := `
+		DELETE FROM notifications 
+		WHERE sender_id = ? 
+		  AND target_reference_id = ? 
+		  AND notification_category = 'group_join_request'`
+	
+	if _, err := tx.Exec(queryCleanNotif, userrid, grouupid); err != nil {
+		fmt.Println("Warning: failed to cleanup notification:", err)
 	}
 
 	return tx.Commit()

@@ -70,18 +70,17 @@ func (nothificationrepo *Repository) CreateNotification(n *models.Notification) 
 	if n.ID == "" {
 		n.ID = newID.String()
 	}
-
+	/// the nothif replaaced with new ones
 	query := `
 		INSERT INTO notifications (
-			id, 
-			recipient_id, 
-			sender_id, 
-			notification_category, 
-			target_reference_id, 
-			target_reference_type, 
-			display_message, 
-			read_status
-		) VALUES (?, ?, ?, ?, ?, ?, ?, 0)`
+			id, recipient_id, sender_id, notification_category, 
+			target_reference_id, target_reference_type, display_message, read_status
+		) VALUES (?, ?, ?, ?, ?, ?, ?, 0)
+		ON CONFLICT(recipient_id, sender_id, notification_category, target_reference_id) 
+		DO UPDATE SET 
+			display_message = excluded.display_message,
+			created_at = CURRENT_TIMESTAMP,
+			read_status = 0`  
 
 	_, err = nothificationrepo.DB.Database.Exec(query,
 		n.ID,

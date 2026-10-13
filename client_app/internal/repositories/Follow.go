@@ -33,25 +33,37 @@ func (followrepo *Repository) Follwing(followerID, targetID string) (string, err
 
 	return inistatus, nil
 }
-func (followrepo *Repository) Unfollowing(followerID, targetID string) error {
+func (r *Repository) Unfollowing(followerID, targetID string) error {
 	if followerID == targetID {
 		return errors.New("cannot unfollow yourself")
 	}
+	// delete the follow
 	query := `DELETE FROM followers WHERE follower_id = ? AND following_id = ?`
-	result, err := followrepo.DB.Database.Exec(query, followerID, targetID)
+	result, err := r.DB.Database.Exec(query, followerID, targetID)
 	if err != nil {
 		return fmt.Errorf("repository: failed to delete follow record: %w", err)
 	}
-	//when i apply the DELETE the result means that the commends successd so
-	// that why i have used RowsAffected to check if really delete it
+
 	rowsAffected, err := result.RowsAffected()
 	if err != nil {
 		return fmt.Errorf("repository: error checking affected rows: %w", err)
 	}
-
-	// thaaaat means he doesn't follow him from first
+	/// not rolation shep from first
 	if rowsAffected == 0 {
 		return errors.New("you are not following this user")
+	}
+
+	//delete the notifiaction automaticlly of the follow 
+	// to avaaoid bging more nothification 
+	queryDeleteNotif := `
+		DELETE FROM notifications 
+		WHERE recipient_id = ? 
+		  AND sender_id = ? 
+		  AND notification_category IN ('follow_request', 'new_follower')`
+	
+	_, err = r.DB.Database.Exec(queryDeleteNotif, targetID, followerID)
+	if err != nil {
+		fmt.Println("Warning: failed to cleanup notifications:", err)
 	}
 
 	return nil

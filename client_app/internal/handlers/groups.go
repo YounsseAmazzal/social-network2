@@ -616,6 +616,13 @@ func (handler *Handlers) RespondtoJoinRequest(res http.ResponseWriter, req *http
 		utils.ErrorResponse(res, "No pending requests avaailiable from this user", http.StatusNotFound)
 		return
 	}
+	// if isPending {
+    //     utils.ResponnseSender(res, http.StatusOK, map[string]string{
+    //         "message": "You have already requested to join this group",
+    //         "status":  "success",
+    //     })
+    //     return 
+    // }
 	err = handler.services.Reepo.JoinRequestProcces(grouupid, applicationId, decision)
 	if err != nil {
 		utils.ErrorResponse(res, "Database accept and reject Errror", http.StatusInternalServerError)
