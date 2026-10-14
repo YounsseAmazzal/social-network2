@@ -85,24 +85,22 @@ func (handler *Handlers) ProfileUppdate(res http.ResponseWriter, req *http.Reque
 		utils.ErrorResponse(res, "Invalid JSON format", http.StatusBadRequest)
 		return
 	}
-	// fmt.Println("theeeeee privicy froooom front", user.IsPrivate)
+	// fmt.Println("theeee enter  unsername", payload.Nickname)
+	if *payload.Nickname == "" {
+		utils.ErrorResponse(res, "Nickname Shouldn't be  empty", http.StatusBadRequest)
+		return
+	}
 	newNickname := user.Nickname
 	newAboutMe := user.AboutMe
 	newIsPrivate := user.IsPrivate
-	fmt.Printf("*-*****************************%t",*payload.Nickname)
+	// fmt.Printf("*-*****************************%t",*payload.Nickname)
 	if payload.Nickname != nil {
 		cleanNick := strings.ToLower(strings.TrimSpace(*payload.Nickname))
 		if cleanNick != "" {
 			newNickname = html.EscapeString(cleanNick)
 		}
 		// should nooooot nickname be empty !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!k
-	}else if strings.Trim(*payload.Nickname," ") == "" {
-		fmt.Println("happen--------------------------------------------------------------------------- ")
-		fmt.Println(payload.Nickname)
-				utils.ErrorResponse(res, "Nickname Shouldn't be  empty", http.StatusBadRequest)
-			return
-		
-	}
+	} 
 	if payload.AboutMe != nil {
 		cleanAbout := strings.TrimSpace(*payload.AboutMe)
 		if len(cleanAbout) > 200 {
@@ -340,7 +338,7 @@ func (handler *Handlers) Userfollowinng(res http.ResponseWriter, req *http.Reque
 		utils.ErrorResponse(res, "Your Session Not validd", http.StatusUnauthorized)
 		return
 	}
-	
+
 	// TheFollower:=user.ID
 	// TheFollowed:=req.URL.Query().Get("Userfollowinng_id")
 	// if TheFollowed==""{

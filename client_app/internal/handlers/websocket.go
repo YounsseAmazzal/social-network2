@@ -226,31 +226,33 @@ func (wsrepo *WSManager) handelprivitechat(senderID string, data map[string]any)
 	// fmt.Println("hhhhhhhhhhhhh userchatwith_id ",userchatwith_id)
 	if userchatwith_id == "" {
 		wsrepo.SendToUser(senderID, map[string]any{
-            "Datatype": "error",
-            "WsData": "user not found to chat with him",
-        })
+			"Datatype": "error",
+			"WsData":   "user not found to chat with him",
+		})
 		return
 	}
 	if message == "" || len(message) > 1000 {
+		// log.Fatal()
 		wsrepo.SendToUser(senderID, map[string]any{
-            "Datatype": "error",
-            "WsData": "The meessage shouldn't be emty or too long",
-        })
+			"Datatype": "error",
+			"WsData":   "The meessage shouldn't be emty or too long",
+		})
+		return
 	}
 	if userchatwith_id == senderID {
 		wsrepo.SendToUser(senderID, map[string]any{
-            "Datatype": "error",
-            "WsData": "You couldn't message your self",
-        })
+			"Datatype": "error",
+			"WsData":   "You couldn't message your self",
+		})
 		return
 	}
 	caanchat, err := wsrepo.WsDb.Reepo.CoulldChat(senderID, userchatwith_id)
 	if !caanchat {
 		// fmt.Println("$$$$$$$$$$$$$$$$$$$$$$heee can chat$$$$$$$$$$$$$$$$$$$$$$$$$",)
-		 wsrepo.SendToUser(senderID, map[string]any{
-            "Datatype": "error",
-            "WsData": "You must follow this usser or be followed by them to send messages.",
-        })
+		wsrepo.SendToUser(senderID, map[string]any{
+			"Datatype": "error",
+			"WsData":   "You must follow this usser or be followed by them to send messages.",
+		})
 		return
 	}
 	msgid, err := wsrepo.WsDb.Reepo.CreatePrivateMessage(userchatwith_id, senderID, message)

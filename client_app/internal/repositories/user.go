@@ -234,7 +234,16 @@ func (ur *Repository) TakeUserProfile(useeerid string, Profileid string) (*model
 	// return
 }
 func (ur *Repository) UpdateProfileSettings(userID, nickname, aboutMe string, isPrivate bool) error {
-	fmt.Println("the privecy",isPrivate)
+	//with updation of the profille should i concider the following requests are accepted
+
+	tx, err := ur.DB.Database.Begin()
+	if err != nil {
+		return err
+	}
+
+	// Rollback will trigger if an error occurs before Commit()
+	defer tx.Rollback()
+
 	query := `
 		UPDATE users 
 		SET nickname = ?, about_me = ?, is_private = ? 
@@ -244,8 +253,25 @@ func (ur *Repository) UpdateProfileSettings(userID, nickname, aboutMe string, is
 	if isPrivate {
 		privateInt = 1
 	}
-	_, err := ur.DB.Database.Exec(query, nickname, aboutMe, privateInt, userID)
-	return err
+
+	_, err = tx.Exec(query, nickname, aboutMe, privateInt, userID)
+	if err != nil {
+		return err
+	}
+
+	if !isPrivate {
+		acceptQuery := `
+			UPDATE followers 
+			SET status = 'folowAccepted' 
+			WHERE following_id = ? AND status = 'followpending'`
+		
+		_, err = tx.Exec(acceptQuery, userID)
+		if err != nil {
+			return err
+		}
+	}
+
+	return tx.Commit()
 }
 // GetFollowStatus   (accepted, pending, none)
 func (ur *Repository) checkFollowStatus(followerID, followingID string) string {
