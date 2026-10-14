@@ -6,6 +6,7 @@ import (
 	"social/internal/models"
 	"social/internal/requests"
 	"social/internal/utils"
+	"strings"
 )
 
 func (handler *Handlers) SignUp(res http.ResponseWriter, req *http.Request) {
@@ -30,7 +31,15 @@ func (handler *Handlers) SignUp(res http.ResponseWriter, req *http.Request) {
 		return
 	}
 	// log.Fatal("the avaaataar imaaage", userpayload.Avatar)
-
+	nicknameTaken, err := handler.services.Reepo.IsNicknameTaken(userpayload.Nickname)
+	if err != nil {
+		utils.ErrorResponse(res, "Database error", http.StatusInternalServerError)
+		return
+	}
+	if nicknameTaken {
+		utils.ErrorResponse(res, "This nickname is already taken, please choose another one", http.StatusConflict)
+		return
+	}
 	usersingup, err := handler.services.SignUpUser(userpayload)
 	if err != nil {
 		//fmt.Println("there is problem on user creations")
@@ -42,6 +51,10 @@ func (handler *Handlers) SignUp(res http.ResponseWriter, req *http.Request) {
 	errrrr := handler.services.Reepo.CreateUserSession(res, usersingup.ID)
 	if errrrr != nil {
 		//fmt.Println("i couldn't maaake session forr user")
+		if strings.Contains(err.Error(), "UNIQUE") {
+			utils.ErrorResponse(res, "Nickname or Email already exists", http.StatusConflict)
+			return
+		}
 		utils.ErrorResponse(res, err.Error(), http.StatusInternalServerError)
 		return
 		//add the handler error here

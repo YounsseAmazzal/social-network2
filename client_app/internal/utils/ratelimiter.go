@@ -23,8 +23,8 @@ func NewRateLimiter(duration time.Duration) *RateLimiter {
 	limiter := &RateLimiter{
 		windowDuration: duration,
 		thresholds: map[string]int{
-			"normalapi":      300,
-			"authintication": 20,
+			"normalapi":      1000,
+			"authintication": 200,
 		},
 		visitorRegistry: make(map[string]*visitorState),
 	}

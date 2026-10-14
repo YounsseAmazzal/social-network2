@@ -224,10 +224,24 @@ func (wsrepo *WSManager) handelprivitechat(senderID string, data map[string]any)
 	userchatwith_id, _ := data["userchatwith_id"].(string)
 	message, _ := data["message"].(string)
 	// fmt.Println("hhhhhhhhhhhhh userchatwith_id ",userchatwith_id)
-	if userchatwith_id == "" || message == "" || len(message) > 1000 {
+	if userchatwith_id == "" {
+		wsrepo.SendToUser(senderID, map[string]any{
+            "Datatype": "error",
+            "WsData": "user not found to chat with him",
+        })
 		return
 	}
+	if message == "" || len(message) > 1000 {
+		wsrepo.SendToUser(senderID, map[string]any{
+            "Datatype": "error",
+            "WsData": "The meessage shouldn't be emty or too long",
+        })
+	}
 	if userchatwith_id == senderID {
+		wsrepo.SendToUser(senderID, map[string]any{
+            "Datatype": "error",
+            "WsData": "You couldn't message your self",
+        })
 		return
 	}
 	caanchat, err := wsrepo.WsDb.Reepo.CoulldChat(senderID, userchatwith_id)

@@ -89,11 +89,19 @@ func (handler *Handlers) ProfileUppdate(res http.ResponseWriter, req *http.Reque
 	newNickname := user.Nickname
 	newAboutMe := user.AboutMe
 	newIsPrivate := user.IsPrivate
+	fmt.Printf("*-*****************************%t",*payload.Nickname)
 	if payload.Nickname != nil {
 		cleanNick := strings.ToLower(strings.TrimSpace(*payload.Nickname))
 		if cleanNick != "" {
 			newNickname = html.EscapeString(cleanNick)
 		}
+		// should nooooot nickname be empty !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!k
+	}else if strings.Trim(*payload.Nickname," ") == "" {
+		fmt.Println("happen--------------------------------------------------------------------------- ")
+		fmt.Println(payload.Nickname)
+				utils.ErrorResponse(res, "Nickname Shouldn't be  empty", http.StatusBadRequest)
+			return
+		
 	}
 	if payload.AboutMe != nil {
 		cleanAbout := strings.TrimSpace(*payload.AboutMe)

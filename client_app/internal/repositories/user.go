@@ -109,6 +109,15 @@ func (ur *Repository) CheckuserIfExxist(usernameoremail string) (*models.User, b
 
 	return &UserInfo, true
 }
+func (ur *Repository) IsNicknameTaken(nickname string) (bool, error) {
+	var exists int
+	query := `SELECT EXISTS(SELECT 1 FROM users WHERE nickname = ?)`
+	err := ur.DB.Database.QueryRow(query, strings.ToLower(nickname)).Scan(&exists)
+	if err != nil {
+		return false, err
+	}
+	return exists == 1, nil
+}
 func (ur *Repository) Checksession(tocccken string) (string, error) {
 	var userID string
 	var expireAt time.Time
