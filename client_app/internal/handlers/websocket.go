@@ -20,6 +20,12 @@ type WSManager struct {
 	Clients  sync.Map
 	WsDb     *services.Service
 	Upgrader websocket.Upgrader
+	// clientsMu guards the inner per-user connection maps stored in Clients.
+	// sync.Map only protects the outer map: register, unregister, broadcasts
+	// and sends all touch the inner maps from different goroutines, which
+	// crashed the whole server with a fatal concurrent map write whenever a
+	// tab closed while a message was being delivered.
+	clientsMu sync.Mutex
 }
 
 func Neeewsmanger(sevice *services.Service) *WSManager {
@@ -83,13 +89,16 @@ func (wsrepo *WSManager) WebSocket(res http.ResponseWriter, req *http.Request) {
 // add new conectioon to the user
 func (wsrepo *WSManager) registerClient(userID string, conn *websocket.Conn) {
 	// try to bring all the connection of the user
+	wsrepo.clientsMu.Lock()
 	actual, _ := wsrepo.Clients.LoadOrStore(userID, make(map[*websocket.Conn]bool))
 
 	connections := actual.(map[*websocket.Conn]bool)
 
 	connections[conn] = true
+	wasOffline := len(connections) == 1
+	wsrepo.clientsMu.Unlock()
 
-	if len(connections) == 1 {
+	if wasOffline {
 		//user online
 		wsrepo.broadcastStatus(userID, true)
 		// fmt.Println("the user is noow Online 1 tab ")
@@ -98,9 +107,11 @@ func (wsrepo *WSManager) registerClient(userID string, conn *websocket.Conn) {
 
 // delete connection when the user close the taab of lose connection
 func (wsm *WSManager) unregisterClient(userID string, conn *websocket.Conn) {
+	wsm.clientsMu.Lock()
 	// bring all the user connections
 	val, ok := wsm.Clients.Load(userID)
 	if !ok {
+		wsm.clientsMu.Unlock()
 		return
 	}
 
@@ -108,10 +119,14 @@ func (wsm *WSManager) unregisterClient(userID string, conn *websocket.Conn) {
 	/// delete the special connection (onne taab)
 	delete(connections, conn)
 	// check if there is any avaaaliabe conneections
-	if len(connections) == 0 {
+	wentOffline := len(connections) == 0
+	if wentOffline {
 		// if all connections closed delete from memory
 		wsm.Clients.Delete(userID)
+	}
+	wsm.clientsMu.Unlock()
 
+	if wentOffline {
 		// "Offliiiiiiiine"
 		wsm.broadcastStatus(userID, false)
 		// fmt.Println("all the tabs are closed use is offline")
@@ -131,6 +146,10 @@ func (wsm *WSManager) broadcastStatus(userID string, isOnline bool) {
 	// maintaain the resources
 	message, _ := json.Marshal(payload)
 
+	// collect the target connections under the lock and write outside it so a
+	// slow client never blocks (de)registrations.
+	var targets []*websocket.Conn
+	wsm.clientsMu.Lock()
 	// loop on all the user on the hub
 	wsm.Clients.Range(func(key, value any) bool {
 		targetUserID := key.(string)
@@ -142,14 +161,19 @@ func (wsm *WSManager) broadcastStatus(userID string, isOnline bool) {
 		connections := value.(map[*websocket.Conn]bool)
 		// sent to all tabs
 		for conn := range connections {
-			err := conn.WriteMessage(websocket.TextMessage, message)
-			if err != nil {
-				log.Printf("Error broadcasting to %s: %v", targetUserID, err)
-			}
+			targets = append(targets, conn)
 		}
 
 		return true //
 	})
+	wsm.clientsMu.Unlock()
+
+	for _, conn := range targets {
+		err := conn.WriteMessage(websocket.TextMessage, message)
+		if err != nil {
+			log.Printf("Error broadcasting to %s: %v", userID, err)
+		}
+	}
 }
 func (wsrepo *WSManager) routeMessage(senderID string, payload []byte) {
 	// fmt.Println("useerr to rouuuter the message")
@@ -286,16 +310,22 @@ func (wsrepo *WSManager) handelprivitechat(senderID string, data map[string]any)
 	wsrepo.SendNotificationToUser(userchatwith_id, notification)
 }
 func (wsrepo *WSManager) SendToUser(userID string, payload any) {
-	val, ok := wsrepo.Clients.Load(userID)
-	if !ok {
-		//means  User is offline
-		return
-	}
-
-	conns := val.(map[*websocket.Conn]bool)
 	data, _ := json.Marshal(payload)
 
-	for conn := range conns {
+	// snapshot the connections under the lock, then write outside it
+	var conns []*websocket.Conn
+	wsrepo.clientsMu.Lock()
+	val, ok := wsrepo.Clients.Load(userID)
+	if ok {
+		conns = make([]*websocket.Conn, 0)
+		for conn := range val.(map[*websocket.Conn]bool) {
+			conns = append(conns, conn)
+		}
+	}
+	wsrepo.clientsMu.Unlock()
+
+	//means  Usser is offline ====== connns stays empty
+	for _, conn := range conns {
 		err := conn.WriteMessage(websocket.TextMessage, data)
 		if err != nil {
 			log.Println("Write error:", err)

@@ -19,7 +19,7 @@ func Server() {
 	//fmt.Println("that is the WebOrigin", configg.WebOrigin)
 	// // run the serveeer
 	daaatabase := database.NeewDb(configg.DBPath)
-	println("hiiii", daaatabase)
+	// println("hiiii", daaatabase)
 	// defer daaatabase.Database.Close()
 	newrepo := repositories.Neewwrepo(daaatabase)
 	//fmt.Println("that is the newrepo", daaatabase)
