@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/http"
 	"social/internal/models"
+	"strings"
 )
 
 func ValidGroupcreation(grouppy *models.GroupItem) error {
@@ -22,4 +23,12 @@ func ExtraactGroupId(request *http.Request) (string, error) {
 		return "", fmt.Errorf("Grouup  Id not Foundd")
 	}
 	return Groupid, nil
+}
+func ExtraactInviationDecision(request *http.Request) (string, error) {
+	decision := strings.ToLower(request.URL.Query().Get("type"))
+	// fmt.Println("the grouuuu inviiiiite deciaotnsd fs=w",decision)
+	if decision != "acceptinvitasion" && decision != "refuseinvitaion" {
+		return "", fmt.Errorf("Grouup invete decision not Foundd")
+	}
+	return decision, nil
 }

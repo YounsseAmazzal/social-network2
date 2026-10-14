@@ -680,3 +680,53 @@ func (grouprepo *Repository) GetFollowersToinvite(groupID, userID string) ([]*mo
 
 	return users, nil
 }
+func (grouprepo *Repository) HandleGroupInvitationProcess(groupID, userID, decision string) error {
+	tx, err := grouprepo.DB.Database.Begin()
+	if err != nil {
+		return fmt.Errorf("repository: failed to start transaction: %w", err)
+	}
+	defer tx.Rollback()
+
+	var exists int
+	checkQuery := `
+		SELECT 1 FROM group_Send_invetations 
+		WHERE group_id = ? AND invitee_id = ? AND status = 'pending' 
+		LIMIT 1`
+	
+	err = tx.QueryRow(checkQuery, groupID, userID).Scan(&exists)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return errors.New("invitation_not_found")
+		}
+		return fmt.Errorf("repository: failed to verify invitation: %w", err)
+	}
+
+	if decision == "acceptinvitasion" {
+		/// add the user to the group members
+		insertMember := `INSERT INTO group_members (group_id, member_id) VALUES (?, ?)`
+		if _, err := tx.Exec(insertMember, groupID, userID); err != nil {
+			return fmt.Errorf("repository: failed to add user to group members: %w", err)
+		}
+	}
+	// delete the invitaion from inviaation table  
+	deleteInvite := `DELETE FROM group_Send_invetations WHERE group_id = ? AND invitee_id = ?`
+	if _, err := tx.Exec(deleteInvite, groupID, userID); err != nil {
+		return fmt.Errorf("repository: failed to clear invitation record: %w", err)
+	}
+	// remove the nothification on the group inviation
+	deleteNotif := `
+		DELETE FROM notifications 
+		WHERE recipient_id = ? 
+		  AND target_reference_id = ? 
+		  AND notification_category = 'group_invitation'`
+	
+	if _, err := tx.Exec(deleteNotif, userID, groupID); err != nil {
+		fmt.Printf("Warning: could not delete notification for user %s: %v\n", userID, err)
+	}
+
+	if err := tx.Commit(); err != nil {
+		return fmt.Errorf("repository: failed to commit invitation process: %w", err)
+	}
+
+	return nil
+}

@@ -617,12 +617,12 @@ func (handler *Handlers) RespondtoJoinRequest(res http.ResponseWriter, req *http
 		return
 	}
 	// if isPending {
-    //     utils.ResponnseSender(res, http.StatusOK, map[string]string{
-    //         "message": "You have already requested to join this group",
-    //         "status":  "success",
-    //     })
-    //     return 
-    // }
+	//     utils.ResponnseSender(res, http.StatusOK, map[string]string{
+	//         "message": "You have already requested to join this group",
+	//         "status":  "success",
+	//     })
+	//     return
+	// }
 	err = handler.services.Reepo.JoinRequestProcces(grouupid, applicationId, decision)
 	if err != nil {
 		utils.ErrorResponse(res, "Database accept and reject Errror", http.StatusInternalServerError)
@@ -806,5 +806,75 @@ func (handler *Handlers) InviteGroup(res http.ResponseWriter, req *http.Request)
 	utils.ResponnseSender(res, http.StatusOK, map[string]any{
 		"status":  "success",
 		"message": "You got the user invite list successfuly",
+	})
+}
+func (handler *Handlers) AcceptGroupInvitation(res http.ResponseWriter, req *http.Request) {
+	if !requests.IsRequestValid(res, req, "/AcceptGroupInvitation", http.MethodPost) {
+		return
+	}
+	cookie, err := req.Cookie("solo_social")
+	if err != nil {
+		utils.ErrorResponse(res, "sesssion not valiiid ", http.StatusUnauthorized)
+		return
+	}
+	_, err = handler.services.Reepo.Checksession(cookie.Value)
+	if err != nil {
+		utils.ErrorResponse(res, "Your Session Not valid", http.StatusUnauthorized)
+		// log.Printf("Your Session Not valid", err.Error())
+		return
+	}
+	user, err := handler.services.Reepo.GetUserByToken(cookie.Value)
+	if err != nil {
+		utils.ErrorResponse(res, "Your Session Not validd", http.StatusUnauthorized)
+		return
+	}
+
+	grouupid, err := requests.ExtraactGroupId(req)
+	if err != nil {
+		utils.ErrorResponse(res, "Grouuup not Found", http.StatusUnauthorized)
+		return
+	}
+	Groupexist, err := handler.services.Reepo.GoupExist(grouupid)
+	if !Groupexist {
+		utils.ErrorResponse(res, "Grouup Not Fouund", http.StatusNotFound)
+		return
+	}
+	ismember, errr := handler.services.Reepo.CheckifUsserMember(user.ID, grouupid)
+	// fmt.Println("The user is Member ?????", ismember)
+	if errr != nil {
+		// fmt.Println("THE MEEEEMER CHECB err", errr)
+		utils.ErrorResponse(res, "Problem on checking membership try again", http.StatusInternalServerError)
+		return
+	}
+	if ismember {
+		utils.ErrorResponse(res, "You aree already  member on this group", http.StatusForbidden)
+		return
+	}
+
+	acceptorrefuse, err := requests.ExtraactInviationDecision(req)
+	if err != nil {
+		// log.Fatal()
+		// fmt.Println(err)
+		utils.ErrorResponse(res, "Decisine not found", http.StatusForbidden)
+		return
+	}
+	if acceptorrefuse != "acceptinvitasion" && acceptorrefuse != "refuseinvitaion" {
+		// fmt.Println("The acccccccccccccccccep invitatation", acceptorrefuse)
+		// log.Fatal()
+		utils.ErrorResponse(res, "Decisine not Forbidden ", http.StatusForbidden)
+		return
+	}
+	err = handler.services.Reepo.HandleGroupInvitationProcess(grouupid, user.ID, acceptorrefuse)
+	if err != nil {
+		if err.Error() == "invitation_not_found" {
+			utils.ErrorResponse(res, "No pending invitation found", http.StatusNotFound)
+			return
+		}
+		utils.ErrorResponse(res, "Database error", http.StatusInternalServerError)
+		return
+	}
+	utils.ResponnseSender(res, http.StatusOK, map[string]string{
+		"status":  "success",
+		"message": "You have " + acceptorrefuse + "ed the invitation",
 	})
 }

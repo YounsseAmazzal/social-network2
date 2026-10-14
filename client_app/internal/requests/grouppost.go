@@ -48,10 +48,10 @@ func ValidGroupPost(paylod *models.GroupPostCreation) error {
 	if len(paylod.GroupPost.Description) > 300 {
 		return errors.New("the title is longer then (300) char ")
 	}
-	if paylod.GroupPost.Image == "" {
-		//fmt.Println("PPPPPPPPPPPPPPPPPPOSST PIIC", paylod.Image)
-		return errors.New("Enter an image it's nooot option enter valid image !!! ")
-	}
+	// if paylod.GroupPost.Image == "" {
+	// 	//fmt.Println("PPPPPPPPPPPPPPPPPPOSST PIIC", paylod.Image)
+	// 	return errors.New("Enter an image it's nooot option enter valid image !!! ")
+	// }
 	return nil
 }
 func GetTheLimitandOffset(request *http.Request) (models.GrouupPR) {
