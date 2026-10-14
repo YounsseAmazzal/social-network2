@@ -1,0 +1,163 @@
+:root {
+  --color-brand: #5b3df5;
+  --color-brand-hover: #200b93;
+  --color-brand-soft: #eeeaff;
+  --color-brand-strong: #37229f;
+  --color-accent: #f59e0b;
+  --color-success: #16835d;
+  --color-success-soft: #e7f7f0;
+  --color-warning: #b45309;
+  --color-danger: #c83f57;
+  --color-danger-soft: #fff0f2;
+  --color-info: #2563eb;
+  --color-info-soft: #eaf1ff;
+
+  --color-page: #f6f6fb;
+  --color-surface: #ffffff;
+  --color-surface-raised: #ffffff;
+  --color-surface-sunken: #f0eff7;
+  --color-surface-hover: #f8f7fd;
+  --color-overlay: rgba(18, 15, 38, 0.62);
+
+  --color-text: #1d1933;
+  --color-text-secondary: #514c68;
+  --color-text-muted: #777187;
+  --color-text-on-brand: #ffffff;
+
+  --color-border: #dedbe9;
+  --color-border-strong: #b9b4ca;
+
+  --font-sans:
+    Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
+    "Segoe UI", sans-serif;
+
+  --radius-small: 0.5rem;
+  --radius-medium: 0.85rem;
+  --radius-large: 1.25rem;
+  --radius-pill: 999px;
+
+  --shadow-card: 0 12px 35px rgba(36, 27, 81, 0.08);
+  --shadow-floating: 0 18px 50px rgba(29, 25, 51, 0.18);
+  --transition-fast: 160ms ease;
+
+  --content-width: 80rem;
+  --header-height: 4.5rem;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  min-width: 20rem;
+  background: var(--color-page);
+  scroll-behavior: smooth;
+}
+
+body {
+  min-height: 100vh;
+  margin: 0;
+  background: var(--color-page);
+  color: var(--color-text);
+  font-family: var(--font-sans);
+  font-size: 1rem;
+  line-height: 1.5;
+  text-rendering: optimizeLegibility;
+}
+
+button,
+input,
+textarea,
+select {
+  color: inherit;
+  font: inherit;
+}
+
+button,
+a {
+  -webkit-tap-highlight-color: transparent;
+}
+
+button {
+  border: 0;
+}
+
+button:not(:disabled),
+a[href] {
+  cursor: pointer;
+}
+
+button:disabled {
+  cursor: not-allowed;
+}
+
+img,
+picture,
+svg {
+  display: block;
+  max-width: 100%;
+}
+
+img {
+  height: auto;
+}
+
+a {
+  color: var(--color-brand);
+}
+
+h1,
+h2,
+h3,
+p {
+  overflow-wrap: anywhere;
+}
+
+:focus-visible {
+  outline: 3px solid color-mix(in srgb, var(--color-brand) 45%, transparent);
+  outline-offset: 3px;
+}
+
+::selection {
+  background: var(--color-brand-soft);
+  color: var(--color-brand-strong);
+}
+
+::-webkit-scrollbar {
+  width: 0.55rem;
+  height: 0.55rem;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--color-border-strong);
+  border-radius: var(--radius-pill);
+}
+
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
