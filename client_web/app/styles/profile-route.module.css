@@ -1,0 +1,305 @@
+.profilePage {
+  max-width: 52rem;
+}
+
+.profilePrivateAvatar {
+  margin: 0 auto 0.5rem;
+  object-fit: cover;
+  border: 3px solid var(--color-brand);
+  border-radius: 50%;
+}
+
+.profileHeader {
+  padding: clamp(1rem, 3vw, 1.5rem);
+  display: flex;
+  align-items: flex-start;
+  gap: 1.25rem;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-large);
+  box-shadow: var(--shadow-card);
+}
+
+.profileAvatar {
+  flex: 0 0 auto;
+  object-fit: cover;
+  border: 3px solid var(--color-brand);
+  border-radius: 50%;
+}
+
+.profileSummary {
+  min-width: 0;
+  flex: 1;
+}
+
+.profileSummary h1 {
+  margin: 0;
+  color: var(--color-brand-strong);
+  font-size: clamp(1.4rem, 4vw, 2rem);
+}
+
+.profileSummary > p {
+  margin: 0.2rem 0 0;
+  color: var(--color-text-muted);
+}
+
+.profileStats {
+  margin-top: 0.75rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  color: var(--color-text-secondary);
+  font-size: 0.85rem;
+}
+
+.profileStats strong {
+  color: var(--color-text);
+  font-size: 1rem;
+}
+
+.profileBio {
+  margin-top: 0.8rem !important;
+  color: var(--color-text-secondary) !important;
+  line-height: 1.6;
+}
+
+.profileActions {
+  margin-top: 0.9rem;
+}
+
+.profileTabs {
+  margin: 1.25rem 0;
+  display: flex;
+  overflow-x: auto;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.profileTabs button {
+  min-height: 2.7rem;
+  padding: 0.5rem 0.85rem;
+  color: var(--color-text-muted);
+  background: transparent;
+  border-bottom: 3px solid transparent;
+  font-weight: 750;
+  white-space: nowrap;
+}
+
+.profileTabs .profileActiveTab {
+  color: var(--color-brand);
+  border-bottom-color: var(--color-brand);
+}
+
+.profilePostList {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(17rem, 1fr));
+  gap: 0.9rem;
+}
+
+.profilePostCard {
+  overflow: hidden;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-large);
+  box-shadow: var(--shadow-card);
+}
+
+.profilePostImage {
+  width: 100%;
+  max-height: 18rem;
+  object-fit: cover;
+}
+
+.profilePostBody {
+  padding: 0.9rem;
+}
+
+.profilePostBody h2 {
+  margin: 0 0 0.4rem;
+  font-size: 1rem;
+}
+
+.profilePostBody p {
+  margin: 0;
+  color: var(--color-text-secondary);
+  font-size: 0.9rem;
+  line-height: 1.55;
+}
+
+.profilePostBody footer {
+  margin-top: 0.7rem;
+  display: flex;
+  gap: 0.8rem;
+  color: var(--color-text-muted);
+  font-size: 0.78rem;
+}
+
+.profileSectionTitle,
+.profilePendingSection h2,
+.profileSettingsCard h2 {
+  margin: 0 0 0.8rem;
+  font-size: 1.1rem;
+}
+
+.profilePendingSection {
+  margin-bottom: 1.25rem;
+  padding: 1rem;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-large);
+}
+
+.profilePersonRow {
+  min-height: 4rem;
+  margin-bottom: 0.55rem;
+  padding: 0.65rem;
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  color: var(--color-text);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-medium);
+  text-decoration: none;
+}
+
+.profilePersonRow > span {
+  min-width: 0;
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+}
+
+.profilePersonRow small {
+  color: var(--color-text-muted);
+}
+
+.profilePersonAvatar {
+  flex: 0 0 auto;
+  object-fit: cover;
+  border-radius: 50%;
+}
+
+.profileRowActions {
+  display: flex;
+  gap: 0.4rem;
+}
+
+.profileRowActions button {
+  min-height: 2.2rem;
+  padding: 0.4rem 0.65rem;
+  color: var(--color-brand);
+  background: var(--color-brand-soft);
+  border-radius: var(--radius-small);
+  font-size: 0.78rem;
+  font-weight: 750;
+}
+
+.profileSettingsCard {
+  max-width: 34rem;
+  padding: 1.2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-large);
+  box-shadow: var(--shadow-card);
+}
+
+.profileAvatarEditor {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.profileSettingsAvatar {
+  object-fit: cover;
+  border: 2px solid var(--color-brand);
+  border-radius: 50%;
+}
+
+.profileAvatarEditor label {
+  color: var(--color-brand);
+  font-size: 0.85rem;
+  font-weight: 750;
+  cursor: pointer;
+}
+
+.profileFormGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  color: var(--color-text-secondary);
+  font-size: 0.85rem;
+  font-weight: 750;
+}
+
+.profileFormGroup input,
+.profileFormGroup textarea {
+  width: 100%;
+  padding: 0.7rem 0.8rem;
+  color: var(--color-text);
+  background: var(--color-surface-sunken);
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-medium);
+  outline: 0;
+  font-weight: 400;
+  resize: vertical;
+}
+
+.profileFormGroup input:focus,
+.profileFormGroup textarea:focus {
+  border-color: var(--color-brand);
+  box-shadow: 0 0 0 3px rgba(91, 61, 245, 0.14);
+}
+
+.profilePrivateToggle {
+  padding: 0.8rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  background: var(--color-surface-sunken);
+  border-radius: var(--radius-medium);
+}
+
+.profilePrivateToggle > span {
+  display: flex;
+  flex-direction: column;
+}
+
+.profilePrivateToggle small {
+  color: var(--color-text-muted);
+}
+
+.profilePrivateToggle input {
+  width: 1.2rem;
+  height: 1.2rem;
+  accent-color: var(--color-brand);
+}
+
+@media (max-width: 40rem) {
+  .profileHeader {
+    align-items: center;
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .profileStats,
+  .profileActions {
+    justify-content: center;
+  }
+
+  .profilePersonRow {
+    align-items: flex-start;
+    flex-wrap: wrap;
+  }
+
+  .profileRowActions {
+    width: 100%;
+  }
+
+  .profileRowActions button {
+    flex: 1;
+  }
+}

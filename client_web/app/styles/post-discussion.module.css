@@ -1,0 +1,230 @@
+.discussionPostCard,
+.discussionCommentsSection {
+  padding: clamp(1rem, 3vw, 1.5rem);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-large);
+  box-shadow: var(--shadow-card);
+}
+
+.discussionCommentsSection {
+  margin-top: 1rem;
+}
+
+.discussionPostHeader,
+.discussionComment header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.discussionPostHeader {
+  justify-content: flex-start;
+}
+
+.discussionAvatar {
+  flex: 0 0 auto;
+  object-fit: cover;
+  border: 2px solid var(--color-border);
+  border-radius: 50%;
+}
+
+.discussionPostHeader h1 {
+  margin: 0;
+  font-size: 1rem;
+}
+
+.discussionPostHeader time,
+.discussionComment time {
+  color: var(--color-text-muted);
+  font-size: 0.75rem;
+}
+
+.discussionPostTitle {
+  margin: 1.25rem 0 0.75rem;
+  color: var(--color-brand-strong);
+  font-size: clamp(1.4rem, 4vw, 2rem);
+}
+
+.discussionPostContent,
+.discussionCommentBody > p {
+  margin: 0;
+  color: var(--color-text-secondary);
+  line-height: 1.7;
+  white-space: pre-wrap;
+}
+
+.discussionPostImage,
+.discussionCommentImage {
+  width: 100%;
+  max-height: 28rem;
+  margin-top: 1rem;
+  object-fit: cover;
+  border-radius: var(--radius-medium);
+}
+
+.discussionVoteRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.55rem;
+}
+
+.discussionPostCard > .discussionVoteRow,
+.discussionCommentBody > .discussionVoteRow {
+  margin-top: 1rem;
+  padding-top: 0.85rem;
+  border-top: 1px solid var(--color-border);
+}
+
+.discussionVoteRow button {
+  min-height: 2.35rem;
+  padding: 0.45rem 0.8rem;
+  color: var(--color-text-secondary);
+  background: var(--color-surface-sunken);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-pill);
+  font-weight: 750;
+}
+
+.discussionVoteRow .discussionLiked {
+  color: #8a5800;
+  background: #fff5d6;
+  border-color: var(--color-accent);
+}
+
+.discussionVoteRow .discussionDisliked {
+  color: var(--color-danger);
+  background: var(--color-danger-soft);
+  border-color: var(--color-danger);
+}
+
+.discussionCommentsSection > h2 {
+  margin: 0 0 1rem;
+  font-size: 1.25rem;
+}
+
+.discussionCommentForm {
+  margin-bottom: 1.5rem;
+}
+
+.discussionCommentForm textarea {
+  width: 100%;
+  min-height: 6rem;
+  padding: 0.8rem;
+  color: var(--color-text);
+  background: var(--color-surface-sunken);
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-medium);
+  outline: 0;
+  resize: vertical;
+}
+
+.discussionCommentForm textarea:focus {
+  border-color: var(--color-brand);
+  box-shadow: 0 0 0 3px rgba(91, 61, 245, 0.14);
+}
+
+.discussionCommentActions {
+  margin-top: 0.65rem;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+}
+
+.discussionCommentActions > button {
+  margin-left: auto;
+}
+
+.discussionFileInput {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+}
+
+.discussionFileLabel {
+  min-height: 2.4rem;
+  padding: 0.45rem 0.75rem;
+  display: inline-flex;
+  align-items: center;
+  color: var(--color-brand);
+  background: var(--color-brand-soft);
+  border-radius: var(--radius-small);
+  font-size: 0.85rem;
+  font-weight: 750;
+  cursor: pointer;
+}
+
+.discussionPreview {
+  position: relative;
+  width: 3.2rem;
+  height: 3.2rem;
+}
+
+.discussionPreview img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: var(--radius-small);
+}
+
+.discussionPreview button {
+  position: absolute;
+  top: -0.4rem;
+  right: -0.4rem;
+  width: 1.25rem;
+  height: 1.25rem;
+  display: grid;
+  place-items: center;
+  color: #fff;
+  background: var(--color-danger);
+  border-radius: 50%;
+  font-size: 0.75rem;
+}
+
+.discussionCommentList {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.discussionComment {
+  padding: 0.9rem;
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  background: var(--color-surface-sunken);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-medium);
+}
+
+.discussionCommentBody {
+  min-width: 0;
+  flex: 1;
+}
+
+.discussionCommentBody > header {
+  margin-bottom: 0.45rem;
+}
+
+.discussionCommentBody > header strong {
+  font-size: 0.9rem;
+}
+
+@media (max-width: 40rem) {
+  .discussionComment {
+    align-items: flex-start;
+  }
+
+  .discussionComment header {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .discussionCommentActions > button {
+    width: 100%;
+    margin-left: 0;
+  }
+}

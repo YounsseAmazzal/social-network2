@@ -1,0 +1,86 @@
+.appShell {
+  min-height: 100vh;
+}
+
+.shellContentGrid {
+  display: grid;
+  grid-template-columns: minmax(13rem, 16rem) minmax(0, 1fr) minmax(
+      12rem,
+      15rem
+    );
+  grid-template-areas: "network route primary";
+  gap: 1.5rem;
+  width: min(100%, var(--content-width));
+  margin: 0 auto;
+  padding: 1.5rem;
+  align-items: start;
+}
+
+.shellPrimarySidebar {
+  grid-area: primary;
+}
+
+.shellRouteContent {
+  grid-area: route;
+  min-width: 0;
+}
+
+.shellNetworkSidebar {
+  grid-area: network;
+}
+
+.shellAuthPage {
+  min-height: 100vh;
+}
+
+.shellLoadingScreen {
+  min-height: 70vh;
+  display: grid;
+  place-items: center;
+  padding: 2rem;
+  color: var(--color-text-muted);
+}
+
+.shellLoadingContent {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  font-weight: 600;
+}
+
+.shellSpinner {
+  width: 1.6rem;
+  height: 1.6rem;
+  border: 3px solid var(--color-border);
+  border-top-color: var(--color-brand);
+  border-radius: 50%;
+  animation: spin 700ms linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (max-width: 68rem) {
+  .shellContentGrid {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas:
+      "network"
+      "primary"
+      "route";
+  }
+
+  .shellPrimarySidebar,
+  .shellNetworkSidebar {
+    position: static;
+    inset: auto;
+  }
+}
+
+@media (max-width: 40rem) {
+  .shellContentGrid {
+    padding: 1rem;
+  }
+}

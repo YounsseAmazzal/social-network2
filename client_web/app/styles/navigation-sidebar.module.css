@@ -1,0 +1,195 @@
+.sidebar {
+  position: sticky;
+  top: calc(var(--header-height) + 1rem);
+  padding: 1rem;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-large);
+  box-shadow: var(--shadow-card);
+}
+
+.sidebarNavigation {
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+}
+
+.sidebarNavigationLink {
+  width: 100%;
+  min-height: 2.65rem;
+  padding: 0.55rem 0.7rem;
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  color: var(--color-text-secondary);
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: var(--radius-medium);
+  font-size: 0.9rem;
+  font-weight: 700;
+  text-align: left;
+  text-decoration: none;
+  transition:
+    color var(--transition-fast),
+    background var(--transition-fast),
+    border-color var(--transition-fast);
+}
+
+.sidebarNavigationLink:hover {
+  color: var(--color-brand);
+  background: var(--color-brand-soft);
+  border-color: color-mix(in srgb, var(--color-brand) 20%, transparent);
+}
+
+.sidebarNavigationBadge,
+.sidebarUnreadBadge {
+  min-width: 1.25rem;
+  height: 1.25rem;
+  margin-left: auto;
+  padding: 0 0.35rem;
+  display: inline-grid;
+  place-items: center;
+  color: #fff;
+  background: var(--color-danger);
+  border-radius: var(--radius-pill);
+  font-size: 0.68rem;
+  font-weight: 850;
+}
+
+.sidebarHeader {
+  margin-bottom: 0.85rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.sidebarHeader h2 {
+  margin: 0;
+  font-size: 1.05rem;
+}
+
+.sidebarCloseButton {
+  width: 2rem;
+  height: 2rem;
+  display: grid;
+  place-items: center;
+  color: var(--color-text-muted);
+  background: var(--color-surface-sunken);
+  border-radius: var(--radius-small);
+}
+
+.sidebarPanelTabs {
+  margin-bottom: 0.8rem;
+  padding: 0.25rem;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.25rem;
+  background: var(--color-surface-sunken);
+  border-radius: var(--radius-medium);
+}
+
+.sidebarPanelTabs button {
+  min-height: 2.1rem;
+  color: var(--color-text-muted);
+  background: transparent;
+  border-radius: var(--radius-small);
+  font-size: 0.82rem;
+  font-weight: 750;
+}
+
+.sidebarActivePanelTab {
+  color: var(--color-brand) !important;
+  background: var(--color-surface) !important;
+  box-shadow: 0 2px 8px rgba(36, 27, 81, 0.08);
+}
+
+.sidebarConversationList {
+  max-height: calc(100vh - 15rem);
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+  overflow-y: auto;
+}
+
+.sidebarConversation {
+  padding: 0.6rem;
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  color: var(--color-text);
+  background: var(--color-surface-sunken);
+  border: 1px solid transparent;
+  border-radius: var(--radius-medium);
+  text-decoration: none;
+  transition:
+    background var(--transition-fast),
+    border-color var(--transition-fast);
+}
+
+.sidebarConversation:hover {
+  background: var(--color-brand-soft);
+  border-color: color-mix(in srgb, var(--color-brand) 25%, transparent);
+}
+
+.sidebarAvatarContainer {
+  position: relative;
+  flex: 0 0 auto;
+}
+
+.sidebarAvatar,
+.sidebarGroupAvatar {
+  width: 2.65rem;
+  height: 2.65rem;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.sidebarGroupAvatar {
+  display: grid;
+  place-items: center;
+  color: var(--color-brand);
+  background: var(--color-brand-soft);
+  font-weight: 850;
+}
+
+.sidebarOnlineDot {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  width: 0.8rem;
+  height: 0.8rem;
+  background: var(--color-border-strong);
+  border: 2px solid var(--color-surface);
+  border-radius: 50%;
+}
+
+.sidebarOnline {
+  background: #28b487;
+}
+
+.sidebarConversationText {
+  min-width: 0;
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+}
+
+.sidebarConversationText strong,
+.sidebarConversationText small {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.sidebarConversationText small {
+  color: var(--color-text-muted);
+  font-size: 0.75rem;
+}
+
+.sidebarMessage {
+  padding: 1.5rem 0.5rem;
+  color: var(--color-text-muted);
+  font-size: 0.88rem;
+  line-height: 1.6;
+  text-align: center;
+}

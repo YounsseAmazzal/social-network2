@@ -1,0 +1,49 @@
+.statusPage {
+  min-height: 100vh;
+  padding: 1.5rem;
+  display: grid;
+  place-items: center;
+  background: var(--color-page);
+}
+
+.statusCard {
+  width: min(100%, 32rem);
+  padding: clamp(1.5rem, 5vw, 2.5rem);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-large);
+  box-shadow: var(--shadow-card);
+  text-align: center;
+}
+
+.statusCode {
+  margin-bottom: 0.5rem;
+  color: var(--color-brand);
+  font-size: clamp(4rem, 18vw, 6rem);
+  font-weight: 900;
+  letter-spacing: -0.08em;
+  line-height: 1;
+}
+
+.statusIcon {
+  margin-bottom: 0.5rem;
+  font-size: 4rem;
+}
+
+.statusCard h1 {
+  margin: 0 0 0.6rem;
+  color: var(--color-brand-strong);
+}
+
+.statusCard p {
+  margin: 0 0 1.4rem;
+  color: var(--color-text-muted);
+  line-height: 1.6;
+}
+
+.statusActions {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 0.7rem;
+}

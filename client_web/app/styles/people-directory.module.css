@@ -1,0 +1,165 @@
+.peopleHeader {
+  margin-bottom: 1.25rem;
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.peopleHeader h1 {
+  margin: 0;
+  color: var(--color-brand-strong);
+  font-size: clamp(1.5rem, 4vw, 2rem);
+}
+
+.peopleHeader p {
+  margin: 0.3rem 0 0;
+  color: var(--color-text-muted);
+}
+
+.peopleSearchInput {
+  width: min(100%, 19rem);
+  min-height: 2.7rem;
+  padding: 0.65rem 0.85rem;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-medium);
+  outline: 0;
+}
+
+.peopleSearchInput:focus {
+  border-color: var(--color-brand);
+  box-shadow: 0 0 0 3px rgba(91, 61, 245, 0.14);
+}
+
+.peopleTabs {
+  margin-bottom: 1.25rem;
+  display: flex;
+  gap: 0.35rem;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.peopleTabs button {
+  min-height: 2.7rem;
+  padding: 0.55rem 0.9rem;
+  color: var(--color-text-muted);
+  background: transparent;
+  border-bottom: 3px solid transparent;
+  font-weight: 750;
+}
+
+.peopleTabs button:hover,
+.peopleActiveTab {
+  color: var(--color-brand) !important;
+}
+
+.peopleActiveTab {
+  border-bottom-color: var(--color-brand) !important;
+}
+
+.peopleUserList {
+  display: flex;
+  flex-direction: column;
+  gap: 0.7rem;
+}
+
+.peopleUserCard {
+  padding: 0.9rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-medium);
+  box-shadow: 0 5px 18px rgba(36, 27, 81, 0.05);
+}
+
+.peopleUserLink {
+  min-width: 0;
+  display: flex;
+  flex: 1;
+  align-items: center;
+  gap: 0.8rem;
+  color: var(--color-text);
+  text-decoration: none;
+}
+
+.peopleAvatar {
+  flex: 0 0 auto;
+  object-fit: cover;
+  border: 2px solid var(--color-border);
+  border-radius: 50%;
+}
+
+.peopleUserDetails {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.peopleUserDetails strong {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.peopleUserDetails small {
+  color: var(--color-brand);
+}
+
+.peopleUserDetails > span {
+  color: var(--color-text-muted);
+  font-size: 0.82rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.peopleActionButton {
+  min-height: 2.4rem;
+  padding: 0.5rem 0.85rem;
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-pill);
+  font-size: 0.82rem;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.none,
+.follower {
+  color: #fff;
+  background: var(--color-brand);
+  border-color: var(--color-brand);
+}
+
+.following,
+.mutual {
+  color: var(--color-brand);
+  background: var(--color-brand-soft);
+  border-color: var(--color-brand);
+}
+
+.requested {
+  color: var(--color-text-muted);
+  background: var(--color-surface-sunken);
+}
+
+.peopleActionButton:disabled {
+  opacity: 0.6;
+}
+
+@media (max-width: 40rem) {
+  .peopleHeader,
+  .peopleUserCard {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .peopleSearchInput {
+    width: 100%;
+  }
+
+  .peopleActionButton {
+    width: 100%;
+  }
+}

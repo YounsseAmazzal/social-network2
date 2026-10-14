@@ -1,0 +1,176 @@
+.newPostCard {
+  padding: clamp(1.25rem, 4vw, 2rem);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-large);
+  box-shadow: var(--shadow-card);
+}
+
+.newPostHeader {
+  margin-bottom: 1.4rem;
+}
+
+.newPostHeader h1 {
+  margin: 0;
+  color: var(--color-brand-strong);
+  font-size: 1.7rem;
+}
+
+.newPostHeader p {
+  margin: 0.3rem 0 0;
+  color: var(--color-text-muted);
+}
+
+.newPostForm {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.newPostFormGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.newPostLabel,
+.newPostFollowersFieldset legend {
+  color: var(--color-text-secondary);
+  font-size: 0.9rem;
+  font-weight: 750;
+}
+
+.newPostLabel span {
+  color: var(--color-text-muted);
+  font-weight: 400;
+}
+
+.newPostInput,
+.newPostTextarea,
+.newPostSelect {
+  width: 100%;
+  padding: 0.75rem 0.85rem;
+  color: var(--color-text);
+  background: var(--color-surface-sunken);
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-medium);
+  outline: 0;
+}
+
+.newPostInput:focus,
+.newPostTextarea:focus,
+.newPostSelect:focus {
+  border-color: var(--color-brand);
+  box-shadow: 0 0 0 3px rgba(91, 61, 245, 0.14);
+}
+
+.newPostTextarea {
+  min-height: 9rem;
+  resize: vertical;
+}
+
+.newPostFileInput {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+}
+
+.newPostFileLabel {
+  min-height: 2.8rem;
+  padding: 0.65rem 1rem;
+  display: grid;
+  place-items: center;
+  color: var(--color-text-secondary);
+  background: var(--color-surface-sunken);
+  border: 2px dashed var(--color-border-strong);
+  border-radius: var(--radius-medium);
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.newPostFileLabel:hover {
+  color: var(--color-brand);
+  border-color: var(--color-brand);
+}
+
+.newPostPreview {
+  position: relative;
+  height: 15rem;
+  margin-top: 0.6rem;
+  overflow: hidden;
+  border-radius: var(--radius-medium);
+}
+
+.newPostPreview img {
+  object-fit: cover;
+}
+
+.newPostPreview button {
+  position: absolute;
+  top: 0.6rem;
+  right: 0.6rem;
+  width: 2rem;
+  height: 2rem;
+  display: grid;
+  place-items: center;
+  color: #fff;
+  background: var(--color-danger);
+  border-radius: 50%;
+  font-size: 1.1rem;
+  font-weight: 800;
+}
+
+.newPostFollowersFieldset {
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  background: var(--color-surface-sunken);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-medium);
+}
+
+.newPostFollowersFieldset p {
+  color: var(--color-text-muted);
+}
+
+.newPostFollowersList {
+  max-height: 18rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  overflow-y: auto;
+}
+
+.newPostFollower {
+  padding: 0.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  background: var(--color-surface);
+  border-radius: var(--radius-small);
+  cursor: pointer;
+}
+
+.newPostFollowerAvatar {
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.newPostFollower > span {
+  min-width: 0;
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+}
+
+.newPostFollower small {
+  color: var(--color-text-muted);
+}
+
+.newPostFollower input {
+  width: 1.1rem;
+  height: 1.1rem;
+  accent-color: var(--color-brand);
+}
