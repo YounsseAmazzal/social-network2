@@ -73,6 +73,7 @@ function normalizeGroup(value) {
     description: readString(group, ["description", "Description"]),
     createdAt: readString(group, ["created_at", "createdAt", "CreateDate"]),
     requestId: readNumber(group, ["request_id", "requestId", "RequestID"]),
+      request_status: readString(group, ["request_status", "requeststatus", "Request_status"]),
   };
 }
 function normalazeGroupEvent(value) {

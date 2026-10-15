@@ -28,8 +28,21 @@ export function addNotificationToBell(
   limit = Nothifiaction_limit,
 ) {
   if (!isBellNotificationType(notification.type)) return notifications;
-  if (notifications.some((item) => item.id === notification.id))
-    return notifications;
+  const matchesExistingNotification = (item) =>
+    item.id === notification.id ||
+    (item.type === notification.type &&
+      item.actorId === notification.actorId &&
+      item.entityId === notification.entityId &&
+      item.entityType === notification.entityType);
+  const existingNotification = notifications.find(matchesExistingNotification);
+
+  if (existingNotification) {
+    return notifications.map((item) =>
+      matchesExistingNotification(item)
+        ? { ...item, ...notification, id: existingNotification.id }
+        : item,
+    );
+  }
   return [notification, ...notifications].slice(0, limit);
 }
 

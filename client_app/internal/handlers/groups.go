@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"social/internal/models"
 	"social/internal/requests"
@@ -75,7 +76,7 @@ func (handler *Handlers) DiscooverGroups(res http.ResponseWriter, req *http.Requ
 		return
 	}
 	grouups, err := handler.services.Reepo.BringDiscovers(user.ID)
-	// fmt.Println("errrrrrrrrrrrrr", err)
+	fmt.Println("errrrrrrrrrrrrr", err)
 	if err != nil {
 		utils.ErrorResponse(res, "Problem on getting Groups", http.StatusInternalServerError)
 		return
@@ -465,6 +466,17 @@ func (handler *Handlers) RequesttoJoinGroup(res http.ResponseWriter, req *http.R
 		utils.ErrorResponse(res, "You aree a member on this group", http.StatusForbidden)
 		return
 	}
+
+	isRequested, err := handler.services.Reepo.IsJoinRequestPending(grouupid, user.ID)
+	if err != nil {
+		utils.ErrorResponse(res, "Problem on checking if user requested, try again", http.StatusInternalServerError)
+		return
+	}
+	if isRequested {
+		utils.ErrorResponse(res, "You already requested to join this group", http.StatusForbidden)
+		return
+	}
+
 	// log.Fatal("he is a member", ismember)
 	err = handler.services.Reepo.GroupJoinRequests(grouupid, user.ID)
 	if err != nil {

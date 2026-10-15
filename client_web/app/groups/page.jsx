@@ -85,7 +85,7 @@ export default function GroupDirectoryRoute() {
       setSuggestedGroups((currentGroups) =>
         currentGroups.map((currentGroup) =>
           currentGroup.id === group.id
-            ? { ...currentGroup, requestId: 1 }
+            ? { ...currentGroup, request_status: "pending" }
             : currentGroup,
         ),
       );
@@ -219,7 +219,7 @@ export default function GroupDirectoryRoute() {
     onClick={() => void JoinGrouprequestHandleer(group)}
   >
     {joiningGroupId === (group.id || group.ID)
-      ? "Sending…"
+      ? "Request pending"
       : "Request to join"}
   </button>
 )}

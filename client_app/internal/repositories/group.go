@@ -75,12 +75,11 @@ func (grouprepo *Repository) BringDiscovers(useriid string) ([]*models.GroupItem
 	var Discoveerdgroups []*models.GroupItem
 	for rows.Next() {
 		g := &models.GroupItem{}
-		var requestStatus string
 
 		// (Scanning)
 		err := rows.Scan(
 			&g.ID, &g.CreatorID, &g.Title, &g.Description,
-			&g.CreatedAt, &g.MembersCount, &requestStatus,
+			&g.CreatedAt, &g.MembersCount, &g.IsRequested,
 		)
 		if err != nil {
 			return nil, fmt.Errorf("repository: failed to scan group: %w", err)
@@ -155,6 +154,23 @@ func (grourepo *Repository) CheckifUsserMember(useriid string, groupid string) (
 
 	return ismeember == 1, nil
 }
+
+func (grourepo *Repository) CheckifUserRequested(useriid string, groupid string) (bool, error) {
+	var ismeember int
+	// I have use EXists cause its Power
+	query := ` SELECT EXISTS(
+			SELECT 1 FROM group_members 
+			WHERE group_id = ? AND member_id = ?
+			)`
+	err := grourepo.DB.Database.QueryRow(query, groupid, useriid).Scan(&ismeember)
+
+	if err != nil {
+		return false, fmt.Errorf("repository: failed to check group membership: %w", err)
+	}
+
+	return ismeember == 1, nil
+}
+
 func (grourepo *Repository) GouupInfoo(useriid string, groupid string) (*models.GroupDetail, error) {
 	query := `
 		SELECT 
@@ -605,7 +621,7 @@ func (grouprepo *Repository) JoinRequestProcces(grouupid, userrid, decision stri
 		return err
 	}
 	defer tx.Rollback()
-	
+
 	if decision == "joinaccept" {
 		insertMember := `INSERT INTO group_members (group_id, member_id) VALUES (?, ?)`
 		if _, err := tx.Exec(insertMember, grouupid, userrid); err != nil {
@@ -623,7 +639,7 @@ func (grouprepo *Repository) JoinRequestProcces(grouupid, userrid, decision stri
 		WHERE sender_id = ? 
 		  AND target_reference_id = ? 
 		  AND notification_category = 'group_join_request'`
-	
+
 	if _, err := tx.Exec(queryCleanNotif, userrid, grouupid); err != nil {
 		fmt.Println("Warning: failed to cleanup notification:", err)
 	}
@@ -692,7 +708,7 @@ func (grouprepo *Repository) HandleGroupInvitationProcess(groupID, userID, decis
 		SELECT 1 FROM group_Send_invetations 
 		WHERE group_id = ? AND invitee_id = ? AND status = 'pending' 
 		LIMIT 1`
-	
+
 	err = tx.QueryRow(checkQuery, groupID, userID).Scan(&exists)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
@@ -708,7 +724,7 @@ func (grouprepo *Repository) HandleGroupInvitationProcess(groupID, userID, decis
 			return fmt.Errorf("repository: failed to add user to group members: %w", err)
 		}
 	}
-	// delete the invitaion from inviaation table  
+	// delete the invitaion from inviaation table
 	deleteInvite := `DELETE FROM group_Send_invetations WHERE group_id = ? AND invitee_id = ?`
 	if _, err := tx.Exec(deleteInvite, groupID, userID); err != nil {
 		return fmt.Errorf("repository: failed to clear invitation record: %w", err)
@@ -719,7 +735,7 @@ func (grouprepo *Repository) HandleGroupInvitationProcess(groupID, userID, decis
 		WHERE recipient_id = ? 
 		  AND target_reference_id = ? 
 		  AND notification_category = 'group_invitation'`
-	
+
 	if _, err := tx.Exec(deleteNotif, userID, groupID); err != nil {
 		fmt.Printf("Warning: could not delete notification for user %s: %v\n", userID, err)
 	}
