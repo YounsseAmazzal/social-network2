@@ -3,9 +3,9 @@ import { createContext, useContext, useEffect, useState } from "react";
 import { fetchfromApi, isRecord, readBoolean, readString } from "@/lib/api";
 import {
   filterBellNotifications,
-  NOTIFICATION_FETCH_LIMIT,
-  prependBellNotification,
-  shouldShowBellNotification,
+  Nothifiaction_limit,
+  addNotificationToBell,
+  isBellNotificationType,
 } from "@/lib/notifications";
 import { useAuthSession } from "@/providers/AuthSessionProvider";
 import { useRealtimeSocket } from "@/providers/RealtimeSocketProvider";
@@ -37,7 +37,7 @@ function normalizeNotification(value) {
 
 async function fetchBellNotifications() {
   const response = await fetchfromApi(
-    `/golbalenothification?limit=${NOTIFICATION_FETCH_LIMIT}`,
+    `/golbalenothification?limit=${Nothifiaction_limit}`,
   );
   
   const rawItems = response.userNothification || response.data || [];
@@ -83,10 +83,10 @@ useEffect(() => {
     const notification = latestNotification;
     const recipientId = notification.userId || notification.recipient_id;
     if (!notification.id || recipientId !== userId) return;
-    if (!shouldShowBellNotification(notification.type)) return;
+    if (!isBellNotificationType(notification.type)) return;
 
     setNotifications((current) =>
-      prependBellNotification(current, notification, NOTIFICATION_FETCH_LIMIT)
+      addNotificationToBell(current, notification, Nothifiaction_limit)
     );
   }, [latestNotification, userId]);
   async function refresh() {
