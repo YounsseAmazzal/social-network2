@@ -714,11 +714,11 @@ func (handler *Handlers) InviteUserstogroup(res http.ResponseWriter, req *http.R
 		return
 	}
 	// log.Fatal("he is a member", ismember)
-	err = handler.services.Reepo.GroupJoinRequests(grouupid, user.ID)
-	if err != nil {
-		utils.ErrorResponse(res, "Problem on requesting to join the group", http.StatusInternalServerError)
-		return
-	}
+	// err = handler.services.Reepo.GroupJoinRequests(grouupid, user.ID)
+	// if err != nil {
+	// 	utils.ErrorResponse(res, "Problem on requesting to join the group", http.StatusInternalServerError)
+	// 	return
+	// }
 	InvidetUserList, err := handler.services.Reepo.GetFollowersToinvite(grouupid, user.ID)
 	if err != nil {
 		utils.ErrorResponse(res, "Problem on Getting followers to invite them", http.StatusInternalServerError)

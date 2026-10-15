@@ -1,6 +1,6 @@
 "use client";
 import { createContext, useContext, useEffect, useState } from "react";
-import { API_URL, isRecord, readString } from "@/lib/api";
+import { API_URL, fetchfromApi, isRecord, readString } from "@/lib/api";
 import {
   normalizeChatMessage,
   normalizeGroupConversationMessage,
@@ -9,6 +9,7 @@ import {
   normalizeUserStatus,
 } from "@/lib/chat";
 import { useAuthSession } from "@/providers/AuthSessionProvider";
+import { useToastMessages } from "@/providers/ToastMessageProvider";
 const RealtimeSocketContext = createContext(undefined);
 /** Longest we wait between reconnection attempts. */
 const MAX_RETRY_DELAY_MS = 15000;
@@ -23,6 +24,7 @@ function playSound(source) {
 }
 export function RealtimeSocketProvider({ children }) {
   const { user } = useAuthSession();
+  const { showToast } = useToastMessages();
   const [socket, setSocket] = useState(null);
   const [latestMessage, setLatestMessage] = useState(null);
   const [latestNotification, setLatestNotification] = useState(null);
@@ -147,6 +149,21 @@ export function RealtimeSocketProvider({ children }) {
       }),
     );
   }
+  async function sendSocketMessage(payload) {
+    if (socket?.readyState !== WebSocket.OPEN) return false;
+
+    try {
+      await fetchfromApi("/Me");
+    } catch {
+      showToast("Your session has expired. Please sign in again.", "error");
+      socket.close(1008, "Session is no longer valid");
+      return false;
+    }
+
+    if (socket.readyState !== WebSocket.OPEN) return false;
+    socket.send(JSON.stringify(payload));
+    return true;
+  }
   return (
     <RealtimeSocketContext.Provider
       value={{
@@ -156,6 +173,7 @@ export function RealtimeSocketProvider({ children }) {
         typingStatus,
         userStatus,
         sendTyping,
+        sendSocketMessage,
         playSendSound: () => playSound("/audios/sends.mp3"),
         playReceiveSound: () => playSound("/audios/receives.mp3"),
       }}

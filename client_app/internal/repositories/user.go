@@ -140,6 +140,21 @@ func (ur *Repository) Checksession(tocccken string) (string, error) {
 
 	return userID, nil
 }
+
+// HasActiveSession verifies that the user still has a non-expired session.
+// It is used before delivering data to an already-open WebSocket.
+func (ur *Repository) HasActiveSession(userID string) (bool, error) {
+	var exists bool
+	err := ur.DB.Database.QueryRow(`
+		SELECT EXISTS(
+			SELECT 1 FROM sessions
+			WHERE user_id = ? AND expire_at > CURRENT_TIMESTAMP
+		)`, userID).Scan(&exists)
+	if err != nil {
+		return false, fmt.Errorf("repository: failed to check active session: %w", err)
+	}
+	return exists, nil
+}
 func (ur *Repository) DeleteSession(token string) error {
 	query := "DELETE FROM sessions WHERE token = ?"
 	_, err := ur.DB.Database.Exec(query, token)

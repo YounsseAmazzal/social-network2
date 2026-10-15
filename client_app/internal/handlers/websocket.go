@@ -81,6 +81,14 @@ func (wsrepo *WSManager) WebSocket(res http.ResponseWriter, req *http.Request) {
 		if err != nil {
 			break // Connection closed
 		}
+		if _, err := wsrepo.WsDb.Reepo.Checksession(cookie.Value); err != nil {
+			_ = conn.WriteControl(
+				websocket.CloseMessage,
+				websocket.FormatCloseMessage(websocket.ClosePolicyViolation, "session is no longer valid"),
+				time.Now().Add(time.Second),
+			)
+			break
+		}
 		fmt.Printf("the Payload %s", payload)
 		wsrepo.routeMessage(user.ID, payload)
 	}
@@ -310,6 +318,12 @@ func (wsrepo *WSManager) handelprivitechat(senderID string, data map[string]any)
 	wsrepo.SendNotificationToUser(userchatwith_id, notification)
 }
 func (wsrepo *WSManager) SendToUser(userID string, payload any) {
+	hasSession, err := wsrepo.WsDb.Reepo.HasActiveSession(userID)
+	if err != nil || !hasSession {
+		wsrepo.CloseUserConnections(userID)
+		return
+	}
+
 	data, _ := json.Marshal(payload)
 
 	// snapshot the connections under the lock, then write outside it
@@ -336,6 +350,30 @@ func (wsm *WSManager) IsUserOnline(userID string) bool {
 	// log.Fatal("yaaaaaaaaaaak")
 	_, online := wsm.Clients.Load(userID)
 	return online
+}
+
+// CloseUserConnections invalidates all active tabs for a user. It is used
+// after logout because a WebSocket does not receive the browser's cookie
+// deletion after the original handshake.
+//cloose all the active invalidaate tabs after i chech the user sessionsss 
+func (wsm *WSManager) CloseUserConnections(userID string) {
+	var conns []*websocket.Conn
+	wsm.clientsMu.Lock()
+	if value, ok := wsm.Clients.Load(userID); ok {
+		for conn := range value.(map[*websocket.Conn]bool) {
+			conns = append(conns, conn)
+		}
+	}
+	wsm.clientsMu.Unlock()
+
+	for _, conn := range conns {
+		_ = conn.WriteControl(
+			websocket.CloseMessage,
+			websocket.FormatCloseMessage(websocket.ClosePolicyViolation, "session logged out"),
+			time.Now().Add(time.Second),
+		)
+		_ = conn.Close()
+	}
 }
 
 func (wsm *WSManager) SendNotificationToUser(userID string, notification models.Notification) {

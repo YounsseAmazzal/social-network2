@@ -166,7 +166,7 @@ func (hander *Handlers) Logout(res http.ResponseWriter, req *http.Request) {
 		utils.ErrorResponse(res, "sesssion not valiiid ", http.StatusUnauthorized)
 		return
 	}
-	_, err = hander.services.Reepo.Checksession(cookie.Value)
+	userID, err := hander.services.Reepo.Checksession(cookie.Value)
 	if err != nil {
 		utils.ErrorResponse(res, "Faileddd to delete the sesssions", http.StatusUnauthorized)
 		// log.Printf("Loogout error",err.Error())
@@ -177,6 +177,8 @@ func (hander *Handlers) Logout(res http.ResponseWriter, req *http.Request) {
 		utils.ErrorResponse(res, "Faileddd to delete the sesssions", http.StatusUnauthorized)
 		return
 	}
+	/// close other connections tab
+	hander.wsmaanager.CloseUserConnections(userID)
 	http.SetCookie(res, &http.Cookie{
 		Name:     "solo_social",
 		Value:    "",

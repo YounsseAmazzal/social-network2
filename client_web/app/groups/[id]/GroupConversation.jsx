@@ -19,7 +19,7 @@ const TOP_TRIGGER_THRESHOLD = 40;
 const STICK_TO_BOTTOM_THRESHOLD = 120;
 export default function GroupConversation({ groupId }) {
   const { user } = useAuthSession();
-  const { socket, latestMessage } = useRealtimeSocket();
+  const { socket, latestMessage, sendSocketMessage } = useRealtimeSocket();
   const { showToast } = useToastMessages();
 
     const [hasMore, setHasMore] = useState(true);
@@ -244,7 +244,7 @@ const handleLoadMore = async () => {
     document.addEventListener("mousedown", closeEmojiPicker);
     return () => document.removeEventListener("mousedown", closeEmojiPicker);
   }, [isEmojiPickerOpen]);
-  function handleSubmit(event) {
+  async function handleSubmit(event) {
     event.preventDefault();
     const trimmedMessage = messageText.trim();
     if (!trimmedMessage || socket?.readyState !== WebSocket.OPEN) return;
@@ -252,15 +252,16 @@ const handleLoadMore = async () => {
       showToast("The message is too long. Maximum 1000 characters.", "error");
       return;
     }
-    socket.send(
-      JSON.stringify({
-        wsdatatype: "send_message_group",
-        wsdata: {
-          group_id: groupId,
-          message: trimmedMessage,
-        },
-      }),
-    );
+    const sent = await sendSocketMessage({
+      wsdatatype: "send_message_group",
+      wsdata: {
+        group_id: groupId,
+        message: trimmedMessage,
+      },
+    });
+    if (!sent) {
+      return;
+    }
     setMessageText("");
     setIsEmojiPickerOpen(false);
   }

@@ -119,7 +119,7 @@ function ChatContent() {
   const receiverId = searchParams.get("Userchat_id") || "";
 
   const { user } = useAuthSession();
-  const { latestMessage, typingStatus, userStatus, sendTyping, socket } =
+  const { latestMessage, typingStatus, userStatus, sendTyping, socket, sendSocketMessage } =
     useRealtimeSocket();
   useToastMessages();
   const { markThreadRead, unreadByUser } = useUnreadConversations();
@@ -475,7 +475,7 @@ const handleLoadMore = async () => {
     }
   };
 
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault();
     const trimmedMessage = messageText.trim();
      if (!trimmedMessage || !canSend || socket?.readyState !== WebSocket.OPEN) {
@@ -499,15 +499,16 @@ const handleLoadMore = async () => {
       pending: true,
     };
 
-    socket.send(
-      JSON.stringify({
-        wsdatatype: "private_message",
-        wsdata: {
-          userchatwith_id: receiverId,
-          message: trimmedMessage,
-        },
-      }),
-    );
+    const sent = await sendSocketMessage({
+      wsdatatype: "private_message",
+      wsdata: {
+        userchatwith_id: receiverId,
+        message: trimmedMessage,
+      },
+    });
+    if (!sent) {
+      return;
+    }
 
     // Show the message immediately; the socket echo replaces it afterwards.
     setMessages((prev) => [...prev, optimisticMessage]);
