@@ -51,6 +51,7 @@ matters — all with per-post and per-profile privacy controls.
 | <img src="assets/priviitechat.png" width="420" alt="Private chat" /><br/>**Private chat** | <img src="assets/groupchat.png" width="420" alt="Group chat" /><br/>**Group chat** |
 | <img src="assets/groups.png" width="420" alt="Groups" /><br/>**Discover groups** | <img src="assets/groupDetails.png" width="420" alt="Group details" /><br/>**Group details** |
 | <img src="assets/event.png" width="420" alt="Events" /><br/>**Group events & voting** | <img src="assets/nothification.png" width="420" alt="Notifications" /><br/>**Notifications** |
+| <img src="assets/Post_man_testing.png" width="420" alt="Backend testing" /><br/>**API Testing (Postman)** | |
 
 ---
 

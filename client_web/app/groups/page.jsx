@@ -22,7 +22,7 @@ export default function GroupDirectoryRoute() {
   const [isLoading, setIsLoading] = useState(true);
   const [isCreating, setIsCreating] = useState(false);
   const [joiningGroupId, setJoiningGroupId] = useState(null);
-  const [formValues, setFormValues] = useState({ group_title: "", description: "" });
+  const [formValues, setFormValues] = useState({ title: "", description: "" });
   useEffect(() => {
     let isCurrentRequest = true;
     setIsLoading(true);

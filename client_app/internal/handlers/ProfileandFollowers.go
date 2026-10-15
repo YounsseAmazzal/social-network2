@@ -38,6 +38,11 @@ func (handler *Handlers) UserProfile(res http.ResponseWriter, req *http.Request)
 	ProfileeID := extractprofileID(req, user.ID)
 	// log.Fatal("the profile id ",ProfileeID)
 	// fmt.Println("the profile id ",ProfileeID)
+	profileexist,err:=handler.services.Reepo.UserExistsByID(ProfileeID)
+	if !profileexist{
+		utils.ErrorResponse(res, "Profile user Not exxist", http.StatusNotFound)
+		return
+	}
 	useerProfile, err := handler.services.Reepo.TakeUserProfile(user.ID, ProfileeID)
 	if err != nil {
 		if err == sql.ErrNoRows {
@@ -51,6 +56,7 @@ func (handler *Handlers) UserProfile(res http.ResponseWriter, req *http.Request)
 		utils.ErrorResponse(res, "problem on getting posts", http.StatusInternalServerError)
 		return
 	}
+	// log.Fatal("The problem is here ",userposts)
 	useerProfile.Posts = userposts
 	// for now always true
 	// useerProfile.CanSeeTheprofile = true
@@ -100,7 +106,7 @@ func (handler *Handlers) ProfileUppdate(res http.ResponseWriter, req *http.Reque
 			newNickname = html.EscapeString(cleanNick)
 		}
 		// should nooooot nickname be empty !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!k
-	} 
+	}
 	if payload.AboutMe != nil {
 		cleanAbout := strings.TrimSpace(*payload.AboutMe)
 		if len(cleanAbout) > 200 {

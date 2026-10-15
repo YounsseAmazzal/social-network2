@@ -1,0 +1,27 @@
+
+
+services:
+  backend:
+    build:
+      context: ./client_app
+    image: social-network-backend
+    container_name: social-backend
+    ports:
+      - "${API_PORT:-8081}:8081"
+    volumes:
+      - ./client_app/Db:/app/Db
+      - ./client_app/static:/app/static
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: ./client_web
+      args:
+        NEXT_PUBLIC_API_URL: "http://localhost:${API_PORT:-8081}"
+    image: social-network-frontend
+    container_name: social-frontend
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend
+    restart: unless-stopped

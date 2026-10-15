@@ -16,40 +16,40 @@
     - [X] Implement `CORS` and `Rate Limiter` middleware.
 
 ##  Phase 2: Authentication & User Management
-- [ ] **Database Schema**
-    - [ ] `users` table (Email, PW, Name, DOB, Avatar, Nickname, AboutMe, PrivacyStatus).
-    - [ ] `sessions` table (UUID, UserID, ExpiresAt).
+- [X] **Database Schema**
+    - [X] `users` table (Email, PW, Name, DOB, Avatar, Nickname, AboutMe, PrivacyStatus).
+    - [X] `sessions` table (UUID, UserID, ExpiresAt).
 - [ ] **Backend Logic**
-    - [ ] Registration (Bcrypt password hashing).
-    - [ ] Login (Session creation + Cookie setting).
-    - [ ] Logout (Cookie clearing + Session deletion).
-    - [ ] Middleware: `RequireAuth` (Validate session from cookie).
+    - [X] Registration (Bcrypt password hashing).
+    - [X] Login (Session creation + Cookie setting).
+    - [X] Logout (Cookie clearing + Session deletion).
+    - [X] Middleware: `RequireAuth` (Validate session from cookie).
 - [ ] **Frontend Logic**
-    - [ ] Register/Login forms with validation.
-    - [ ] Persistent login state (Check session on load).
+    - [X] Register/Login forms with validation.
+    - [X] Persistent login state (Check session on load).
 
 ## Phase 3: Profile & Followers
-- [ ] **Database Schema**
-    - [ ] `followers` table (FollowerID, FollowingID, Status: 'pending'/'accepted').
-- [ ] **Features**
-    - [ ] Toggle Profile Privacy (Public vs Private).
-    - [ ] Follow/Unfollow logic:
+- [X] **Database Schema**
+    - [X] `followers` table (FollowerID, FollowingID, Status: 'pending'/'accepted').
+- [X] **Features**
+    - [X] Toggle Profile Privacy (Public vs Private).
+    - [X] Follow/Unfollow logic:
         - [ ] If Public: Auto-accept.
         - [ ] If Private: Send request (Notification).
-    - [ ] Profile Page: Show User Info + Activity + Followers/Following lists.
+    - [X] Profile Page: Show User Info + Activity + Followers/Following lists.
 
 ##  Phase 4: Posts & Comments
-- [ ] **Database Schema**
-    - [ ] `posts` table (AuthorID, Content, ImagePath, Privacy: 'public'/'almost_private'/'private').
-    - [ ] `post_allowed_users` (For 'private' posts to specific followers).
-    - [ ] `comments` table.
-- [ ] **Features**
-    - [ ] Create Post (Support JPEG, PNG, GIF).
-    - [ ] Create Comment.
-    - [ ] Post Visibility Filter:
-        - [ ] Public: Everyone.
-        - [ ] Almost Private: Followers only.
-        - [ ] Private: Only specific chosen followers.
+- [X] **Database Schema**
+    - [X] `posts` table (AuthorID, Content, ImagePath, Privacy: 'public'/'almost_private'/'private').
+    - [X] `post_allowed_users` (For 'private' posts to specific followers).
+    - [X] `comments` table.
+- [X] **Features**
+    - [X] Create Post (Support JPEG, PNG, GIF).
+    - [X] Create Comment.
+    - [X] Post Visibility Filter:
+        - [X] Public: Everyone.
+        - [X] Almost Private: Followers only.
+        - [X] Private: Only specific chosen followers.
 
 ##  Phase 5: Groups & Events
 - [ ] **Database Schema**
@@ -93,3 +93,5 @@
     - [ ] Static file server (to serve uploaded images).
 
 ---
+don't forget the profile function that bring the posts and the following
+// nothification For following and unFollow
