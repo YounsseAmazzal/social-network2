@@ -3,6 +3,8 @@ package database
 import (
 	"database/sql"
 	"log"
+	"os"
+	"path/filepath"
 	"social/internal/models"
 
 	"github.com/golang-migrate/migrate/v4"
@@ -13,6 +15,9 @@ import (
 )
 
 func NeewDb(dbPath string) *models.DB {
+	if err := os.MkdirAll(filepath.Dir(dbPath), 0755); err != nil {
+		log.Fatal("Error creating database directory ", err.Error())
+	}
 	db, err := sql.Open("sqlite3", dbPath)
 	if err != nil {
 		log.Fatal("Errror from Databassse opening", err.Error())

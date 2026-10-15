@@ -4,11 +4,16 @@ import (
 	"encoding/json"
 	"log"
 	"os"
+	"path/filepath"
 	"social/internal/models"
 )
 
 func Takeconfig(paath string)*models.Config{
-	readdata,err:=os.ReadFile(paath)
+	configPath, err := filepath.Abs(paath)
+	if err != nil {
+		log.Fatal("Cannot resolve the config file path ", err)
+	}
+	readdata,err:=os.ReadFile(configPath)
 	if err!=nil{
 		log.Fatal("Cann not read the config file ",err)
 	}
@@ -25,6 +30,9 @@ func Takeconfig(paath string)*models.Config{
 	}
 	if configg.DBPath==""{
 		log.Fatal("the data base path it's very importent ",err)
+	}
+	if !filepath.IsAbs(configg.DBPath) {
+		configg.DBPath = filepath.Join(filepath.Dir(configPath), configg.DBPath)
 	}
 	return &configg
 }
