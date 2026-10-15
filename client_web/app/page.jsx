@@ -20,6 +20,7 @@ export function FeedContent() {
   // convert the limit and the offset to number to avoid problems on calculation
 const limit = Number(searchParams.get("limit") || "10");
 const offset = Number(searchParams.get("offset") || "0");
+  const refreshToken = searchParams.get("feed_refresh") || "";
   const [currentOffset, setCurrentOffset] = useState(0);
   const [hasMore, setHasMore] = useState(true);
   const [isMoreLoading, setIsMoreLoading] = useState(false);
@@ -59,7 +60,7 @@ const offset = Number(searchParams.get("offset") || "0");
     return () => {
       isCurrentRequest = false;
     };
-  }, [userId],limit,offset);
+  }, [userId, limit, offset, refreshToken]);
 
 
    const handleLoadMore = async () => {

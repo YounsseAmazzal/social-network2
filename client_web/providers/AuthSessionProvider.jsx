@@ -8,6 +8,9 @@ import { normalizeAuthUser } from "@/lib/auth";
 import styles from "@/app/styles/application-shell.module.css";
 const AuthSessionContext = createContext(undefined);
 function extractAuthUser(response) {
+  if (isRecord(response?.data) && isRecord(response.data.user)) {
+    return response.data.user;
+  }
   return response.Userinfo ?? response;
 }
 function buildRegistrationPayload(registration) {

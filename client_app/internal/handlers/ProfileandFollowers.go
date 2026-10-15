@@ -374,7 +374,7 @@ func (handler *Handlers) Userfollowinng(res http.ResponseWriter, req *http.Reque
 	// 	//fmt.Println("!!!!!!!!!!!!!!!Profile is Privite!!!!!!!!!!!!!")
 
 	// }
-	fmt.Println("is the user privittte for following", user.IsPrivate)
+	// fmt.Println("is the user privittte for following", user.IsPrivate)
 	Followstatuss, err := handler.services.Reepo.Follwing(user.ID, followedID)
 	if err != nil {
 		utils.ErrorResponse(res, "Failed to process follow", http.StatusInternalServerError)

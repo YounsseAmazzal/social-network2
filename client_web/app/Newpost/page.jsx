@@ -115,7 +115,7 @@ export default function CreatePostRoute() {
     try {
       await fetchfromApi("/CreatePost", { method: "POST", body: formData });
       showToast("Post created successfully.", "success");
-      router.push("/");
+      router.push(`/?feed_refresh=${Date.now()}`);
     } catch (error) {
       showToast(getErrorMessage(error, "Could not create the post."), "error");
     } finally {

@@ -358,6 +358,13 @@ func (handler *Handlers) CreateComment(res http.ResponseWriter, req *http.Reques
 		utils.ErrorResponse(res, "POST NOT FOUND", http.StatusUnauthorized)
 		return
 	}
+	// Commenting must use the same privacy rule as reading the post. Without
+	// this check, a caller who knows a private post ID could create a comment
+	// directly even when the post is not visible to them.
+	if _, err := handler.services.Reepo.GetCompletePostByID(Post_id, user.ID); err != nil {
+		utils.ErrorResponse(res, "You are not allowed to comment on this post", http.StatusForbidden)
+		return
+	}
 	err = handler.services.Reepo.CreaatComment(&commentpayload)
 	if err != nil {
 		utils.ErrorResponse(res, "Problem on creating Comments  try again ", http.StatusInternalServerError)
